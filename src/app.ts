@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import userRouter from './presentation/routes/user.routes.js';
 
 const app: Application = express();
 
@@ -16,6 +17,6 @@ app.use(cookieParser());            // Parse cookies
 
 // Routes 
 
-
+app.use('/user', userRouter);
 
 export default app;

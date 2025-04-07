@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { addCustomIdHook } from "../../../../utils/addCustomIdHook";
+import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
 
 const addressSchema = new Schema(
     {
@@ -35,6 +35,6 @@ const userSchema = new Schema(
 );
 
 // Pre-hook to auto-generate userId like "usr_abc123"
-addCustomIdHook(userSchema, "userId", "usr", "User");
+addCustomIdHook(userSchema, "userId", "usr", "UserModel");
 
-export const User = mongoose.model("User", userSchema);
+export const UserModel = mongoose.model("User", userSchema);

@@ -18,7 +18,7 @@ export const userSchema = z.object({
     name: z.string().min(1, "Name is required"),
     phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
     email: z.string().email("Invalid email").optional(),
-    firebaseId: z.string().min(1, "Firebase ID is required").optional(),
     profileImage: z.string().optional(),
     addresses: z.array(userAddressSchema).optional(),
 });
+
