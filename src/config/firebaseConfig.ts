@@ -1,24 +1,29 @@
 // src/config/firebaseConfig.ts
-import * as admin from "firebase-admin";
+import admin from 'firebase-admin';
+import { config } from "./env.js";
 
 const serviceAccount = {
-  type: process.env.FIREBASE_TYPE,
-  project_id: process.env.FIREBASE_PROJECT_ID,
-  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-  private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-  client_email: process.env.FIREBASE_CLIENT_EMAIL,
-  client_id: process.env.FIREBASE_CLIENT_ID,
-  auth_uri: process.env.FIREBASE_AUTH_URI,
-  token_uri: process.env.FIREBASE_TOKEN_URI,
-  auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
-  client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
-  universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
+  type: config.fb_type,
+  project_id: config.fb_project_id,
+  private_key_id: config.fb_private_key_id,
+  private_key: config.fb_private_key,
+  client_email: config.fb_client_email,
+  client_id: config.fb_client_id,
+  auth_uri: config.fb_auth_uri,
+  token_uri: config.fb_token_uri,
+  auth_provider_x509_cert_url: config.fb_auth_provider_x509_cert_url,
+  client_x509_cert_url: config.fb_client_x509_cert_url,
+  universe_domain: config.fb_universe_domain,
 } as admin.ServiceAccount;
 
-if (!admin.apps.length) {
+
+try {
+  admin.app();
+} catch (error) {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+    credential: admin.credential.cert(serviceAccount)
   });
 }
+
 
 export default admin;
