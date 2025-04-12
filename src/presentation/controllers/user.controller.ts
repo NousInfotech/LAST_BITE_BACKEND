@@ -12,17 +12,9 @@ import {
 import { sendResponse } from "../../utils/sendResponse.js";
 import { sendError } from "../../utils/sendError.js";
 import { HTTP } from "../../utils/constants.js";
+import { tryCatch } from "../../utils/tryCatch.js";
 
 const userRepo = new UserRepository();
-
-const tryCatch = async (res: Response, callback: () => Promise<any>) => {
-    try {
-        await callback();
-    } catch (err) {
-        console.error(err);
-        sendError(res, HTTP.SERVER_ERROR, "Internal server error", err);
-    }
-};
 
 export const UserController = {
     async createUser(req: Request, res: Response) {
