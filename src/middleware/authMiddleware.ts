@@ -1,6 +1,9 @@
+// src/middleware/auth.ts
 import { Request, Response, NextFunction } from "express";
 import admin from "../config/firebaseConfig.js";
 import { UserRepository } from "../infrastructure/repositories/user.repository.js";
+import { sendError } from "../utils/sendError.js";
+import { HTTP } from "../utils/constants.js";
 
 export interface AuthenticatedRequest extends Request {
     userId?: string;
@@ -17,7 +20,7 @@ export const authMiddleware = async (
         const authHeader = req.headers.authorization;
 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            res.status(401).json({ message: "Unauthorized: No token provided" });
+            sendError(res, HTTP.UNAUTHORIZED, "Unauthorized: No token provided");
             return;
         }
 
@@ -28,12 +31,12 @@ export const authMiddleware = async (
         const user = await userRepo.findByFirebaseId(firebaseUid);
 
         if (!user) {
-            res.status(401).json({ message: "Unauthorized: User not found" });
+            sendError(res, HTTP.UNAUTHORIZED, "Unauthorized: User not found");
             return;
         }
 
         if (req.params.userId && req.params.userId !== user.userId) {
-            res.status(403).json({ message: "Forbidden: Cannot access this user's data" });
+            sendError(res, HTTP.FORBIDDEN, "Forbidden: Cannot access this user's data");
             return;
         }
 
@@ -41,6 +44,6 @@ export const authMiddleware = async (
         next();
     } catch (error) {
         console.error("Firebase token verification failed:", error);
-        res.status(401).json({ message: "Unauthorized: Invalid token" });
+        sendError(res, HTTP.UNAUTHORIZED, "Unauthorized: Invalid token", error);
     }
 };
