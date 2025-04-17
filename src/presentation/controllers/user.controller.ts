@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { UserRepository } from "../../infrastructure/repositories/user.repository.js";
 import { validate } from "../../utils/validation.js";
 import {
     addressSchema,
@@ -13,8 +12,7 @@ import { sendResponse } from "../../utils/sendResponse.js";
 import { sendError } from "../../utils/sendError.js";
 import { HTTP } from "../../utils/constants.js";
 import { tryCatch } from "../../utils/tryCatch.js";
-
-const userRepo = new UserRepository();
+import { UserUseCase } from "../../application/use-cases/user.useCase.js";
 
 export const UserController = {
     async createUser(req: Request, res: Response) {
@@ -22,7 +20,7 @@ export const UserController = {
         if (!validation) return;
 
         return tryCatch(res, async () => {
-            const newUser = await userRepo.create(req.body);
+            const newUser = await UserUseCase.createUser(req.body);
             return sendResponse(res, HTTP.CREATED, "User created successfully", newUser);
         });
     },
@@ -34,7 +32,7 @@ export const UserController = {
         const { userId } = parsed;
 
         return tryCatch(res, async () => {
-            const user = await userRepo.findByUserId(userId);
+            const user = await UserUseCase.getUserByUserId(userId);
             if (!user) return sendError(res, HTTP.NOT_FOUND, "User not found");
             return sendResponse(res, HTTP.OK, "User fetched successfully", user);
         });
@@ -47,7 +45,7 @@ export const UserController = {
         const { firebaseId } = parsed;
 
         return tryCatch(res, async () => {
-            const user = await userRepo.findByFirebaseId(firebaseId);
+            const user = await UserUseCase.getUserByFirebaseId(firebaseId);
             if (!user) return sendError(res, HTTP.NOT_FOUND, "User not found");
             return sendResponse(res, HTTP.OK, "User fetched successfully", user);
         });
@@ -63,7 +61,7 @@ export const UserController = {
         const { userId } = paramCheck;
 
         return tryCatch(res, async () => {
-            const updatedUser = await userRepo.updateUser(userId, req.body);
+            const updatedUser = await UserUseCase.updateUser(userId, req.body);
             if (!updatedUser) return sendError(res, HTTP.NOT_FOUND, "User not found");
             return sendResponse(res, HTTP.OK, "User updated successfully", updatedUser);
         });
@@ -76,7 +74,7 @@ export const UserController = {
         const { userId } = parsed;
 
         return tryCatch(res, async () => {
-            const deleted = await userRepo.deleteUser(userId);
+            const deleted = await UserUseCase.deleteUser(userId);
             if (!deleted) return sendError(res, HTTP.NOT_FOUND, "User not found");
             return sendResponse(res, HTTP.OK, "User deleted successfully", deleted);
         });
@@ -92,7 +90,7 @@ export const UserController = {
         const { userId } = paramCheck;
 
         return tryCatch(res, async () => {
-            const addresses = await userRepo.addAddress(userId, req.body);
+            const addresses = await UserUseCase.addAddress(userId, req.body);
             if (!addresses) return sendError(res, HTTP.NOT_FOUND, "User not found");
             return sendResponse(res, HTTP.OK, "Address added successfully", addresses);
         });
@@ -105,7 +103,7 @@ export const UserController = {
         const { userId } = parsed;
 
         return tryCatch(res, async () => {
-            const addresses = await userRepo.getAddresses(userId);
+            const addresses = await UserUseCase.getAddresses(userId);
             return sendResponse(res, HTTP.OK, "Addresses fetched successfully", addresses);
         });
     },
@@ -120,7 +118,7 @@ export const UserController = {
         if (!bodyCheck) return;
 
         return tryCatch(res, async () => {
-            const addresses = await userRepo.updateAddress(userId, addressId, req.body);
+            const addresses = await UserUseCase.updateAddress(userId, addressId, req.body);
             if (!addresses) return sendError(res, HTTP.NOT_FOUND, "User or Address not found");
             return sendResponse(res, HTTP.OK, "Address updated successfully", addresses);
         });
@@ -133,7 +131,7 @@ export const UserController = {
         const { userId, addressId } = req.params;
 
         return tryCatch(res, async () => {
-            const addresses = await userRepo.deleteAddress(userId, addressId);
+            const addresses = await UserUseCase.deleteAddress(userId, addressId);
             if (!addresses) return sendError(res, HTTP.NOT_FOUND, "User or Address not found");
             return sendResponse(res, HTTP.OK, "Address deleted successfully", addresses);
         });
