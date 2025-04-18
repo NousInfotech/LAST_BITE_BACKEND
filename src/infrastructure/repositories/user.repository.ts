@@ -21,14 +21,6 @@ export class UserRepository {
     }
 
     /**
-     * Get a user by firebaseId
-     * @param {string} firebaseId - Firebase UID to search for
-     */
-    async findByFirebaseId(firebaseId: IUser['firebaseId']) {
-        return await UserModel.findOne({ firebaseId }, { _id: 0, __v: 0 }).lean();
-    }
-
-    /**
      * Update user data
      * @param {string} userId - Custom userId to update
      * @param {UpdateQuery<IUser>} updateData - Data to update

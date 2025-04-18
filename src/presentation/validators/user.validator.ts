@@ -1,29 +1,21 @@
 import { z } from "zod";
-import { userAddressSchema, userSchema } from "../../domain/zod/user.zod.js";
+import { userSchema } from "../../domain/zod/user.zod.js";
+import { AddressSchema } from "../../domain/zod/utils.zod.js";
 
 
-// Schema for creating a user (require firebaseId)
-export const createUserSchema = userSchema.extend({
-    firebaseId: z.string().min(1, "Firebase ID is required"),
-});
-
-// Schema for updating a user (firebaseId optional)
+// Schema for updating a user
 export const updateUserSchema = userSchema.partial();
 
 // Schema for adding a new address
-export const addressSchema = userAddressSchema;
+export const addressSchema = AddressSchema;
 
 // Schema for updating an address (all fields optional)
-export const updateAddressSchema = userAddressSchema.partial();
+export const updateAddressSchema = AddressSchema.partial();
 
 // Schema for userController Params
 
 export const userIdParamsSchema = z.object({
     userId: z.string().min(1, "userId is required")
-});
-
-export const firebaseIdParamsSchema = z.object({
-    firebaseId: z.string().min(1, "firebaseId is required")
 });
 
 
