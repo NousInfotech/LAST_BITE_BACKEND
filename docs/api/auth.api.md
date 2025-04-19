@@ -95,5 +95,3 @@
   "role": "user",
   "roleBasedId": "UUID"
 }
-```
-```
