@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { boolean, z } from "zod";
 
 // Common field validators
 export const phoneNumberField = z
@@ -18,6 +18,7 @@ const otpField = z.string()
 // Exported schemas
 export const phoneNumberSchema = z.object({
   phoneNumber: phoneNumberField,
+
 });
 
 export const otpSchema = z.object({
@@ -29,4 +30,5 @@ export const otpSchema = z.object({
 export const phoneAndRoleSchema = z.object({
   phoneNumber: phoneNumberField,
   role: roleField,
+  isNewUser: z.boolean()
 });

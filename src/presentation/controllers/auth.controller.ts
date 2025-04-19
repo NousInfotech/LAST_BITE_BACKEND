@@ -12,19 +12,30 @@ import getRoleBasedIdByPhone from "../../utils/roleIdByPhoneNumber.js";
 
 export const AuthController = {
     async sendOtp(req: Request, res: Response) {
-        // Validate phone number
-        const validation = validate(phoneNumberSchema, req.body, res);
+        // Validate the body: phoneNumber, role, isNewUser
+        const validation = validate(phoneAndRoleSchema, req.body, res);
         if (!validation) return;
 
-        const { phoneNumber } = validation;
+        const { phoneNumber, role, isNewUser } = validation;
 
         return tryCatch(res, async () => {
+            // If it's a login attempt (not new user), check if user exists
+            if (!isNewUser) {
+                const loginData = await getRoleBasedIdByPhone(phoneNumber, role);
+                if (!loginData) {
+                    return sendError(res, HTTP.NOT_FOUND, `No ${role} found with this phone number`);
+                }
+            }
+
             const otpSent = await sendOtp(phoneNumber);
-            if (!otpSent) return sendError(res, HTTP.BAD_REQUEST, "OTP could not be sent");
+            if (!otpSent) {
+                return sendError(res, HTTP.BAD_REQUEST, "OTP could not be sent");
+            }
 
             return sendResponse(res, HTTP.OK, "OTP sent successfully");
         });
     },
+
 
     async verifyOtp(req: Request, res: Response) {
         const validation = validate(otpSchema, req.body, res);

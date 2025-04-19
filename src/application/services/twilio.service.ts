@@ -7,7 +7,6 @@ export const sendOtp = async (phoneNumber: string): Promise<string> => {
     try {
         // Send OTP to the phone number
         const verification = await twilioVerifyService.verifications.create({
-            customMessage:"",
             to: phoneNumber,
             channel: "sms", // You can change this to 'email' if needed
         });
