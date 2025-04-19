@@ -9,7 +9,7 @@ const userRepo = new UserRepository();
 export const UserUseCase = {
     createUser: (data: IUser) => userRepo.create(data),
     getUserByUserId: (userId: string) => userRepo.findByUserId(userId),
-    getUserByFirebaseId: (firebaseId: string) => userRepo.findByFirebaseId(firebaseId),
+    getUserByPhoneNumber: (phoneNumber: string) => userRepo.findUserByPhoneNumber(phoneNumber),
     updateUser: (userId: string, data: Partial<IUser>) => userRepo.updateUser(userId, data),
     deleteUser: (userId: string) => userRepo.deleteUser(userId),
 

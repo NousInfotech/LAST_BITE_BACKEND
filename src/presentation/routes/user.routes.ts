@@ -12,22 +12,22 @@ userRouter.post("/", UserController.createUser);
 // ------------------------------
 // Middleware for all routes below
 // ------------------------------
-userRouter.use(authMiddleware);
+userRouter.use(authMiddleware(["user"]));  // Applying the middleware to protect routes
+
 
 // ------------------------------
 // Authenticated User Routes
 // ------------------------------
-userRouter.get("/:userId", UserController.getUserByUserId);
-userRouter.get("/firebase/:firebaseId", UserController.getUserByUserFireBaseId);
-userRouter.put("/:userId", UserController.updateUser);
-userRouter.delete("/:userId", UserController.deleteUser);
+userRouter.get("/me", UserController.getUserByUserId);
+userRouter.put("/me", UserController.updateUser);
+userRouter.delete("/me", UserController.deleteUser);
 
 // ------------------------------
 // Address Routes (nested under userId)
 // ------------------------------
-userRouter.post("/:userId/addresses", UserController.addAddress);
-userRouter.get("/:userId/addresses", UserController.getAddresses);
-userRouter.put("/:userId/addresses/:addressId", UserController.updateAddress);
-userRouter.delete("/:userId/addresses/:addressId", UserController.deleteAddress);
+userRouter.post("/me/addresses", UserController.addAddress);
+userRouter.get("/me/addresses", UserController.getAddresses);
+userRouter.put("/me/addresses/:addressId", UserController.updateAddress);
+userRouter.delete("/me/addresses/:addressId", UserController.deleteAddress);
 
 export default userRouter;

@@ -31,4 +31,4 @@ const riderSchema = new Schema(
 
 addCustomIdHook(riderSchema, "riderId", "rid", "RiderModel");
 
-export const Rider = model("Rider", riderSchema);
+export const RiderModel = model("Rider", riderSchema);

@@ -16,4 +16,4 @@ const restaurantAdminSchema = new Schema(
 
 addCustomIdHook(restaurantAdminSchema, "restaurantAdminId", "resad", "RestaurantAdminModel");
 
-export const RestaurantAdmin = mongoose.model("RestaurantAdmin", restaurantAdminSchema);
+export const RestaurantAdminModel = mongoose.model("RestaurantAdmin", restaurantAdminSchema);

@@ -2,9 +2,7 @@ import { Request, Response } from "express";
 import { validate } from "../../utils/validation.js";
 import {
     addressSchema,
-    createUserSchema,
-    userIdParamsSchema,
-    firebaseIdParamsSchema,
+    userIdSchema,
     updateAddressSchema,
     updateUserSchema,
 } from "../validators/user.validator.js";
@@ -13,10 +11,17 @@ import { sendError } from "../../utils/sendError.js";
 import { HTTP } from "../../utils/constants.js";
 import { tryCatch } from "../../utils/tryCatch.js";
 import { UserUseCase } from "../../application/use-cases/user.useCase.js";
+import { userSchema } from "../../domain/zod/user.zod.js";
+
+
+interface CustomRequest extends Request {
+    userId?: string;
+}
+
 
 export const UserController = {
-    async createUser(req: Request, res: Response) {
-        const validation = validate(createUserSchema, req.body, res);
+    async createUser(req: CustomRequest, res: Response) {
+        const validation = validate(userSchema, req.body, res);
         if (!validation) return;
 
         return tryCatch(res, async () => {
@@ -25,8 +30,8 @@ export const UserController = {
         });
     },
 
-    async getUserByUserId(req: Request, res: Response) {
-        const parsed = validate(userIdParamsSchema, req.params, res);
+    async getUserByUserId(req: CustomRequest, res: Response) {
+        const parsed = validate(userIdSchema, req, res);
         if (!parsed) return;
 
         const { userId } = parsed;
@@ -38,21 +43,8 @@ export const UserController = {
         });
     },
 
-    async getUserByUserFireBaseId(req: Request, res: Response) {
-        const parsed = validate(firebaseIdParamsSchema, req.params, res);
-        if (!parsed) return;
-
-        const { firebaseId } = parsed;
-
-        return tryCatch(res, async () => {
-            const user = await UserUseCase.getUserByFirebaseId(firebaseId);
-            if (!user) return sendError(res, HTTP.NOT_FOUND, "User not found");
-            return sendResponse(res, HTTP.OK, "User fetched successfully", user);
-        });
-    },
-
-    async updateUser(req: Request, res: Response) {
-        const paramCheck = validate(userIdParamsSchema, req.params, res);
+    async updateUser(req: CustomRequest, res: Response) {
+        const paramCheck = validate(userIdSchema, req, res);
         if (!paramCheck) return;
 
         const bodyCheck = validate(updateUserSchema, req.body, res);
@@ -67,8 +59,8 @@ export const UserController = {
         });
     },
 
-    async deleteUser(req: Request, res: Response) {
-        const parsed = validate(userIdParamsSchema, req.params, res);
+    async deleteUser(req: CustomRequest, res: Response) {
+        const parsed = validate(userIdSchema, req, res);
         if (!parsed) return;
 
         const { userId } = parsed;
@@ -80,8 +72,8 @@ export const UserController = {
         });
     },
 
-    async addAddress(req: Request, res: Response) {
-        const paramCheck = validate(userIdParamsSchema, req.params, res);
+    async addAddress(req: CustomRequest, res: Response) {
+        const paramCheck = validate(userIdSchema, req, res);
         if (!paramCheck) return;
 
         const bodyCheck = validate(addressSchema, req.body, res);
@@ -96,8 +88,8 @@ export const UserController = {
         });
     },
 
-    async getAddresses(req: Request, res: Response) {
-        const parsed = validate(userIdParamsSchema, req.params, res);
+    async getAddresses(req: CustomRequest, res: Response) {
+        const parsed = validate(userIdSchema, req, res);
         if (!parsed) return;
 
         const { userId } = parsed;
@@ -108,8 +100,8 @@ export const UserController = {
         });
     },
 
-    async updateAddress(req: Request, res: Response) {
-        const paramCheck = validate(userIdParamsSchema, req.params, res);
+    async updateAddress(req: CustomRequest, res: Response) {
+        const paramCheck = validate(userIdSchema, req, res);
         if (!paramCheck) return;
 
         const { userId, addressId } = req.params;
@@ -124,8 +116,8 @@ export const UserController = {
         });
     },
 
-    async deleteAddress(req: Request, res: Response) {
-        const parsed = validate(userIdParamsSchema, req.params, res);
+    async deleteAddress(req: CustomRequest, res: Response) {
+        const parsed = validate(userIdSchema, req, res);
         if (!parsed) return;
 
         const { userId, addressId } = req.params;

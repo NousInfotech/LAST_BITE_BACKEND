@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const restaurantAdminSchema = z.object({
+export const RestaurantAdminSchema = z.object({
   restaurantAdminId: z.string().uuid(),
   restaurantId: z.string().min(1, "restaurantId is required"),
   name: z.string().min(1, "Name is required"),

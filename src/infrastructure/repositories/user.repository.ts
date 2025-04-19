@@ -19,6 +19,13 @@ export class UserRepository {
     async findByUserId(userId: IUser['userId']) {
         return await UserModel.findOne({ userId }, { _id: 0, __v: 0 }).lean();
     }
+    /**
+     * Get a user by their userId
+     * @param {string} phoneNumber - Custom userId to search for
+     */
+    async findUserByPhoneNumber(phoneNumber: IUser['phoneNumber']) {
+        return await UserModel.findOne({ phoneNumber }, { _id: 0, __v: 0 }).lean();
+    }
 
     /**
      * Update user data

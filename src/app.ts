@@ -4,6 +4,9 @@ import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import userRouter from './presentation/routes/user.routes.js';
+import authRouter from './presentation/routes/auth.routes.js';
+import riderRouter from './presentation/routes/rider.routes.js';
+import restaurantAdminRouter from './presentation/routes/restaurantAdmin.routes.js';
 
 const app: Application = express();
 
@@ -20,6 +23,9 @@ app.use(cookieParser());            // Parse cookies
 
 // Routes 
 
+app.use('/auth', authRouter);
 app.use('/user', userRouter);
+app.use('/rider',riderRouter);
+app.use('/restaurant-admin',restaurantAdminRouter);
 
 export default app;

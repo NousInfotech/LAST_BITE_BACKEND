@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { AddressSchema } from "./utils.zod.js";
 
-export const riderSchema = z.object({
+export const RiderSchema = z.object({
     riderId: z.string().uuid(),
     name: z.string().min(1),
     phoneNumber: z.string().regex(/^\+91\d{10}$/, "Invalid Indian phone number"),

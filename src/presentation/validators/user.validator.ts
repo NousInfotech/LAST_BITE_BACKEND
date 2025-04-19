@@ -14,7 +14,7 @@ export const updateAddressSchema = AddressSchema.partial();
 
 // Schema for userController Params
 
-export const userIdParamsSchema = z.object({
+export const userIdSchema = z.object({
     userId: z.string().min(1, "userId is required")
 });
 
