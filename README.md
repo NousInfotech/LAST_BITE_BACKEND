@@ -1,6 +1,6 @@
 # 🍽️ Last_bite Backend
 
-Backend service for the **Last_bite** platform, built with Node.js and Express using TypeScript. It manages user data, authentication (via Firebase), and MongoDB integration.
+Backend service for the **Last_bite** platform, built with Node.js and Express using TypeScript. It manages user data, authentication (via Twilio), and MongoDB integration.
 
 ---
 
@@ -10,7 +10,7 @@ Backend service for the **Last_bite** platform, built with Node.js and Express u
 - Express.js
 - TypeScript
 - MongoDB
-- Firebase Admin SDK
+- Twilio
 - dotenv
 
 ---
@@ -25,18 +25,6 @@ Environment variables are managed via the `src/config/env.ts` file. This file pu
 PORT=your_custom_port
 MONGO_URI=your_mongodb_connection_uri
 JWT_SECRET=your_jwt_secret
-
-FIREBASE_TYPE=service_account
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_PRIVATE_KEY_ID=your_private_key_id
-FIREBASE_PRIVATE_KEY=your_private_key
-FIREBASE_CLIENT_EMAIL=your_client_email
-FIREBASE_CLIENT_ID=your_client_id
-FIREBASE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
-FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
-FIREBASE_AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
-FIREBASE_CLIENT_X509_CERT_URL=your_client_cert_url
-FIREBASE_UNIVERSE_DOMAIN=googleapis.com
 ```
 
 ---
@@ -85,7 +73,7 @@ last_bite_backend/
     │
     ├── config/                // App configuration settings
     │   ├── env.ts             // Environment variables config using dotenv
-    │   └── firebaseConfig.ts  // Firebase Admin SDK initialization
+    │   └── jwtConfig.ts       // JWT Config File  
     │
     ├── domain/                // Core domain logic and validation
     │   ├── interfaces/        // Type definitions and contracts
@@ -104,7 +92,7 @@ last_bite_backend/
     │       └── user.repository.ts   // Example repository for users
     │
     ├── middleware/            // Express middleware
-    │   └── authMiddleware.ts  // Checks Firebase authentication
+    │   └── authMiddleware.ts  // Checks JWT authentication
     │
     ├── presentation/          // Route handling and controllers
     │   ├── controllers/       // Functions to handle requests
