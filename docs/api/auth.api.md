@@ -17,7 +17,9 @@
 - **Body:**
 ```json
 {
-  "phoneNumber": "+919876543210"
+  "phoneNumber": "+919876543210",
+  "role":"user",
+  "isNewUser":true
 }
 ```
 
