@@ -1,4 +1,4 @@
-import { Days } from "./utils.interface";
+import { Days, FoodType } from "./utils.interface";
 
 export interface IAddressGeo {
   location: {
@@ -26,19 +26,6 @@ export interface IDocuments {
   cancelledChequeImage: string;
   bankIFSC: string;
   bankAccountNumber: string;
-}
-
-export enum FoodType {
-  VEG = "veg",
-  NON_VEG = "non_veg",
-  HALAL = "halal",
-  VEGAN = "vegan",
-  KOSHER = "kosher",
-  GLUTEN_FREE = "gluten_free",
-  JAIN = "jain",
-  EGGETARIAN = "eggetarian",
-  SEAFOOD = "seafood",
-  ORGANIC = "organic",
 }
 
 export interface ITimings {

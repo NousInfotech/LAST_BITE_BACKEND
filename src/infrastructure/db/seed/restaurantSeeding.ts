@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { RestaurantModel } from "../mongoose/schemas/restaurant.schema.js";
-import { FoodType } from "../../../domain/interfaces/restaurant.interface.js";
+import { FoodType } from "../../../domain/interfaces/utils.interface.js";
 import { Days } from "../../../domain/interfaces/utils.interface.js";
 import { config } from "../../../config/env.js";
 

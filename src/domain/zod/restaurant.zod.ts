@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Days } from "../interfaces/utils.interface.js";
-import { FoodType } from "../interfaces/restaurant.interface.js";
+import { FoodType } from "../interfaces/utils.interface.js";
 
 // GeoJSON‐style address
 export const addressSchema = z.object({

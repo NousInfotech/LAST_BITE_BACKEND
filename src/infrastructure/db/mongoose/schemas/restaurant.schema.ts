@@ -1,7 +1,8 @@
 import { Schema, Document, Model, model } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
 import { Days } from "../../../../domain/interfaces/utils.interface.js";
-import { FoodType, IRestaurant } from "../../../../domain/interfaces/restaurant.interface.js";
+import { IRestaurant } from "../../../../domain/interfaces/restaurant.interface.js";
+import { FoodType } from "../../../../domain/interfaces/utils.interface.js";
 import { addressSchemaGeo } from "./utils.schema.js";
 
 // ——— Document sub‑schema (unchanged) ———

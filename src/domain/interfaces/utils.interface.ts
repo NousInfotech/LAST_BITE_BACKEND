@@ -49,4 +49,16 @@ export interface IAddress {
     country?: string;
     fullAddress?: string;
     tag?: "home" | "office" | "friends" | "others";
+}export enum FoodType {
+  VEG = "veg",
+  NON_VEG = "non_veg",
+  HALAL = "halal",
+  VEGAN = "vegan",
+  KOSHER = "kosher",
+  GLUTEN_FREE = "gluten_free",
+  JAIN = "jain",
+  EGGETARIAN = "eggetarian",
+  SEAFOOD = "seafood",
+  ORGANIC = "organic"
 }
+
