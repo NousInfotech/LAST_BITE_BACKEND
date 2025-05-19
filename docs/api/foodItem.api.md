@@ -1,103 +1,77 @@
-## 📄 `foodItem.api.md`
+---
 
-```md
-# 🍱 Food Item API
+## 🍱 **Food Item API**
 
-Base URL: `/api/food-items`
+**Base URL:** `/api/food-items`
 
 ---
 
-## 🔓 PUBLIC ROUTES
+### 🔓 Public Routes
 
-### ✅ GET `/`
-**Description**: Get all food items.
+#### **GET /** — Get all food items
 
-**Response**
-- `200 OK`: List of food items.
+Fetches the complete list of food items from all restaurants.
 
----
+#### **GET /\:foodItemId** — Get a food item by ID
 
-### ✅ GET `/:foodItemId`
-**Description**: Get a food item by its ID.
+Returns details of a single food item by its unique identifier.
 
-**Path Parameters**
-- `foodItemId` (string)
+#### **GET /restaurant/\:restaurantId** — Get food items for a restaurant
 
-**Response**
-- `200 OK`: Food item object.
-- `404 Not Found`: Food item not found.
+**Path Parameter:**
+
+* `restaurantId`: Restaurant’s custom identifier
+
+Returns all food items belonging to the specified restaurant.
 
 ---
 
-### ✅ GET `/restaurant/:restaurantId`
-**Description**: Get all food items from a specific restaurant.
+### 🔐 Protected Routes (`restaurantAdmin`, `superAdmin`)
 
-**Path Parameters**
-- `restaurantId` (string)
+#### **POST /** — Create a food item
 
-**Response**
-- `200 OK`: Array of food items.
-- `404 Not Found`: Restaurant not found.
+Requires:
 
----
+* `restaurantId`
+* `name`
+* `description`
+* `price`
+* `category`
+* `typesOfFood` (e.g., veg, halal, organic)
+* `image` (URL)
 
-## 🔐 PROTECTED ROUTES (restaurantAdmin, superAdmin)
+Validates if the `restaurantId` exists before creation.
 
-> These routes require authentication and authorized roles.
+#### **PUT /\:foodItemId** — Update a food item
 
-### ✅ POST `/`
-**Description**: Create a new food item.
+Updates the fields of an existing food item. Only editable by restaurant owner or super admin.
 
-**Request Body**
-```json
-{
-  "restaurantId": "res_47uMGp0W3z",
-  "name": "Paneer Butter Masala",
-  "description": "Creamy paneer curry with butter and spices.",
-  "price": 250,
-  "category": "main_course",
-  "isAvailable": true,
-  "image": "https://example.com/paneer.jpg",
-  "typesOfFood": ["veg", "halal", "organic"]
-}
-````
+#### **DELETE /\:foodItemId** — Delete a food item
 
-**Response**
-
-* `201 Created`: Food item created.
-* `404 Not Found`: Invalid or non-existent restaurant ID.
+Deletes a food item by ID. Requires proper permissions.
 
 ---
 
-### ✅ PUT `/:foodItemId`
+## ✅ Authentication & Authorization
 
-**Description**: Update a food item.
-
-**Path Parameters**
-
-* `foodItemId` (string)
-
-**Request Body**: Same as POST (fields optional for partial update).
-
-**Response**
-
-* `200 OK`: Food item updated.
-* `404 Not Found`: Food item not found.
+* **Protected routes** use a middleware that validates JWT and user roles.
+* Only `restaurantAdmin` and `superAdmin` can create/update/delete resources.
+* Public routes are accessible without authentication.
 
 ---
 
-### ✅ DELETE `/:foodItemId`
+## 🏷️ Food Types Reference
 
-**Description**: Delete a food item.
+Used in `typesOfFood` array:
 
-**Path Parameters**
-
-* `foodItemId` (string)
-
-**Response**
-
-* `200 OK`: Food item deleted.
-* `404 Not Found`: Food item not found.
-
-```
+* `veg`
+* `non_veg`
+* `halal`
+* `vegan`
+* `kosher`
+* `gluten_free`
+* `jain`
+* `eggetarian`
+* `seafood`
+* `organic`
 
