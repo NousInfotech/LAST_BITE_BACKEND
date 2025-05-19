@@ -7,12 +7,13 @@ import { verifyToken } from "../config/jwtConfig.js";
 import { UserUseCase } from "../application/use-cases/user.useCase.js";
 import { RiderUseCase } from "../application/use-cases/rider.useCase.js";
 import { RestaurantAdminUseCase } from "../application/use-cases/restaurantAdmin.useCase.js";
+import { Role } from "../domain/interfaces/utils.interface.js";
 
 export interface AuthenticatedRequest extends Request {
     userId?: string;
     restaurantAdminId?: string;
     riderId?: string;
-    role?: "user" | "rider" | "restaurantAdmin";
+    role?: Role;
 }
 
 /**
@@ -74,7 +75,7 @@ export const authMiddleware = (allowedRoles: string[] = []) => {
             }
 
             // Attach role to the request object (not params)
-            req.role = role;
+            req.role = role as Role;
 
             next();
         } catch (error) {
