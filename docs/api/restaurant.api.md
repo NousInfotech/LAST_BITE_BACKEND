@@ -1,6 +1,4 @@
-Got it! Here's a clean, **non-copyable** documentation format written like a professional API document you’d see on internal wikis or API portals (e.g., Postman or Swagger UI). It's descriptive, formatted, and **not meant to be code-copyable**, just **readable like an API reference**.
 
----
 
 ## 🍽️ **Restaurant API**
 
