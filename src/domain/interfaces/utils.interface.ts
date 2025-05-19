@@ -49,7 +49,8 @@ export interface IAddress {
     country?: string;
     fullAddress?: string;
     tag?: "home" | "office" | "friends" | "others";
-}export enum FoodType {
+}
+export enum FoodType {
   VEG = "veg",
   NON_VEG = "non_veg",
   HALAL = "halal",

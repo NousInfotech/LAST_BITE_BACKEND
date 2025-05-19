@@ -8,6 +8,7 @@ import authRouter from './presentation/routes/auth.routes.js';
 import riderRouter from './presentation/routes/rider.routes.js';
 import restaurantAdminRouter from './presentation/routes/restaurantAdmin.routes.js';
 import restaurantRouter from './presentation/routes/restaurant.routes.js';
+import foodItemRouter from './presentation/routes/foodItem.routes.js';
 
 const app: Application = express();
 
@@ -32,6 +33,7 @@ app.use('/restaurant-admin', restaurantAdminRouter);
 
 // restaurant routes
 app.use('/restaurant', restaurantRouter);
+app.use('/food-item', foodItemRouter);
 
 
 export default app;

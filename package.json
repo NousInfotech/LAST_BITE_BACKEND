@@ -7,7 +7,8 @@
     "dev": "nodemon --watch src --ext ts --exec \"node --loader ts-node/esm\" src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "seed:restaurants": "node --loader ts-node/esm src/infrastructure/db/seed/restaurantSeeding.ts"
+    "seed:restaurants": "node --loader ts-node/esm src/infrastructure/db/seed/restaurant.seed.ts",
+    "seed:foodItems": "node --loader ts-node/esm src/infrastructure/db/seed/foodItem.seed.ts"
   },
   "keywords": [],
   "author": "",
