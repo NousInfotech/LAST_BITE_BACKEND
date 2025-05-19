@@ -1,6 +1,7 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
-import { IUser, IAddress } from "../../domain/interfaces/user.interface.js";
-import { UserModel } from "../db/mongoose/schemas/user.schema.js";
+import { IUser } from "../../domain/interfaces/user.interface.js";
+import { IAddress } from "../../domain/interfaces/utils.interface.js";
+import { UserDoc, UserModel } from "../db/mongoose/schemas/user.schema.js";
 
 export class UserRepository {
     /**
@@ -80,6 +81,7 @@ export class UserRepository {
     async addAddress(userId: string, address: IAddress) {
         const user = await UserModel.findOne({ userId });
         if (!user) return null;
+        if (!user.addresses) return null;
         user.addresses.push(address);
         await user.save();
         return user.addresses;
@@ -101,9 +103,9 @@ export class UserRepository {
      * @param {Partial<IAddress>} update - Partial address update object
      */
     async updateAddress(userId: string, addressId: string, update: Partial<IAddress>) {
-        const user = await UserModel.findOne({ userId });
+        const user = await UserModel.findOne({ userId }) as UserDoc;
         if (!user) return null;
-
+        if (!user.addresses) return null;
         const address = user.addresses.id(addressId);
         if (!address) return null;
 
@@ -119,12 +121,12 @@ export class UserRepository {
      * @param {string} addressId - Address subdocument ID
      */
     async deleteAddress(userId: string, addressId: string) {
-        const user = await UserModel.findOne({ userId });
-        if (!user) return null;
+    const user = await UserModel.findOne({ userId }) as UserDoc;
+    if (!user?.addresses) return null;
 
-        user.addresses.pull({ _id: addressId });
-        await user.save();
+    user.addresses.pull({ _id: addressId });
+    await user.save();
 
-        return user.addresses;
-    }
+    return user.addresses;
+}
 }

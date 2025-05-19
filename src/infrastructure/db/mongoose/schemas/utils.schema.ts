@@ -17,5 +17,32 @@ export const addressSchema = new Schema(
             default: "others",
         },
     },
-    { _id: false, timestamps: true }
+    { _id: true, timestamps: true }
 );
+
+export const addressSchemaGeo = new Schema(
+  {
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+        required: true,
+      },
+      coordinates: {
+        type: [Number],       // [ longitude, latitude ]
+        required: true,
+      },
+    },
+    no:          String,
+    street:      String,
+    area:        String,
+    city:        String,
+    state:       String,
+    country:     String,
+    fullAddress: String,
+    tag:         { type: String, enum: ["home","office","friends","others"], default: "others" },
+  },
+  { _id: false, timestamps: true }
+);
+addressSchemaGeo.index({ location: "2dsphere" });

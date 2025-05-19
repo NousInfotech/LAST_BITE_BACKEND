@@ -1,6 +1,7 @@
 // application/use-cases/user/user.useCase.ts
 
-import { IAddress, IUser } from "../../domain/interfaces/user.interface.js";
+import { IUser } from "../../domain/interfaces/user.interface.js";
+import { IAddress } from "../../domain/interfaces/utils.interface.js";
 import { UserRepository } from "../../infrastructure/repositories/user.repository.js";
 
 

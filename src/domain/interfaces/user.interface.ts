@@ -1,18 +1,6 @@
-export interface IAddress {
-    latitude?: number;
-    longitude?: number;
-    no?: string;
-    street?: string;
-    area?: string;
-    city?: string;
-    state?: string;
-    country?: string;
-    fullAddress?: string;
-    tag?: "home" | "office" | "friends" | "others";
-}
+import { IAddress } from "./utils.interface.js";
 
 export interface IUser {
-    _id?: string;
     userId?: string;
     name: string;
     phoneNumber: string;

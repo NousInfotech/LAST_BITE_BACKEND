@@ -1,15 +1,13 @@
+import { IAddress } from "./utils.interface.js";
+
+
 export interface IRider {
     riderId: string;
     name: string;
     phoneNumber: string;
     email?: string;
     dateOfBirth?: string;
-    address?: {
-      street?: string;
-      city?: string;
-      state?: string;
-      zip?: string;
-    };
+    address:IAddress;
     vehicleType: "bike" | "scooter" | "car";
     vehicleNumber?: string;
     licenseNumber?: string;
