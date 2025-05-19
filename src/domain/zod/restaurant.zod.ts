@@ -1,8 +1,20 @@
 import { z } from "zod";
+import { Days } from "../interfaces/utils.interface.js";
+import { FoodType } from "../interfaces/restaurant.interface.js";
 
+// GeoJSON‐style address
 export const addressSchema = z.object({
-  latitude: z.number(),
-  longitude: z.number(),
+  location: z.object({
+    type: z.literal("Point"),
+    coordinates: z
+      .tuple([z.number(), z.number()])  // [ longitude, latitude ]
+      .refine(([, lat]) => lat >= -90 && lat <= 90, {
+        message: "Latitude must be between -90 and 90",
+      })
+      .refine(([lon]) => lon >= -180 && lon <= 180, {
+        message: "Longitude must be between -180 and 180",
+      }),
+  }),
   no: z.string(),
   street: z.string(),
   area: z.string(),
@@ -10,7 +22,7 @@ export const addressSchema = z.object({
   state: z.string(),
   country: z.string(),
   fullAddress: z.string(),
-  tag: z.enum(["home", "office", "friends", "others"]).optional(),
+  tag: z.string().optional(),
 });
 
 export const documentSchema = z.object({
@@ -27,11 +39,13 @@ export const documentSchema = z.object({
 });
 
 export const timingSchema = z.object({
-  day: z.string(),
-  shifts: z.array(z.object({
-    start: z.string(),
-    end: z.string(),
-  })),
+  day: z.nativeEnum(Days),
+  shifts: z.array(
+    z.object({
+      start: z.string(),  // "HH:mm"
+      end: z.string(),
+    })
+  ),
 });
 
 export const restaurantSchema = z.object({
@@ -41,7 +55,9 @@ export const restaurantSchema = z.object({
   timings: z.array(timingSchema),
   tags: z.array(z.string()),
   cuisines: z.array(z.string()).optional(),
-  typeOfFood: z.string().optional(),
+  typeOfFood: z.array(z.nativeEnum(FoodType)).optional(),
   profilePhoto: z.string().optional(),
   isActive: z.boolean().optional(),
+  availableCategories: z.array(z.string()).optional(),
+  rating: z.number().min(1).max(5).default(3.5).optional(),
 });

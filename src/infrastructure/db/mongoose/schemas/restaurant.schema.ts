@@ -1,66 +1,88 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema, Document, Model, model } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
+import { Days } from "../../../../domain/interfaces/utils.interface.js";
+import { FoodType, IRestaurant } from "../../../../domain/interfaces/restaurant.interface.js";
+import { addressSchemaGeo } from "./utils.schema.js";
 
+// ——— Document sub‑schema (unchanged) ———
 const documentSchema = new Schema(
-    {
-        panNumber: { type: String },
-        panImage: { type: String },
-        shopLicenseImage: { type: String },
-        fssaiCertificateNumber: { type: String },
-        fssaiCertificateImage: { type: String },
-        gstinNumber: { type: String },
-        gstCertificateImage: { type: String },
-        cancelledChequeImage: { type: String },
-        bankIFSC: { type: String },
-        bankAccountNumber: { type: String },
-    },
-    { _id: false, timestamps: true }
+  {
+    panNumber: String,
+    panImage: String,
+    shopLicenseImage: String,
+    fssaiCertificateNumber: String,
+    fssaiCertificateImage: String,
+    gstinNumber: String,
+    gstCertificateImage: String,
+    cancelledChequeImage: String,
+    bankIFSC: String,
+    bankAccountNumber: String,
+  },
+  { _id: false, timestamps: true }
 );
 
-const timingSchema = new Schema(
-    {
-        day: { type: String },
-        shifts: [
-            {
-                start: { type: String }, // HH:mm
-                end: { type: String },
-            },
-        ],
+// ——— Timing sub‑schema (unchanged) ———
+export const timingSchema = new Schema(
+  {
+    day: {
+      type: String,
+      enum: Object.values(Days),
+      required: true,
     },
-    { _id: false, timestamps: true }
+    shifts: [
+      {
+        start: { type: String, required: true },
+        end: { type: String, required: true },
+      },
+    ],
+  },
+  { _id: false, timestamps: true }
 );
 
-const addressSchema = new Schema(
-    {
-        latitude: { type: Number },
-        longitude: { type: Number },
-        no: { type: String },
-        street: { type: String },
-        area: { type: String },
-        city: { type: String },
-        state: { type: String },
-        country: { type: String },
-        fullAddress: { type: String },
-    },
-    { _id: false, timestamps: true }
-);
+// ——— Address sub‑schema with GeoJSON point + 2dsphere index ———
 
-const restaurantSchema = new Schema(
-    {
-        restaurantId: { type: String, unique: true },
-        restaurantName: { type: String, required: true },
-        address: addressSchema,
-        documents: documentSchema,
-        timings: [timingSchema],
-        tags: [{ type: String }],
-        cuisines: [{ type: String }],
-        typeOfFood: { type: String }, // optional: "veg", "non-veg", "halal"
-        profilePhoto: { type: String },
-        isActive: { type: Boolean, default: true },
+
+// ——— Top‑level Restaurant schema ———
+const restaurantSchema = new Schema<RestaurantDoc>(
+  {
+    restaurantId: { type: String, unique: true },
+    restaurantName: { type: String, required: true },
+    address: addressSchemaGeo,
+    documents: documentSchema,
+    timings: [timingSchema],
+    tags: [String],
+    cuisines: [String],
+    typeOfFood: {
+      type: [String],
+      enum: Object.values(FoodType),
+      default: [],
     },
-    { timestamps: true }
+
+    profilePhoto: String,
+    isActive: { type: Boolean, default: true },
+    availableCategories: {
+      type: [String],
+      default: [],
+    },
+
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
+      default: 3.5,
+    },
+
+  },
+  { timestamps: true }
 );
 
 addCustomIdHook(restaurantSchema, "restaurantId", "res", "RestaurantModel");
 
-export const RestaurantModel = mongoose.model("Restaurant", restaurantSchema);
+
+
+export interface RestaurantDoc extends IRestaurant, Document { }
+
+export const RestaurantModel: Model<RestaurantDoc> = model<RestaurantDoc>(
+  "Restaurant",
+  restaurantSchema
+);

@@ -1,43 +1,68 @@
-export interface IAddress {
-    latitude: number;
-    longitude: number;
-    no: string;
-    street: string;
-    area: string;
-    city: string;
-    state: string;
-    country: string;
-    fullAddress: string;
-    tag?: "home" | "office" | "friends" | "others";
-}
+import { Days } from "./utils.interface";
 
-export interface ITiming {
-    day: string;
-    shifts: { start: string; end: string }[];
+export interface IAddressGeo {
+  location: {
+    type: "Point";
+    coordinates: [number, number]; // [longitude, latitude]
+  };
+  no: string;
+  street: string;
+  area: string;
+  city: string;
+  state: string;
+  country: string;
+  fullAddress: string;
+  tag?:string;
 }
 
 export interface IDocuments {
-    panNumber: string;
-    panImage: string;
-    shopLicenseImage: string;
-    fssaiCertificateNumber: string;
-    fssaiCertificateImage: string;
-    gstinNumber: string;
-    gstCertificateImage: string;
-    cancelledChequeImage: string;
-    bankIFSC: string;
-    bankAccountNumber: string;
+  panNumber: string;
+  panImage: string;
+  shopLicenseImage: string;
+  fssaiCertificateNumber: string;
+  fssaiCertificateImage: string;
+  gstinNumber: string;
+  gstCertificateImage: string;
+  cancelledChequeImage: string;
+  bankIFSC: string;
+  bankAccountNumber: string;
 }
 
+export enum FoodType {
+  VEG = "veg",
+  NON_VEG = "non_veg",
+  HALAL = "halal",
+  VEGAN = "vegan",
+  KOSHER = "kosher",
+  GLUTEN_FREE = "gluten_free",
+  JAIN = "jain",
+  EGGETARIAN = "eggetarian",
+  SEAFOOD = "seafood",
+  ORGANIC = "organic",
+}
+
+export interface ITimings {
+  day: Days;
+  shifts: {
+    start: string;
+    end: string
+  }[]
+}
+
+
 export interface IRestaurant {
-    restaurantId?: string;
-    restaurantName: string;
-    address: IAddress;
-    documents: IDocuments;
-    timings: ITiming[];
-    tags: string[];
-    cuisines?: string[];
-    typeOfFood?: string;
-    profilePhoto?: string;
-    isActive?: boolean;
+  restaurantId?: string;
+  restaurantName: string;
+  address: IAddressGeo;
+  documents: IDocuments;
+  timings: ITimings[];
+  tags: string[];
+  cuisines?: string[];
+  typeOfFood?: FoodType[];
+  profilePhoto?: string;
+  isActive?: boolean;
+  availableCategories?: string[]; // e.g., ["biryani", "noodles", "desserts"]
+  rating?: number; // from 1.0 to 5.0
+  createdAt?: Date;
+  updatedAt?: Date;
 }
