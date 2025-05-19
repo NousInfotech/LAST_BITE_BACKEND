@@ -1,10 +1,9 @@
----
 
 ## 🍱 **Food Item API**
 
 **Base URL:** `/api/food-items`
 
----
+
 
 ### 🔓 Public Routes
 
