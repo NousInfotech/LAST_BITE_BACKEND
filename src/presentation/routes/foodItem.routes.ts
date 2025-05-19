@@ -14,10 +14,11 @@ foodItemRouter.get("/restaurant/:restaurantId", FoodItemController.getByRestaura
 // ------------------------------
 // Protected Routes (restaurantAdmin & superAdmin)
 // ------------------------------
+foodItemRouter.use(authMiddleware(["restaurantAdmin", "superAdmin"]));
+
 foodItemRouter.post("/", FoodItemController.createFoodItem);
 foodItemRouter.put("/:foodItemId", FoodItemController.updateFoodItem);
 foodItemRouter.delete("/:foodItemId", FoodItemController.deleteFoodItem);
-foodItemRouter.use(authMiddleware(["restaurantAdmin", "superAdmin"]));
 
 
 export default foodItemRouter;
