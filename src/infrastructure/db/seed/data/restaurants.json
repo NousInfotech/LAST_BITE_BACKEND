@@ -1,0 +1,752 @@
+[
+    {
+        "restaurantName": "Spice Symphony",
+        "address": {
+            "location": {
+                "type": "Point",
+                "coordinates": [
+                    80.2707,
+                    13.0827
+                ]
+            },
+            "no": "45A",
+            "street": "Cathedral Road",
+            "area": "Gopalapuram",
+            "city": "Chennai",
+            "state": "Tamil Nadu",
+            "country": "India",
+            "fullAddress": "45A Cathedral Road, Gopalapuram, Chennai, Tamil Nadu, India"
+        },
+        "documents": {
+            "panNumber": "AAAPL1234C",
+            "panImage": "https://example.com/docs/pan1.jpg",
+            "shopLicenseImage": "https://example.com/docs/license1.jpg",
+            "fssaiCertificateNumber": "FSSAI987654",
+            "fssaiCertificateImage": "https://example.com/docs/fssai1.jpg",
+            "gstinNumber": "33AAAPL1234C1Z9",
+            "gstCertificateImage": "https://example.com/docs/gst1.jpg",
+            "cancelledChequeImage": "https://example.com/docs/cheque1.jpg",
+            "bankIFSC": "HDFC0001234",
+            "bankAccountNumber": "123456789012"
+        },
+        "timings": [
+            {
+                "day": "MONDAY",
+                "shifts": [
+                    {
+                        "start": "11:00",
+                        "end": "15:00"
+                    },
+                    {
+                        "start": "18:00",
+                        "end": "23:00"
+                    }
+                ]
+            },
+            {
+                "day": "TUESDAY",
+                "shifts": [
+                    {
+                        "start": "11:00",
+                        "end": "23:00"
+                    }
+                ]
+            }
+        ],
+        "tags": [
+            "fine-dine",
+            "romantic"
+        ],
+        "cuisines": [
+            "Indian",
+            "Chinese"
+        ],
+        "typeOfFood": [
+            "vegan",
+            "organic"
+        ],
+        "profilePhoto": "https://res.cloudinary.com/dkeraxhjs/image/upload/v1747810203/lastbite/restaurants/huegndk4mjnbdpd7iqta.jpg",
+        "isActive": true,
+        "availableCategories": [
+            "thali",
+            "starters",
+            "desserts"
+        ],
+        "rating": 4.5
+    },
+    {
+        "restaurantName": "Bayleaf Bistro",
+        "address": {
+            "location": {
+                "type": "Point",
+                "coordinates": [
+                    80.2248,
+                    13.0281
+                ]
+            },
+            "no": "12",
+            "street": "East Coast Road",
+            "area": "Neelankarai",
+            "city": "Chennai",
+            "state": "Tamil Nadu",
+            "country": "India",
+            "fullAddress": "12 East Coast Road, Neelankarai, Chennai, Tamil Nadu, India"
+        },
+        "documents": {
+            "panNumber": "BCDEF2345G",
+            "panImage": "https://example.com/docs/pan2.jpg",
+            "shopLicenseImage": "https://example.com/docs/license2.jpg",
+            "fssaiCertificateNumber": "FSSAI567321",
+            "fssaiCertificateImage": "https://example.com/docs/fssai2.jpg",
+            "gstinNumber": "33BCDEF2345G1Z8",
+            "gstCertificateImage": "https://example.com/docs/gst2.jpg",
+            "cancelledChequeImage": "https://example.com/docs/cheque2.jpg",
+            "bankIFSC": "ICIC0005678",
+            "bankAccountNumber": "987654321098"
+        },
+        "timings": [
+            {
+                "day": "WEDNESDAY",
+                "shifts": [
+                    {
+                        "start": "10:00",
+                        "end": "22:00"
+                    }
+                ]
+            },
+            {
+                "day": "THURSDAY",
+                "shifts": [
+                    {
+                        "start": "12:00",
+                        "end": "16:00"
+                    },
+                    {
+                        "start": "19:00",
+                        "end": "23:00"
+                    }
+                ]
+            }
+        ],
+        "tags": [
+            "coastal",
+            "rooftop"
+        ],
+        "cuisines": [
+            "seafood",
+            "Asian"
+        ],
+        "typeOfFood": [
+            "non_veg",
+            "organic"
+        ],
+        "profilePhoto": "https://res.cloudinary.com/dkeraxhjs/image/upload/v1747810190/lastbite/restaurants/thwre26vfkfgvncqjcmu.jpg",
+        "isActive": true,
+        "availableCategories": [
+            "seafood",
+            "grills",
+            "mocktails"
+        ],
+        "rating": 4.3
+    },
+    {
+        "restaurantName": "Urban Tadka",
+        "address": {
+            "location": {
+                "type": "Point",
+                "coordinates": [
+                    80.2012,
+                    13.0591
+                ]
+            },
+            "no": "67B",
+            "street": "Velachery Main Rd",
+            "area": "Velachery",
+            "city": "Chennai",
+            "state": "Tamil Nadu",
+            "country": "India",
+            "fullAddress": "67B Velachery Main Rd, Velachery, Chennai, Tamil Nadu, India"
+        },
+        "documents": {
+            "panNumber": "XYZPQ9876L",
+            "panImage": "https://example.com/docs/pan3.jpg",
+            "shopLicenseImage": "https://example.com/docs/license3.jpg",
+            "fssaiCertificateNumber": "FSSAI453217",
+            "fssaiCertificateImage": "https://example.com/docs/fssai3.jpg",
+            "gstinNumber": "33XYZPQ9876L1Z3",
+            "gstCertificateImage": "https://example.com/docs/gst3.jpg",
+            "cancelledChequeImage": "https://example.com/docs/cheque3.jpg",
+            "bankIFSC": "SBIN0012345",
+            "bankAccountNumber": "112233445566"
+        },
+        "timings": [
+            {
+                "day": "FRIDAY",
+                "shifts": [
+                    {
+                        "start": "12:00",
+                        "end": "15:00"
+                    },
+                    {
+                        "start": "19:00",
+                        "end": "22:00"
+                    }
+                ]
+            },
+            {
+                "day": "SATURDAY",
+                "shifts": [
+                    {
+                        "start": "11:00",
+                        "end": "23:00"
+                    }
+                ]
+            }
+        ],
+        "tags": [
+            "family",
+            "budget"
+        ],
+        "cuisines": [
+            "Punjabi",
+            "North Indian"
+        ],
+        "typeOfFood": [
+            "veg",
+            "non_veg"
+        ],
+        "profilePhoto": "https://res.cloudinary.com/dkeraxhjs/image/upload/v1747810190/lastbite/restaurants/gyrrmjuetul7wz7xqkww.jpg",
+        "isActive": true,
+        "availableCategories": [
+            "curries",
+            "tandoori",
+            "desserts"
+        ],
+        "rating": 4.0
+    },
+    {
+        "restaurantName": "Olive Tree Café",
+        "address": {
+            "location": {
+                "type": "Point",
+                "coordinates": [
+                    80.2405,
+                    13.0475
+                ]
+            },
+            "no": "9",
+            "street": "Anna Salai",
+            "area": "Teynampet",
+            "city": "Chennai",
+            "state": "Tamil Nadu",
+            "country": "India",
+            "fullAddress": "9 Anna Salai, Teynampet, Chennai, Tamil Nadu, India"
+        },
+        "documents": {
+            "panNumber": "LMNOP7654Q",
+            "panImage": "https://example.com/docs/pan4.jpg",
+            "shopLicenseImage": "https://example.com/docs/license4.jpg",
+            "fssaiCertificateNumber": "FSSAI111222",
+            "fssaiCertificateImage": "https://example.com/docs/fssai4.jpg",
+            "gstinNumber": "33LMNOP7654Q1Z1",
+            "gstCertificateImage": "https://example.com/docs/gst4.jpg",
+            "cancelledChequeImage": "https://example.com/docs/cheque4.jpg",
+            "bankIFSC": "AXIS0001234",
+            "bankAccountNumber": "556677889900"
+        },
+        "timings": [
+            {
+                "day": "SUNDAY",
+                "shifts": [
+                    {
+                        "start": "08:00",
+                        "end": "14:00"
+                    }
+                ]
+            },
+            {
+                "day": "MONDAY",
+                "shifts": [
+                    {
+                        "start": "09:00",
+                        "end": "13:00"
+                    },
+                    {
+                        "start": "17:00",
+                        "end": "21:00"
+                    }
+                ]
+            }
+        ],
+        "tags": [
+            "cafe",
+            "vegetarian"
+        ],
+        "cuisines": [
+            "Italian",
+            "Mediterranean"
+        ],
+        "typeOfFood": [
+            "veg",
+            "vegan"
+        ],
+        "profilePhoto": "https://res.cloudinary.com/dkeraxhjs/image/upload/v1747810188/lastbite/restaurants/pci0yj0dva1wd7vwrgd4.jpg",
+        "isActive": true,
+        "availableCategories": [
+            "salads",
+            "coffee",
+            "pastries"
+        ],
+        "rating": 4.7
+    },
+    {
+        "restaurantName": "Marina Breeze",
+        "address": {
+            "location": {
+                "type": "Point",
+                "coordinates": [
+                    80.2906,
+                    13.0500
+                ]
+            },
+            "no": "101",
+            "street": "Kamarajar Salai",
+            "area": "Marina Beach",
+            "city": "Chennai",
+            "state": "Tamil Nadu",
+            "country": "India",
+            "fullAddress": "101 Kamarajar Salai, Marina Beach, Chennai, Tamil Nadu, India"
+        },
+        "documents": {
+            "panNumber": "ABCPD1234L",
+            "panImage": "https://example.com/pan6.jpg",
+            "shopLicenseImage": "https://example.com/license6.jpg",
+            "fssaiCertificateNumber": "FSSAI999006",
+            "fssaiCertificateImage": "https://example.com/fssai6.jpg",
+            "gstinNumber": "33ABCPD1234L1Z7",
+            "gstCertificateImage": "https://example.com/gst6.jpg",
+            "cancelledChequeImage": "https://example.com/cheque6.jpg",
+            "bankIFSC": "SBIN0004567",
+            "bankAccountNumber": "1234567891"
+        },
+        "timings": [
+            {
+                "day": "WEDNESDAY",
+                "shifts": [
+                    {
+                        "start": "12:00",
+                        "end": "15:00"
+                    },
+                    {
+                        "start": "18:00",
+                        "end": "22:00"
+                    }
+                ]
+            },
+            {
+                "day": "THURSDAY",
+                "shifts": [
+                    {
+                        "start": "12:00",
+                        "end": "22:00"
+                    }
+                ]
+            }
+        ],
+        "tags": [
+            "seafood",
+            "romantic"
+        ],
+        "cuisines": [
+            "South Indian",
+            "Continental"
+        ],
+        "typeOfFood": [
+            "non_veg",
+            "seafood"
+        ],
+        "profilePhoto": "https://res.cloudinary.com/dkeraxhjs/image/upload/v1747810187/lastbite/restaurants/zfsck91kgfeh22gjslms.jpg",
+        "isActive": true,
+        "availableCategories": [
+            "grills",
+            "desserts",
+            "beverages"
+        ],
+        "rating": 4.5
+    },
+    {
+        "restaurantName": "veggie Delight",
+        "address": {
+            "location": {
+                "type": "Point",
+                "coordinates": [
+                    80.2435,
+                    13.0604
+                ]
+            },
+            "no": "202",
+            "street": "North Usman Road",
+            "area": "T. Nagar",
+            "city": "Chennai",
+            "state": "Tamil Nadu",
+            "country": "India",
+            "fullAddress": "202 North Usman Road, T. Nagar, Chennai, Tamil Nadu, India"
+        },
+        "documents": {
+            "panNumber": "XYZPD5678M",
+            "panImage": "https://example.com/pan7.jpg",
+            "shopLicenseImage": "https://example.com/license7.jpg",
+            "fssaiCertificateNumber": "FSSAI999007",
+            "fssaiCertificateImage": "https://example.com/fssai7.jpg",
+            "gstinNumber": "33XYZPD5678M1Z8",
+            "gstCertificateImage": "https://example.com/gst7.jpg",
+            "cancelledChequeImage": "https://example.com/cheque7.jpg",
+            "bankIFSC": "HDFC0007890",
+            "bankAccountNumber": "2345678912"
+        },
+        "timings": [
+            {
+                "day": "FRIDAY",
+                "shifts": [
+                    {
+                        "start": "11:00",
+                        "end": "15:00"
+                    },
+                    {
+                        "start": "18:00",
+                        "end": "22:00"
+                    }
+                ]
+            },
+            {
+                "day": "SATURDAY",
+                "shifts": [
+                    {
+                        "start": "11:00",
+                        "end": "22:00"
+                    }
+                ]
+            }
+        ],
+        "tags": [
+            "family-friendly",
+            "budget"
+        ],
+        "cuisines": [
+            "North Indian",
+            "South Indian"
+        ],
+        "typeOfFood": [
+            "veg"
+        ],
+        "profilePhoto": "https://res.cloudinary.com/dkeraxhjs/image/upload/v1747810187/lastbite/restaurants/shbfx7l4dszd0yivacr5.jpg",
+        "isActive": true,
+        "availableCategories": [
+            "thalis",
+            "snacks",
+            "sweets"
+        ],
+        "rating": 4.2
+    },
+    {
+        "restaurantName": "Spice Route",
+        "address": {
+            "location": {
+                "type": "Point",
+                "coordinates": [
+                    80.2200,
+                    13.0100
+                ]
+            },
+            "no": "303",
+            "street": "OMR Road",
+            "area": "Thoraipakkam",
+            "city": "Chennai",
+            "state": "Tamil Nadu",
+            "country": "India",
+            "fullAddress": "303 OMR Road, Thoraipakkam, Chennai, Tamil Nadu, India"
+        },
+        "documents": {
+            "panNumber": "LMNOP1234Q",
+            "panImage": "https://example.com/pan8.jpg",
+            "shopLicenseImage": "https://example.com/license8.jpg",
+            "fssaiCertificateNumber": "FSSAI999008",
+            "fssaiCertificateImage": "https://example.com/fssai8.jpg",
+            "gstinNumber": "33LMNOP1234Q1Z9",
+            "gstCertificateImage": "https://example.com/gst8.jpg",
+            "cancelledChequeImage": "https://example.com/cheque8.jpg",
+            "bankIFSC": "ICIC0001234",
+            "bankAccountNumber": "3456789123"
+        },
+        "timings": [
+            {
+                "day": "SUNDAY",
+                "shifts": [
+                    {
+                        "start": "12:00",
+                        "end": "16:00"
+                    },
+                    {
+                        "start": "18:00",
+                        "end": "23:00"
+                    }
+                ]
+            },
+            {
+                "day": "MONDAY",
+                "shifts": [
+                    {
+                        "start": "12:00",
+                        "end": "23:00"
+                    }
+                ]
+            }
+        ],
+        "tags": [
+            "spicy",
+            "casual-dining"
+        ],
+        "cuisines": [
+            "Chettinad",
+            "Chinese",
+            "Tandoori"
+        ],
+        "typeOfFood": [
+            "non_veg"
+        ],
+        "profilePhoto": "https://res.cloudinary.com/dkeraxhjs/image/upload/v1747810187/lastbite/restaurants/gs9fyxsjz8xn78yzsg1n.jpg",
+        "isActive": true,
+        "availableCategories": [
+            "curries",
+            "breads",
+            "beverages"
+        ],
+        "rating": 4.3
+    },
+    {
+        "restaurantName": "Dakshin Spice",
+        "address": {
+            "location": {
+                "type": "Point",
+                "coordinates": [
+                    80.2323,
+                    13.0099
+                ]
+            },
+            "no": "404",
+            "street": "Velachery Main Road",
+            "area": "Velachery",
+            "city": "Chennai",
+            "state": "Tamil Nadu",
+            "country": "India",
+            "fullAddress": "404 Velachery Main Road, Velachery, Chennai, Tamil Nadu, India"
+        },
+        "documents": {
+            "panNumber": "TRDPK4321R",
+            "panImage": "https://example.com/pan9.jpg",
+            "shopLicenseImage": "https://example.com/license9.jpg",
+            "fssaiCertificateNumber": "FSSAI999009",
+            "fssaiCertificateImage": "https://example.com/fssai9.jpg",
+            "gstinNumber": "33TRDPK4321R1Z3",
+            "gstCertificateImage": "https://example.com/gst9.jpg",
+            "cancelledChequeImage": "https://example.com/cheque9.jpg",
+            "bankIFSC": "KARB0004321",
+            "bankAccountNumber": "4567891230"
+        },
+        "timings": [
+            {
+                "day": "TUESDAY",
+                "shifts": [
+                    {
+                        "start": "11:00",
+                        "end": "15:30"
+                    },
+                    {
+                        "start": "18:30",
+                        "end": "22:30"
+                    }
+                ]
+            },
+            {
+                "day": "WEDNESDAY",
+                "shifts": [
+                    {
+                        "start": "12:00",
+                        "end": "22:00"
+                    }
+                ]
+            }
+        ],
+        "tags": [
+            "authentic",
+            "south-indian"
+        ],
+        "cuisines": [
+            "Andhra",
+            "Karnataka",
+            "Tamil"
+        ],
+        "typeOfFood": [
+            "veg",
+            "non_veg"
+        ],
+        "profilePhoto": "https://res.cloudinary.com/dkeraxhjs/image/upload/v1747810187/lastbite/restaurants/zfsck91kgfeh22gjslms.jpg",
+        "isActive": true,
+        "availableCategories": [
+            "rice combos",
+            "pickles",
+            "filter coffee"
+        ],
+        "rating": 4.4
+    },
+    {
+        "restaurantName": "Urban Tandoor",
+        "address": {
+            "location": {
+                "type": "Point",
+                "coordinates": [
+                    80.2205,
+                    13.0540
+                ]
+            },
+            "no": "505",
+            "street": "Radhakrishnan Salai",
+            "area": "Mylapore",
+            "city": "Chennai",
+            "state": "Tamil Nadu",
+            "country": "India",
+            "fullAddress": "505 Radhakrishnan Salai, Mylapore, Chennai, Tamil Nadu, India"
+        },
+        "documents": {
+            "panNumber": "PQRMN8765T",
+            "panImage": "https://example.com/pan10.jpg",
+            "shopLicenseImage": "https://example.com/license10.jpg",
+            "fssaiCertificateNumber": "FSSAI999010",
+            "fssaiCertificateImage": "https://example.com/fssai10.jpg",
+            "gstinNumber": "33PQRMN8765T1Z5",
+            "gstCertificateImage": "https://example.com/gst10.jpg",
+            "cancelledChequeImage": "https://example.com/cheque10.jpg",
+            "bankIFSC": "AXIS0005678",
+            "bankAccountNumber": "5678912345"
+        },
+        "timings": [
+            {
+                "day": "FRIDAY",
+                "shifts": [
+                    {
+                        "start": "12:00",
+                        "end": "15:00"
+                    },
+                    {
+                        "start": "18:00",
+                        "end": "23:00"
+                    }
+                ]
+            },
+            {
+                "day": "SATURDAY",
+                "shifts": [
+                    {
+                        "start": "12:00",
+                        "end": "23:00"
+                    }
+                ]
+            }
+        ],
+        "tags": [
+            "tandoori",
+            "family"
+        ],
+        "cuisines": [
+            "Mughlai",
+            "North Indian",
+            "Barbecue"
+        ],
+        "typeOfFood": [
+            "non_veg"
+        ],
+        "profilePhoto": "https://res.cloudinary.com/dkeraxhjs/image/upload/v1747810187/lastbite/restaurants/shbfx7l4dszd0yivacr5.jpg",
+        "isActive": true,
+        "availableCategories": [
+            "tandoors",
+            "biryanis",
+            "naans"
+        ],
+        "rating": 4.6
+    },
+    {
+        "restaurantName": "Green Bowl Café",
+        "address": {
+            "location": {
+                "type": "Point",
+                "coordinates": [
+                    80.2411,
+                    13.0303
+                ]
+            },
+            "no": "606",
+            "street": "Eldams Road",
+            "area": "Alwarpet",
+            "city": "Chennai",
+            "state": "Tamil Nadu",
+            "country": "India",
+            "fullAddress": "606 Eldams Road, Alwarpet, Chennai, Tamil Nadu, India"
+        },
+        "documents": {
+            "panNumber": "UVWSQ3210A",
+            "panImage": "https://example.com/pan11.jpg",
+            "shopLicenseImage": "https://example.com/license11.jpg",
+            "fssaiCertificateNumber": "FSSAI999011",
+            "fssaiCertificateImage": "https://example.com/fssai11.jpg",
+            "gstinNumber": "33UVWSQ3210A1Z2",
+            "gstCertificateImage": "https://example.com/gst11.jpg",
+            "cancelledChequeImage": "https://example.com/cheque11.jpg",
+            "bankIFSC": "YESB0006789",
+            "bankAccountNumber": "6789123456"
+        },
+        "timings": [
+            {
+                "day": "MONDAY",
+                "shifts": [
+                    {
+                        "start": "09:00",
+                        "end": "14:00"
+                    },
+                    {
+                        "start": "17:00",
+                        "end": "21:00"
+                    }
+                ]
+            },
+            {
+                "day": "TUESDAY",
+                "shifts": [
+                    {
+                        "start": "09:00",
+                        "end": "21:00"
+                    }
+                ]
+            }
+        ],
+        "tags": [
+            "healthy",
+            "organic"
+        ],
+        "cuisines": [
+            "Salads",
+            "Smoothies",
+            "Fusion"
+        ],
+        "typeOfFood": [
+            "veg"
+        ],
+        "profilePhoto": "https://res.cloudinary.com/dkeraxhjs/image/upload/v1747810187/lastbite/restaurants/gs9fyxsjz8xn78yzsg1n.jpg",
+        "isActive": true,
+        "availableCategories": [
+            "wraps",
+            "bowls",
+            "juices"
+        ],
+        "rating": 4.7
+    }
+]
