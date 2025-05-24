@@ -6,7 +6,7 @@ import { HTTP } from "../../utils/constants.js";
 import { tryCatch } from "../../utils/tryCatch.js";
 import { sendOtp, verifyOtp } from "../../application/services/twilio.service.js";
 import { otpSchema, phoneAndRoleSchema, phoneNumberSchema } from "../validators/auth.validator.js"; // Assuming you have a schema for validation
-import { generateToken } from "../../config/jwtConfig.js";
+import { generateToken } from "../../config/jwt.config.js";
 import getRoleBasedIdByPhone from "../../utils/roleIdByPhoneNumber.js";
 
 

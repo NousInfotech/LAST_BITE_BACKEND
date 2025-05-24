@@ -12,11 +12,7 @@ import { HTTP } from "../../utils/constants.js";
 import { tryCatch } from "../../utils/tryCatch.js";
 import { UserUseCase } from "../../application/use-cases/user.useCase.js";
 import { userSchema } from "../../domain/zod/user.zod.js";
-
-
-interface CustomRequest extends Request {
-    userId?: string;
-}
+import { CustomRequest } from "../../domain/interfaces/utils.interface.js";
 
 
 export const UserController = {

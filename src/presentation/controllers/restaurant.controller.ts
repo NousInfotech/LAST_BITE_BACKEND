@@ -10,11 +10,7 @@ import { HTTP } from "../../utils/constants.js";
 import { tryCatch } from "../../utils/tryCatch.js";
 import { RestaurantUseCase } from "../../application/use-cases/restaurant.useCase.js";
 import { restaurantSchema } from "../../domain/zod/restaurant.zod.js";
-import { Role } from "../../domain/interfaces/utils.interface.js";
-
-interface CustomRequest extends Request {
-    role?: Role
-}
+import { CustomRequest, Role } from "../../domain/interfaces/utils.interface.js";
 
 export const RestaurantController = {
     async createRestaurant(req: CustomRequest, res: Response) {

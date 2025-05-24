@@ -1,6 +1,6 @@
 // src/services/twilio.service.ts
 
-import { twilioVerifyService } from "../../config/twilioConfig.js";
+import { twilioVerifyService } from "../../config/twilio.config.js";
 
 // Send OTP via SMS
 export const sendOtp = async (phoneNumber: string): Promise<string> => {

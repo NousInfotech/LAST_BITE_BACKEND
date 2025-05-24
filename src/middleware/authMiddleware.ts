@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { sendError } from "../utils/sendError.js";
 import { HTTP } from "../utils/constants.js";
-import { verifyToken } from "../config/jwtConfig.js";
+import { verifyToken } from "../config/jwt.config.js";
 
 // Import all your role-based use cases
 import { UserUseCase } from "../application/use-cases/user.useCase.js";
