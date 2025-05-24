@@ -37,7 +37,7 @@ app.use('/restaurant', restaurantRouter);
 app.use('/food-item', foodItemRouter);
 
 // file uploadin routes
-app.use('/upload-image',imageUploadRouter);
+app.use('/image',imageUploadRouter);
 
 
 

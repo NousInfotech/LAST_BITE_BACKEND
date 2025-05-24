@@ -18,7 +18,7 @@ imageUploadRouter.use(authMiddleware(["user", "restaurantAdmin", "rider", "super
  * @desc Upload an image (requires 'file' and 'folderName')
  */
 imageUploadRouter.post(
-  "/",
+  "/upload",
   upload.single("file"), // Multer middleware to handle file upload
   ImageUploadController.uploadImage
 );
@@ -28,7 +28,7 @@ imageUploadRouter.post(
  * @desc Replace (update) an image (requires 'oldImageUrl', 'file', and 'folderName')
  */
 imageUploadRouter.put(
-  "/",
+  "/update",
   upload.single("file"), // Multer middleware for new file upload
   ImageUploadController.updateImage
 );
@@ -38,7 +38,7 @@ imageUploadRouter.put(
  * @desc Delete an image (requires 'imageUrl' in request body)
  */
 imageUploadRouter.delete(
-  "/",
+  "/delete",
   ImageUploadController.deleteImage
 );
 
