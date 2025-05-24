@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 
 export interface ISendResponse {
     res: Response;
@@ -61,5 +61,8 @@ export enum FoodType {
   EGGETARIAN = "eggetarian",
   SEAFOOD = "seafood",
   ORGANIC = "organic"
+}
+export interface CustomRequest extends Request {
+    role?: Role;
 }
 

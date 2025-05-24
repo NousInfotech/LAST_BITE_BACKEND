@@ -1,4 +1,4 @@
-import { IHTTPStatusCodes } from "../domain/interfaces/utils.interface.js";
+import { IHTTPStatusCodes, Role } from "../domain/interfaces/utils.interface.js";
 
 export const HTTP: IHTTPStatusCodes = {
     // 1xx - Informational
@@ -52,3 +52,33 @@ export const HTTP: IHTTPStatusCodes = {
     HTTP_VERSION_NOT_SUPPORTED: 505,
     INSUFFICIENT_STORAGE: 507,
 };
+
+
+export const imageFolders = [
+    "user",
+    "rider",
+    "rider-documents",
+    "restaurant",
+    "restaurant-documents",
+    "foodItem",
+] as const;
+
+export type ImageFolder = (typeof imageFolders)[number];
+
+// Mapping of which roles are allowed to upload to which folders
+export const allowedFoldersByRole: Record<Role, ImageFolder[]> = {
+    user: ["user"],
+    rider: ["rider", "rider-documents"],
+    restaurantAdmin: ["restaurant", "restaurant-documents", "foodItem"],
+    superAdmin: [
+        "user",
+        "rider",
+        "rider-documents",
+        "restaurant",
+        "restaurant-documents",
+        "foodItem",
+    ],
+};
+
+
+

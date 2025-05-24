@@ -73,7 +73,7 @@ last_bite_backend/
     │
     ├── config/                // App configuration settings
     │   ├── env.ts             // Environment variables config using dotenv
-    │   └── jwtConfig.ts       // JWT Config File  
+    │   └── jwt.config.ts       // JWT Config File  
     │
     ├── domain/                // Core domain logic and validation
     │   ├── interfaces/        // Type definitions and contracts
