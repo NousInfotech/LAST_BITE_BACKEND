@@ -10,6 +10,7 @@ import restaurantAdminRouter from './presentation/routes/restaurantAdmin.routes.
 import restaurantRouter from './presentation/routes/restaurant.routes.js';
 import foodItemRouter from './presentation/routes/foodItem.routes.js';
 import imageUploadRouter from './presentation/routes/imageUpload.route.js';
+import superAdminRouter from './presentation/routes/superAdmin.routes.js';
 
 const app: Application = express();
 
@@ -31,13 +32,14 @@ app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use('/rider', riderRouter);
 app.use('/restaurant-admin', restaurantAdminRouter);
+app.use('/super-admin', superAdminRouter);
 
 // restaurant routes
 app.use('/restaurant', restaurantRouter);
 app.use('/food-item', foodItemRouter);
 
 // file uploadin routes
-app.use('/image',imageUploadRouter);
+app.use('/image', imageUploadRouter);
 
 
 

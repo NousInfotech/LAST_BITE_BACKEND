@@ -10,5 +10,6 @@ const authRouter = Router();
 authRouter.post("/send-otp", AuthController.sendOtp);
 authRouter.post("/verify-otp", AuthController.verifyOtp);
 authRouter.post("/check-login", AuthController.checkLogin);
+authRouter.post("/super-admin-login",AuthController.superAdminLogin);
 
 export default authRouter;

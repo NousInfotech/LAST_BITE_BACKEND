@@ -8,11 +8,13 @@ import { UserUseCase } from "../application/use-cases/user.useCase.js";
 import { RiderUseCase } from "../application/use-cases/rider.useCase.js";
 import { RestaurantAdminUseCase } from "../application/use-cases/restaurantAdmin.useCase.js";
 import { Role } from "../domain/interfaces/utils.interface.js";
+import { SuperAdminUseCase } from "../application/use-cases/superAdmin.useCase.js";
 
 export interface AuthenticatedRequest extends Request {
     userId?: string;
     restaurantAdminId?: string;
     riderId?: string;
+    superAdminId?: string;
     role?: Role;
 }
 
@@ -33,7 +35,7 @@ export const authMiddleware = (allowedRoles: string[] = []) => {
             const token = authHeader.split(" ")[1];
             //  { role, roleBasedId }
             // Should return
-            const decoded = verifyToken(token); 
+            const decoded = verifyToken(token);
 
             const { role, roleBasedId } = decoded;
 
@@ -63,6 +65,10 @@ export const authMiddleware = (allowedRoles: string[] = []) => {
                 case "rider":
                     exists = await RiderUseCase.getRiderById(roleBasedId);
                     if (exists) req.riderId = roleBasedId;
+                    break;
+                case "superAdmin":
+                    exists = await SuperAdminUseCase.getSuperAdminById(roleBasedId);
+                    if (exists) req.superAdminId = roleBasedId;
                     break;
                 default:
                     sendError(res, HTTP.UNAUTHORIZED, `Unauthorized: Invalid role '${role}'`);

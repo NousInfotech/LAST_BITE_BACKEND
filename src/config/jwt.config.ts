@@ -3,7 +3,7 @@ import { config } from "./env.js";
 import { Role } from "../domain/interfaces/utils.interface.js";
 
 const JWT_SECRET = config.jwtSecret;
-const JWT_EXPIRES_IN = "7d";
+const JWT_EXPIRES_IN = "30d";
 
 if (!JWT_SECRET) {
     throw new Error("JWT_SECRET is not defined in environment variables.");

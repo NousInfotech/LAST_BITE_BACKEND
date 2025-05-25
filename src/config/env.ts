@@ -5,6 +5,7 @@ export const config = {
   port: process.env.PORT || 5000,
   mongoUri: process.env.MONGO_URI || '',
   jwtSecret: process.env.JWT_SECRET || '',
+  jwtExpiresIn: process.env.JWT_EXPIRES || '30d',
 
   // twilio
   twilioAccountSid: process.env.TWILIO_ACCOUNT_SID!,

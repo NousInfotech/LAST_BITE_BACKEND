@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { validate } from "../../utils/validation.js";
+import bcrypt from "bcryptjs";
 import { sendResponse } from "../../utils/sendResponse.js";
 import { sendError } from "../../utils/sendError.js";
 import { HTTP } from "../../utils/constants.js";
@@ -8,6 +9,8 @@ import { sendOtp, verifyOtp } from "../../application/services/twilio.service.js
 import { otpSchema, phoneAndRoleSchema, phoneNumberSchema } from "../validators/auth.validator.js"; // Assuming you have a schema for validation
 import { generateToken } from "../../config/jwt.config.js";
 import getRoleBasedIdByPhone from "../../utils/roleIdByPhoneNumber.js";
+import { superAdminLoginSchema } from "../../domain/zod/superAdmin.zod.js";
+import { SuperAdminModel } from "../../infrastructure/db/mongoose/schemas/superAdmin.schema.js";
 
 
 export const AuthController = {
@@ -79,6 +82,35 @@ export const AuthController = {
                 [`${role}Id`]: loginData.roleBasedId,
             });
         });
-    }
+    },
 
+    async superAdminLogin(req: Request, res: Response) {
+        const validation = validate(superAdminLoginSchema, req.body, res);
+        if (!validation) return;
+
+        const { email, password } = validation;
+
+        return tryCatch(res, async () => {
+            const superAdmin = await SuperAdminModel.findOne({ email });
+            if (!superAdmin) {
+                return sendError(res, HTTP.UNAUTHORIZED, "Invalid credentials");
+            }
+
+            const isPasswordCorrect = await bcrypt.compare(password, superAdmin.password);
+            if (!isPasswordCorrect) {
+                return sendError(res, HTTP.UNAUTHORIZED, "Invalid credentials");
+            }
+
+            const token = generateToken({
+                role: "superAdmin",
+                roleBasedId: superAdmin.superAdminId!,
+            });
+
+            return sendResponse(res, HTTP.OK, "Login successful", {
+                token,
+                role: "superAdmin",
+                superAdminId: superAdmin.superAdminId,
+            });
+        });
+    }
 };
