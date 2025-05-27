@@ -38,6 +38,29 @@ export class UserRepository {
     }
 
     /**
+ * Add restaurant to favourites
+ * @param {string} userId - User's custom ID
+ * @param {string} restaurantId - Restaurant ID to add
+ */
+    async addFavourite(userId: string, restaurantId: string) {
+        return await this.updateUser(userId, {
+            $addToSet: { favourites: restaurantId },
+        });
+    }
+
+    /**
+     * Remove restaurant from favourites
+     * @param {string} userId - User's custom ID
+     * @param {string} restaurantId - Restaurant ID to remove
+     */
+    async removeFavourite(userId: string, restaurantId: string) {
+        return await this.updateUser(userId, {
+            $pull: { favourites: restaurantId },
+        });
+    }
+
+
+    /**
      * Delete a user
      * @param {string} userId - Custom userId to delete
      */
@@ -121,12 +144,12 @@ export class UserRepository {
      * @param {string} addressId - Address subdocument ID
      */
     async deleteAddress(userId: string, addressId: string) {
-    const user = await UserModel.findOne({ userId }) as UserDoc;
-    if (!user?.addresses) return null;
+        const user = await UserModel.findOne({ userId }) as UserDoc;
+        if (!user?.addresses) return null;
 
-    user.addresses.pull({ _id: addressId });
-    await user.save();
+        user.addresses.pull({ _id: addressId });
+        await user.save();
 
-    return user.addresses;
-}
+        return user.addresses;
+    }
 }

@@ -5,6 +5,7 @@ import {
     userIdSchema,
     updateAddressSchema,
     updateUserSchema,
+    favoriteValidator,
 } from "../validators/user.validator.js";
 import { sendResponse } from "../../utils/sendResponse.js";
 import { sendError } from "../../utils/sendError.js";
@@ -112,6 +113,8 @@ export const UserController = {
         });
     },
 
+
+
     async deleteAddress(req: CustomRequest, res: Response) {
         const parsed = validate(userIdSchema, req, res);
         if (!parsed) return;
@@ -122,6 +125,21 @@ export const UserController = {
             const addresses = await UserUseCase.deleteAddress(userId, addressId);
             if (!addresses) return sendError(res, HTTP.NOT_FOUND, "User or Address not found");
             return sendResponse(res, HTTP.OK, "Address deleted successfully", addresses);
+        });
+    },
+
+    async updateUserFavourites(req: CustomRequest, res: Response) {
+        const parsed = validate(userIdSchema, req, res);
+        if (!parsed) return;
+        const bodyCheck = validate(favoriteValidator, req.body, res);
+        if (!bodyCheck) return;
+        const { restaurantId, action } = bodyCheck;
+
+        return tryCatch(res, async () => {
+            const favourites = await UserUseCase.updateFavourites(parsed.userId, restaurantId, action);
+            if (!favourites) return sendError(res, HTTP.NOT_FOUND, "User not found or favourites update failed");
+            return sendResponse(res, HTTP.OK, "Favourites updated successfully", favourites);
+
         });
     },
 };

@@ -51,18 +51,28 @@ export interface IAddress {
     tag?: "home" | "office" | "friends" | "others";
 }
 export enum FoodType {
-  VEG = "veg",
-  NON_VEG = "non_veg",
-  HALAL = "halal",
-  VEGAN = "vegan",
-  KOSHER = "kosher",
-  GLUTEN_FREE = "gluten_free",
-  JAIN = "jain",
-  EGGETARIAN = "eggetarian",
-  SEAFOOD = "seafood",
-  ORGANIC = "organic"
+    VEG = "veg",
+    NON_VEG = "non_veg",
+    HALAL = "halal",
+    VEGAN = "vegan",
+    KOSHER = "kosher",
+    GLUTEN_FREE = "gluten_free",
+    JAIN = "jain",
+    EGGETARIAN = "eggetarian",
+    SEAFOOD = "seafood",
+    ORGANIC = "organic"
 }
+
+export enum FavoritesActions {
+    ADD = "add",
+    REMOVE = "remove"
+}
+
 export interface CustomRequest extends Request {
     role?: Role;
+    userId?: string;
+    restaurantAdminId?: string;
+    superAdminId?: string;
+    riderId?: string;
 }
 

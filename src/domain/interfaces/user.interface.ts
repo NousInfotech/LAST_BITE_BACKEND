@@ -5,6 +5,7 @@ export interface IUser {
     name: string;
     phoneNumber: string;
     email?: string;
+    favourites?: string[];
     profileImage?: string;
     addresses?: IAddress[];
     createdAt?: Date;

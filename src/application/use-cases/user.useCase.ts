@@ -1,7 +1,7 @@
 // application/use-cases/user/user.useCase.ts
 
 import { IUser } from "../../domain/interfaces/user.interface.js";
-import { IAddress } from "../../domain/interfaces/utils.interface.js";
+import { FavoritesActions, IAddress } from "../../domain/interfaces/utils.interface.js";
 import { UserRepository } from "../../infrastructure/repositories/user.repository.js";
 
 
@@ -18,4 +18,17 @@ export const UserUseCase = {
     getAddresses: (userId: string) => userRepo.getAddresses(userId),
     updateAddress: (userId: string, addressId: string, data: Partial<IAddress>) => userRepo.updateAddress(userId, addressId, data),
     deleteAddress: (userId: string, addressId: string) => userRepo.deleteAddress(userId, addressId),
+
+    updateFavourites: (userId: string, restaurantId: string, action: FavoritesActions) => {
+        const actionsMap = {
+            [FavoritesActions.ADD]: () => userRepo.addFavourite(userId, restaurantId),
+            [FavoritesActions.REMOVE]: () => userRepo.removeFavourite(userId, restaurantId),
+        };
+
+        const operation = actionsMap[action];
+        if (!operation) throw new Error("Invalid action for updateFavourites");
+
+        return operation();
+    }
+
 };

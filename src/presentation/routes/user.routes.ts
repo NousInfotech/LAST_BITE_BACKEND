@@ -21,6 +21,7 @@ userRouter.use(authMiddleware(["user"]));  // Applying the middleware to protect
 userRouter.get("/me", UserController.getUserByUserId);
 userRouter.put("/me", UserController.updateUser);
 userRouter.delete("/me", UserController.deleteUser);
+userRouter.patch("/favorites", UserController.updateUserFavourites);
 
 // ------------------------------
 // Address Routes (nested under userId)
@@ -29,5 +30,7 @@ userRouter.post("/me/addresses", UserController.addAddress);
 userRouter.get("/me/addresses", UserController.getAddresses);
 userRouter.put("/me/addresses/:addressId", UserController.updateAddress);
 userRouter.delete("/me/addresses/:addressId", UserController.deleteAddress);
+
+
 
 export default userRouter;
