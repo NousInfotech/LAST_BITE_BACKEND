@@ -6,7 +6,7 @@ import { sendError } from "../../utils/sendError.js";
 import { HTTP } from "../../utils/constants.js";
 import { tryCatch } from "../../utils/tryCatch.js";
 import { sendOtp, verifyOtp } from "../../application/services/twilio.service.js";
-import { otpSchema, phoneAndRoleSchema, phoneNumberSchema } from "../validators/auth.validator.js"; // Assuming you have a schema for validation
+import { otpSchema, phoneAndRoleSchema } from "../validators/auth.validator.js"; // Assuming you have a schema for validation
 import { generateToken } from "../../config/jwt.config.js";
 import getRoleBasedIdByPhone from "../../utils/roleIdByPhoneNumber.js";
 import { superAdminLoginSchema } from "../../domain/zod/superAdmin.zod.js";
@@ -93,12 +93,15 @@ export const AuthController = {
         return tryCatch(res, async () => {
             const superAdmin = await SuperAdminModel.findOne({ email });
             if (!superAdmin) {
-                return sendError(res, HTTP.UNAUTHORIZED, "Invalid credentials");
+                sendError(res, HTTP.NOT_FOUND, "User Not Found");
+                return
             }
+
 
             const isPasswordCorrect = await bcrypt.compare(password, superAdmin.password);
             if (!isPasswordCorrect) {
-                return sendError(res, HTTP.UNAUTHORIZED, "Invalid credentials");
+                sendError(res, HTTP.UNAUTHORIZED, "Incorrect Password");
+                return
             }
 
             const token = generateToken({
@@ -110,6 +113,14 @@ export const AuthController = {
                 token,
                 role: "superAdmin",
                 superAdminId: superAdmin.superAdminId,
+            });
+        });
+    },
+
+    async checkAuth(req: Request, res: Response) {
+        tryCatch(res, async () => {
+            return sendResponse(res, HTTP.OK, "Token is valid", {
+
             });
         });
     }
