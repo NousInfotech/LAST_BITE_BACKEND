@@ -72,7 +72,7 @@ export const FoodItemController = {
         });
     },
 
-    async getByRestaurantId(req: Request, res: Response) {
+    async getFoodItemByRestaurantId(req: Request, res: Response) {
 
         const parsed = validate(restaurantIdSchema, req.params, res);
 

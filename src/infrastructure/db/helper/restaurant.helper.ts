@@ -55,6 +55,8 @@ export function sanitizeRestaurantByRole(
       return restaurant; // Full access, no filtering
 
     default:
-      return restaurant; // Or throw an error if needed
+      return {}; // Or throw an error if needed
   }
 }
+
+

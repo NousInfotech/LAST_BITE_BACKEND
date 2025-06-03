@@ -76,8 +76,7 @@ export const RestaurantController = {
 
         return tryCatch(res, async () => {
             const restaurants = await RestaurantUseCase.getAllRestaurants(role as Role, filters);
-
-            if (!restaurants) return sendError(res, HTTP.NOT_FOUND, "Restaurants not found");
+            if (!restaurants || restaurants.length == 0) return sendError(res, HTTP.NOT_FOUND, "Restaurants not found");
             return sendResponse(res, HTTP.OK, "Restaurants fetched successfully", restaurants);
         });
     },

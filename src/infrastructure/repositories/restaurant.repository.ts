@@ -1,6 +1,7 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
 import { IRestaurant } from "../../domain/interfaces/restaurant.interface.js";
 import { RestaurantDoc, RestaurantModel } from "../db/mongoose/schemas/restaurant.schema.js";
+import { extractQueryOptions } from "../db/helper/utils.helper.js";
 
 export class RestaurantRepository {
   /**
@@ -46,8 +47,23 @@ export class RestaurantRepository {
    * @param {FilterQuery<IRestaurant>} [filter={}] - Mongoose filter object
    * @returns {Promise<RestaurantDoc[]>}
    */
-  async getAllRestaurants(filter: FilterQuery<IRestaurant> = {}) {
-    return await RestaurantModel.find(filter, { _id: 0, __v: 0 }).lean();
+  async getAllRestaurants(filter: FilterQuery<IRestaurant> & Record<string, any> = {}) {
+    // Extract query options from filter (pagination, sorting)
+    const { sortBy, order, page, limit, search, ...pureFilter } = filter;
+
+    // Build MongoDB filter object
+    if (search) {
+      pureFilter.restaurantName = { $regex: search, $options: "i" };
+    }
+
+    // Extract pagination/sorting options
+    const queryOptions = extractQueryOptions({ sortBy, order, page, limit });
+
+    return await RestaurantModel.find(pureFilter, { _id: 0, __v: 0 })
+      .sort(queryOptions.sort)
+      .skip(queryOptions.skip || 0)
+      .limit(queryOptions.limit || 10)
+      .lean();
   }
 
   /**
