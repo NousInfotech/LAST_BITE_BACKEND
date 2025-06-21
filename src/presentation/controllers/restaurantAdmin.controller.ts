@@ -30,6 +30,14 @@ export const RestaurantAdminController = {
       return sendResponse(res, HTTP.OK, "Admin fetched successfully", admin);
     });
   },
+  async getAllAdmins(req: Request, res: Response) {
+
+    return tryCatch(res, async () => {
+      const admin = await RestaurantAdminUseCase.getAllAdmins();
+      if (!admin) return sendError(res, HTTP.NOT_FOUND, "Admins not found");
+      return sendResponse(res, HTTP.OK, "Admins fetched successfully", admin);
+    });
+  },
 
   async updateAdmin(req: Request, res: Response) {
     const paramCheck = validate(adminIdParamsSchema, req.params, res);

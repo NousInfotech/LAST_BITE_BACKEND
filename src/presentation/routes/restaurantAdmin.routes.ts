@@ -17,6 +17,7 @@ restaurantAdminRouter.use(authMiddleware(["restaurantAdmin"]));
 // ------------------------------
 // Authenticated Admin Routes
 // ------------------------------
+restaurantAdminRouter.get("/", RestaurantAdminController.getAllAdmins)
 restaurantAdminRouter.get("/:adminId", RestaurantAdminController.getAdminById);
 restaurantAdminRouter.put("/:adminId", RestaurantAdminController.updateAdmin);
 restaurantAdminRouter.delete("/:adminId", RestaurantAdminController.deleteAdmin);

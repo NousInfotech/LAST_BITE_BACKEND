@@ -58,7 +58,7 @@ export enum FoodType {
     KOSHER = "kosher",
     GLUTEN_FREE = "gluten_free",
     JAIN = "jain",
-    EGGETARIAN = "eggetarian",
+    EGGETARIAN = "egg",
     SEAFOOD = "seafood",
     ORGANIC = "organic"
 }

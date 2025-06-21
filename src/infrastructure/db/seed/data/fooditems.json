@@ -1,0 +1,1903 @@
+[
+  {
+    "restaurantId": "res_Gv4m3OpBX8",
+    "name": "Chicken Tikka Masala",
+    "description": "Tender chicken pieces in rich creamy tomato sauce with aromatic spices",
+    "price": 320,
+    "discountPrice": 280,
+    "image": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["spicy", "creamy", "popular"],
+    "category": "main_course",
+    "rating": 4.5,
+    "ratingCount": 124,
+    "stock": 25,
+    "addons": [
+      { "name": "Extra Chicken", "price": 80 },
+      { "name": "Naan Bread", "price": 45 }
+    ]
+  },
+  {
+    "restaurantId": "res_Gv4m3OpBX8",
+    "name": "Paneer Butter Masala",
+    "description": "Fresh paneer cubes in rich buttery tomato gravy",
+    "price": 280,
+    "discountPrice": 250,
+    "image": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["creamy", "mild", "vegetarian"],
+    "category": "main_course",
+    "rating": 4.3,
+    "ratingCount": 89,
+    "stock": 30,
+    "addons": [
+      { "name": "Extra Paneer", "price": 60 },
+      { "name": "Garlic Naan", "price": 50 }
+    ]
+  },
+  {
+    "restaurantId": "res_Gv4m3OpBX8",
+    "name": "Mutton Biryani",
+    "description": "Fragrant basmati rice layered with tender mutton and aromatic spices",
+    "price": 450,
+    "discountPrice": 399,
+    "image": "https://images.unsplash.com/photo-1563379091339-03246963d96c?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["spicy", "aromatic", "traditional"],
+    "category": "biryani",
+    "rating": 4.7,
+    "ratingCount": 156,
+    "stock": 20,
+    "addons": [
+      { "name": "Raita", "price": 30 },
+      { "name": "Pickle", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_Gv4m3OpBX8",
+    "name": "Veg Hakka Noodles",
+    "description": "Stir-fried noodles with fresh vegetables and Indo-Chinese flavors",
+    "price": 220,
+    "discountPrice": 199,
+    "image": "https://images.unsplash.com/photo-1585032226651-759b368115bf?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["indo-chinese", "mild", "noodles"],
+    "category": "noodles",
+    "rating": 4.2,
+    "ratingCount": 67,
+    "stock": 35,
+    "addons": [
+      { "name": "Extra Vegetables", "price": 40 },
+      { "name": "Chili Sauce", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_Gv4m3OpBX8",
+    "name": "Tandoori Chicken",
+    "description": "Marinated chicken grilled in traditional tandoor oven",
+    "price": 380,
+    "discountPrice": 340,
+    "image": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["grilled", "spicy", "smoky"],
+    "category": "tandoori",
+    "rating": 4.6,
+    "ratingCount": 98,
+    "stock": 18,
+    "addons": [
+      { "name": "Mint Chutney", "price": 25 },
+      { "name": "Onion Salad", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_Gv4m3OpBX8",
+    "name": "Dal Makhani",
+    "description": "Creamy black lentils slow-cooked with butter and cream",
+    "price": 240,
+    "discountPrice": 220,
+    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["creamy", "rich", "comfort"],
+    "category": "dal",
+    "rating": 4.4,
+    "ratingCount": 76,
+    "stock": 40,
+    "addons": [
+      { "name": "Butter", "price": 15 },
+      { "name": "Cream", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_Gv4m3OpBX8",
+    "name": "Gulab Jamun",
+    "description": "Soft milk dumplings soaked in rose-flavored sugar syrup",
+    "price": 120,
+    "discountPrice": 100,
+    "image": "https://images.unsplash.com/photo-1571167251630-de6e37998b2b?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["sweet", "traditional", "dessert"],
+    "category": "dessert",
+    "rating": 4.5,
+    "ratingCount": 134,
+    "stock": 50,
+    "addons": [
+      { "name": "Ice Cream", "price": 35 },
+      { "name": "Extra Syrup", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_Gv4m3OpBX8",
+    "name": "Samosa Chat",
+    "description": "Crispy samosas topped with yogurt, chutneys and spices",
+    "price": 150,
+    "discountPrice": 130,
+    "image": "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["crispy", "tangy", "street-food"],
+    "category": "starter",
+    "rating": 4.1,
+    "ratingCount": 45,
+    "stock": 25,
+    "addons": [
+      { "name": "Extra Chutney", "price": 15 },
+      { "name": "Sev", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_Gv4m3OpBX8",
+    "name": "Mango Lassi",
+    "description": "Refreshing yogurt drink blended with sweet mango pulp",
+    "price": 80,
+    "discountPrice": 70,
+    "image": "https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["refreshing", "sweet", "cold"],
+    "category": "beverage",
+    "rating": 4.3,
+    "ratingCount": 87,
+    "stock": 60,
+    "addons": [
+      { "name": "Extra Mango", "price": 20 },
+      { "name": "Dry Fruits", "price": 25 }
+    ]
+  },
+  {
+    "restaurantId": "res_Gv4m3OpBX8",
+    "name": "Palak Paneer",
+    "description": "Fresh paneer cubes in creamy spinach gravy",
+    "price": 260,
+    "discountPrice": 240,
+    "image": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["healthy", "creamy", "nutritious"],
+    "category": "main_course",
+    "rating": 4.2,
+    "ratingCount": 56,
+    "stock": 28,
+    "addons": [
+      { "name": "Extra Paneer", "price": 60 },
+      { "name": "Butter", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_eY7fuq9bWH",
+    "name": "Grilled Salmon",
+    "description": "Fresh Atlantic salmon grilled to perfection with herbs",
+    "price": 680,
+    "discountPrice": 620,
+    "image": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg", "seafood"],
+    "tags": ["grilled", "healthy", "premium"],
+    "category": "seafood",
+    "rating": 4.8,
+    "ratingCount": 142,
+    "stock": 15,
+    "addons": [
+      { "name": "Lemon Butter Sauce", "price": 40 },
+      { "name": "Grilled Vegetables", "price": 80 }
+    ]
+  },
+  {
+    "restaurantId": "res_eY7fuq9bWH",
+    "name": "Prawns Tempura",
+    "description": "Crispy battered prawns served with spicy mayo",
+    "price": 520,
+    "discountPrice": 480,
+    "image": "https://images.unsplash.com/photo-1579952363873-27d3bfad9c0d?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg", "seafood"],
+    "tags": ["crispy", "japanese", "spicy"],
+    "category": "appetizer",
+    "rating": 4.6,
+    "ratingCount": 89,
+    "stock": 20,
+    "addons": [
+      { "name": "Spicy Mayo", "price": 25 },
+      { "name": "Wasabi", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_eY7fuq9bWH",
+    "name": "Thai Red Curry",
+    "description": "Spicy coconut curry with vegetables and aromatic herbs",
+    "price": 380,
+    "discountPrice": 350,
+    "image": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["spicy", "coconut", "thai"],
+    "category": "curry",
+    "rating": 4.5,
+    "ratingCount": 76,
+    "stock": 25,
+    "addons": [
+      { "name": "Jasmine Rice", "price": 60 },
+      { "name": "Extra Vegetables", "price": 50 }
+    ]
+  },
+  {
+    "restaurantId": "res_eY7fuq9bWH",
+    "name": "Fish and Chips",
+    "description": "Beer-battered cod with crispy fries and tartar sauce",
+    "price": 450,
+    "discountPrice": 420,
+    "image": "https://images.unsplash.com/photo-1544982503-9f984c14501a?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg", "seafood"],
+    "tags": ["crispy", "classic", "comfort"],
+    "category": "main_course",
+    "rating": 4.4,
+    "ratingCount": 98,
+    "stock": 22,
+    "addons": [
+      { "name": "Tartar Sauce", "price": 20 },
+      { "name": "Mushy Peas", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_eY7fuq9bWH",
+    "name": "Seafood Paella",
+    "description": "Traditional Spanish rice dish with mixed seafood",
+    "price": 750,
+    "discountPrice": 680,
+    "image": "https://images.unsplash.com/photo-1515443961218-a51367888e4b?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg", "seafood"],
+    "tags": ["spanish", "rich", "sharing"],
+    "category": "main_course",
+    "rating": 4.9,
+    "ratingCount": 167,
+    "stock": 12,
+    "addons": [
+      { "name": "Aioli", "price": 35 },
+      { "name": "Lemon Wedges", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_eY7fuq9bWH",
+    "name": "Coconut Crab Curry",
+    "description": "Fresh crab in spicy coconut curry with coastal spices",
+    "price": 620,
+    "discountPrice": 580,
+    "image": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg", "seafood"],
+    "tags": ["spicy", "coastal", "premium"],
+    "category": "curry",
+    "rating": 4.7,
+    "ratingCount": 123,
+    "stock": 18,
+    "addons": [
+      { "name": "Appam", "price": 40 },
+      { "name": "Extra Coconut", "price": 25 }
+    ]
+  },
+  {
+    "restaurantId": "res_eY7fuq9bWH",
+    "name": "Sushi Platter",
+    "description": "Assorted fresh sushi rolls with wasabi and ginger",
+    "price": 580,
+    "discountPrice": 520,
+    "image": "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg", "seafood"],
+    "tags": ["fresh", "japanese", "premium"],
+    "category": "sushi",
+    "rating": 4.8,
+    "ratingCount": 134,
+    "stock": 16,
+    "addons": [
+      { "name": "Soy Sauce", "price": 10 },
+      { "name": "Extra Wasabi", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_eY7fuq9bWH",
+    "name": "Mango Sticky Rice",
+    "description": "Sweet coconut rice with fresh mango slices",
+    "price": 180,
+    "discountPrice": 160,
+    "image": "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["sweet", "tropical", "dessert"],
+    "category": "dessert",
+    "rating": 4.5,
+    "ratingCount": 67,
+    "stock": 30,
+    "addons": [
+      { "name": "Extra Mango", "price": 40 },
+      { "name": "Coconut Flakes", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_eY7fuq9bWH",
+    "name": "Lemon Grass Mojito",
+    "description": "Refreshing non-alcoholic mojito with lemon grass",
+    "price": 120,
+    "discountPrice": 100,
+    "image": "https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["refreshing", "citrus", "herbal"],
+    "category": "mocktail",
+    "rating": 4.3,
+    "ratingCount": 89,
+    "stock": 45,
+    "addons": [
+      { "name": "Extra Mint", "price": 15 },
+      { "name": "Fresh Lime", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_eY7fuq9bWH",
+    "name": "Grilled Vegetables",
+    "description": "Seasonal vegetables grilled with Mediterranean herbs",
+    "price": 280,
+    "discountPrice": 250,
+    "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["healthy", "grilled", "seasonal"],
+    "category": "appetizer",
+    "rating": 4.2,
+    "ratingCount": 54,
+    "stock": 35,
+    "addons": [
+      { "name": "Balsamic Glaze", "price": 25 },
+      { "name": "Feta Cheese", "price": 45 }
+    ]
+  },
+  {
+    "restaurantId": "res_j4Ef953YiK",
+    "name": "Lobster Thermidor",
+    "description": "Grilled lobster with creamy cheese sauce",
+    "price": 950,
+    "discountPrice": 850,
+    "image": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg", "seafood"],
+    "tags": ["premium", "creamy", "luxury"],
+    "category": "seafood",
+    "rating": 4.9,
+    "ratingCount": 89,
+    "stock": 8,
+    "addons": [
+      { "name": "Garlic Bread", "price": 60 },
+      { "name": "White Wine Sauce", "price": 80 }
+    ]
+  },
+  {
+    "restaurantId": "res_j4Ef953YiK",
+    "name": "Mutton Pepper Fry",
+    "description": "Tender mutton pieces with black pepper and South Indian spices",
+    "price": 480,
+    "discountPrice": 430,
+    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["spicy", "south-indian", "pepper"],
+    "category": "main_course",
+    "rating": 4.6,
+    "ratingCount": 123,
+    "stock": 20,
+    "addons": [
+      { "name": "Appam", "price": 35 },
+      { "name": "Paratha", "price": 40 }
+    ]
+  },
+  {
+    "restaurantId": "res_j4Ef953YiK",
+    "name": "Fish Moilee",
+    "description": "Kerala-style fish curry in coconut milk",
+    "price": 420,
+    "discountPrice": 380,
+    "image": "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg", "seafood"],
+    "tags": ["kerala", "coconut", "mild"],
+    "category": "curry",
+    "rating": 4.7,
+    "ratingCount": 156,
+    "stock": 25,
+    "addons": [
+      { "name": "Steamed Rice", "price": 50 },
+      { "name": "Coconut Oil", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_j4Ef953YiK",
+    "name": "Beef Steak",
+    "description": "Grilled tenderloin steak with mushroom sauce",
+    "price": 720,
+    "discountPrice": 650,
+    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["grilled", "premium", "juicy"],
+    "category": "grills",
+    "rating": 4.8,
+    "ratingCount": 98,
+    "stock": 15,
+    "addons": [
+      { "name": "Mashed Potatoes", "price": 70 },
+      { "name": "Pepper Sauce", "price": 45 }
+    ]
+  },
+  {
+    "restaurantId": "res_j4Ef953YiK",
+    "name": "Prawn Biryani",
+    "description": "Aromatic basmati rice layered with succulent prawns",
+    "price": 520,
+    "discountPrice": 480,
+    "image": "https://images.unsplash.com/photo-1563379091339-03246963d96c?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg", "seafood"],
+    "tags": ["aromatic", "spicy", "biryani"],
+    "category": "biryani",
+    "rating": 4.7,
+    "ratingCount": 167,
+    "stock": 18,
+    "addons": [
+      { "name": "Boiled Egg", "price": 25 },
+      { "name": "Prawn Pickle", "price": 35 }
+    ]
+  },
+  {
+    "restaurantId": "res_j4Ef953YiK",
+    "name": "Chicken Chettinad",
+    "description": "Spicy Tamil Nadu style chicken curry with roasted spices",
+    "price": 380,
+    "discountPrice": 340,
+    "image": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["spicy", "chettinad", "traditional"],
+    "category": "curry",
+    "rating": 4.5,
+    "ratingCount": 134,
+    "stock": 22,
+    "addons": [
+      { "name": "Dosa", "price": 45 },
+      { "name": "Idiyappam", "price": 40 }
+    ]
+  },
+  {
+    "restaurantId": "res_j4Ef953YiK",
+    "name": "Tiramisu",
+    "description": "Classic Italian dessert with coffee and mascarpone",
+    "price": 220,
+    "discountPrice": 200,
+    "image": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["italian", "coffee", "creamy"],
+    "category": "dessert",
+    "rating": 4.6,
+    "ratingCount": 78,
+    "stock": 25,
+    "addons": [
+      { "name": "Vanilla Ice Cream", "price": 40 },
+      { "name": "Chocolate Shavings", "price": 25 }
+    ]
+  },
+  {
+    "restaurantId": "res_j4Ef953YiK",
+    "name": "Fresh Lime Soda",
+    "description": "Refreshing lime soda with mint and rock salt",
+    "price": 80,
+    "discountPrice": 70,
+    "image": "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["refreshing", "citrus", "cooling"],
+    "category": "beverage",
+    "rating": 4.2,
+    "ratingCount": 89,
+    "stock": 50,
+    "addons": [
+      { "name": "Extra Mint", "price": 10 },
+      { "name": "Sweet Lime", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_j4Ef953YiK",
+    "name": "Grilled Pomfret",
+    "description": "Whole pomfret marinated with coastal spices and grilled",
+    "price": 580,
+    "discountPrice": 520,
+    "image": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg", "seafood"],
+    "tags": ["grilled", "coastal", "fresh"],
+    "category": "seafood",
+    "rating": 4.8,
+    "ratingCount": 112,
+    "stock": 12,
+    "addons": [
+      { "name": "Butter Garlic Sauce", "price": 35 },
+      { "name": "Grilled Onions", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_j4Ef953YiK",
+    "name": "Mushroom Pepper Fry",
+    "description": "Sautéed mushrooms with black pepper and herbs",
+    "price": 280,
+    "discountPrice": 250,
+    "image": "https://images.unsplash.com/photo-1506806732259-39c2d0268443?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["mushroom", "pepper", "aromatic"],
+    "category": "appetizer",
+    "rating": 4.3,
+    "ratingCount": 65,
+    "stock": 30,
+    "addons": [
+      { "name": "Garlic Bread", "price": 45 },
+      { "name": "Cheese", "price": 35 }
+    ]
+  },
+
+  {
+    "restaurantId": "res_uzjz5futs3",
+    "name": "Ghee Roast Dosa",
+    "description": "Crispy dosa roasted in desi ghee, served with chutneys and sambar.",
+    "price": 130,
+    "discountPrice": 115,
+    "image": "https://images.unsplash.com/photo-1611171711914-f5ce2fdbcbb6?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["crispy", "ghee", "south-indian"],
+    "category": "dosa",
+    "rating": 4.6,
+    "ratingCount": 180,
+    "stock": 28,
+    "addons": [
+      { "name": "Extra Chutney", "price": 10 },
+      { "name": "Sambar Refill", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_uzjz5futs3",
+    "name": "Tomato Bath",
+    "description": "Spicy and tangy tomato rice cooked with aromatic spices and herbs.",
+    "price": 120,
+    "discountPrice": 100,
+    "image": "https://images.unsplash.com/photo-1576402187877-369b9d26e10d?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["rice", "spicy", "tangy"],
+    "category": "rice",
+    "rating": 4.3,
+    "ratingCount": 95,
+    "stock": 32,
+    "addons": [
+      { "name": "Raita", "price": 15 },
+      { "name": "Papad", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_uzjz5futs3",
+    "name": "Set Dosa",
+    "description": "Soft and fluffy set of three mini dosas served with chutney and sambar.",
+    "price": 110,
+    "discountPrice": 95,
+    "image": "https://images.unsplash.com/photo-1625232073887-68157b4411c1?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["soft", "light", "breakfast"],
+    "category": "dosa",
+    "rating": 4.4,
+    "ratingCount": 78,
+    "stock": 26,
+    "addons": [
+      { "name": "Extra Dosa", "price": 20 },
+      { "name": "Chutney Refill", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_uzjz5futs3",
+    "name": "Bisibele Bath",
+    "description": "Hot lentil and rice dish with vegetables, tamarind, and spices.",
+    "price": 140,
+    "discountPrice": 125,
+    "image": "https://images.unsplash.com/photo-1604335399109-6e7b49e4f7f2?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["spicy", "comfort", "rice"],
+    "category": "rice",
+    "rating": 4.5,
+    "ratingCount": 115,
+    "stock": 22,
+    "addons": [
+      { "name": "Boondi Raita", "price": 20 },
+      { "name": "Curd", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_uzjz5futs3",
+    "name": "Rava Idli",
+    "description": "Soft and fluffy semolina idlis with mustard and cashew tempering.",
+    "price": 100,
+    "discountPrice": 85,
+    "image": "https://images.unsplash.com/photo-1600628422018-83c56a1ce739?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["light", "semolina", "breakfast"],
+    "category": "idli",
+    "rating": 4.2,
+    "ratingCount": 72,
+    "stock": 30,
+    "addons": [
+      { "name": "Coconut Chutney", "price": 10 },
+      { "name": "Sambar", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_uzjz5futs3",
+    "name": "Aloo Paratha",
+    "description": "North Indian stuffed flatbread with spiced mashed potatoes, served with curd.",
+    "price": 150,
+    "discountPrice": 135,
+    "image": "https://images.unsplash.com/photo-1642335129702-847ad7d1e8aa?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["stuffed", "north-indian", "filling"],
+    "category": "bread",
+    "rating": 4.4,
+    "ratingCount": 105,
+    "stock": 18,
+    "addons": [
+      { "name": "Butter", "price": 15 },
+      { "name": "Pickle", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_uzjz5futs3",
+    "name": "Mixed Veg Curry",
+    "description": "Seasonal vegetables simmered in spiced onion-tomato gravy.",
+    "price": 190,
+    "discountPrice": 170,
+    "image": "https://images.unsplash.com/photo-1589307004390-d62e04a2b7f3?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["gravy", "healthy", "veg"],
+    "category": "gravy",
+    "rating": 4.1,
+    "ratingCount": 80,
+    "stock": 21,
+    "addons": [
+      { "name": "Chapati", "price": 15 },
+      { "name": "Jeera Rice", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_uzjz5futs3",
+    "name": "Corn Dosa",
+    "description": "Dosa made from cornmeal and rice batter with mild spices.",
+    "price": 140,
+    "discountPrice": 125,
+    "image": "https://images.unsplash.com/photo-1676309773956-34831fd86ea3?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["unique", "corn", "crispy"],
+    "category": "dosa",
+    "rating": 4.0,
+    "ratingCount": 65,
+    "stock": 24,
+    "addons": [
+      { "name": "Mint Chutney", "price": 10 },
+      { "name": "Coconut Chutney", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_uzjz5futs3",
+    "name": "Veg Fried Rice",
+    "description": "Basmati rice stir-fried with vegetables and sauces.",
+    "price": 190,
+    "discountPrice": 170,
+    "image": "https://images.unsplash.com/photo-1621321950025-6f6a1e405346?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["indo-chinese", "fried", "street-food"],
+    "category": "rice",
+    "rating": 4.6,
+    "ratingCount": 145,
+    "stock": 29,
+    "addons": [
+      { "name": "Manchurian", "price": 30 },
+      { "name": "Chilli Sauce", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_uzjz5futs3",
+    "name": "Kharabath",
+    "description": "Spicy rava khichdi with vegetables and ghee tempering.",
+    "price": 100,
+    "discountPrice": 85,
+    "image": "https://images.unsplash.com/photo-1689394833857-4d9c9b301be3?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["spicy", "breakfast", "rava"],
+    "category": "breakfast",
+    "rating": 4.3,
+    "ratingCount": 91,
+    "stock": 27,
+    "addons": [
+      { "name": "Chutney", "price": 10 },
+      { "name": "Pickle", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_uak781Dlc0",
+    "name": "Paneer Butter Masala",
+    "description": "Creamy tomato-based gravy with soft paneer cubes and a hint of spices.",
+    "price": 210,
+    "discountPrice": 190,
+    "image": "https://images.unsplash.com/photo-1626081146340-886fd10b8518?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["north-indian", "paneer", "creamy"],
+    "category": "gravy",
+    "rating": 4.7,
+    "ratingCount": 170,
+    "stock": 25,
+    "addons": [
+      { "name": "Butter Naan", "price": 25 },
+      { "name": "Jeera Rice", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_uak781Dlc0",
+    "name": "Egg Curry",
+    "description": "Boiled eggs simmered in a rich and spicy masala gravy.",
+    "price": 180,
+    "discountPrice": 160,
+    "image": "https://images.unsplash.com/photo-1601050690591-91515332c053?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["egg"],
+    "tags": ["egg", "protein", "gravy"],
+    "category": "gravy",
+    "rating": 4.4,
+    "ratingCount": 122,
+    "stock": 20,
+    "addons": [
+      { "name": "Boiled Egg", "price": 15 },
+      { "name": "Parotta", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_uak781Dlc0",
+    "name": "Masala Omelette",
+    "description": "Spicy Indian-style omelette with onions, tomatoes, and green chilies.",
+    "price": 90,
+    "discountPrice": 75,
+    "image": "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["egg"],
+    "tags": ["breakfast", "egg", "spicy"],
+    "category": "breakfast",
+    "rating": 4.2,
+    "ratingCount": 88,
+    "stock": 18,
+    "addons": [
+      { "name": "Bread", "price": 10 },
+      { "name": "Cheese", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_uak781Dlc0",
+    "name": "Butter Chicken",
+    "description": "Succulent chicken pieces in a creamy tomato-based gravy with butter and spices.",
+    "price": 250,
+    "discountPrice": 230,
+    "image": "https://images.unsplash.com/photo-1608759264303-235e8c1cafe6?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["chicken", "creamy", "north-indian"],
+    "category": "gravy",
+    "rating": 4.8,
+    "ratingCount": 215,
+    "stock": 22,
+    "addons": [
+      { "name": "Garlic Naan", "price": 25 },
+      { "name": "Raita", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_uak781Dlc0",
+    "name": "Veg Noodles",
+    "description": "Stir-fried noodles with vegetables and Indo-Chinese sauces.",
+    "price": 150,
+    "discountPrice": 135,
+    "image": "https://images.unsplash.com/photo-1616850442310-7b0d4f2a9c79?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["noodles", "indo-chinese", "spicy"],
+    "category": "chinese",
+    "rating": 4.3,
+    "ratingCount": 101,
+    "stock": 28,
+    "addons": [
+      { "name": "Spring Roll", "price": 20 },
+      { "name": "Chilli Sauce", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_uak781Dlc0",
+    "name": "Chicken Biryani",
+    "description": "Aromatic basmati rice layered with spicy chicken and cooked on dum.",
+    "price": 240,
+    "discountPrice": 220,
+    "image": "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["rice", "spicy", "biryani"],
+    "category": "biryani",
+    "rating": 4.6,
+    "ratingCount": 190,
+    "stock": 30,
+    "addons": [
+      { "name": "Boiled Egg", "price": 15 },
+      { "name": "Salad", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_uak781Dlc0",
+    "name": "Chilli Paneer",
+    "description": "Crispy paneer cubes tossed in spicy Indo-Chinese sauces and veggies.",
+    "price": 190,
+    "discountPrice": 170,
+    "image": "https://images.unsplash.com/photo-1600891963938-b8880944b74c?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["indo-chinese", "starter", "spicy"],
+    "category": "starter",
+    "rating": 4.5,
+    "ratingCount": 134,
+    "stock": 20,
+    "addons": [
+      { "name": "Extra Sauce", "price": 10 },
+      { "name": "Fried Rice", "price": 40 }
+    ]
+  },
+  {
+    "restaurantId": "res_uak781Dlc0",
+    "name": "Gobi Manchurian",
+    "description": "Cauliflower fritters in a tangy and spicy Manchurian sauce.",
+    "price": 160,
+    "discountPrice": 140,
+    "image": "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["indo-chinese", "gobi", "starter"],
+    "category": "starter",
+    "rating": 4.4,
+    "ratingCount": 102,
+    "stock": 24,
+    "addons": [
+      { "name": "Extra Gravy", "price": 15 },
+      { "name": "Fried Rice", "price": 35 }
+    ]
+  },
+  {
+    "restaurantId": "res_uak781Dlc0",
+    "name": "Egg Fried Rice",
+    "description": "Fried rice with scrambled eggs and flavorful seasoning.",
+    "price": 160,
+    "discountPrice": 145,
+    "image": "https://images.unsplash.com/photo-1605478371035-bfa4cb163b08?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["egg"],
+    "tags": ["fried", "egg", "chinese"],
+    "category": "rice",
+    "rating": 4.3,
+    "ratingCount": 94,
+    "stock": 27,
+    "addons": [
+      { "name": "Manchurian", "price": 30 },
+      { "name": "Chilli Sauce", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_uak781Dlc0",
+    "name": "Chicken 65",
+    "description": "Deep-fried spicy chicken chunks garnished with curry leaves.",
+    "price": 220,
+    "discountPrice": 200,
+    "image": "https://images.unsplash.com/photo-1650724453537-f4b8dc0fd49b?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["starter", "fried", "chicken"],
+    "category": "starter",
+    "rating": 4.6,
+    "ratingCount": 160,
+    "stock": 20,
+    "addons": [
+      { "name": "Mint Chutney", "price": 10 },
+      { "name": "Curd", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_6eRrnUNcQj",
+    "name": "Mutton Rogan Josh",
+    "description": "Kashmiri-style slow-cooked mutton curry with rich spices and saffron.",
+    "price": 320,
+    "discountPrice": 295,
+    "image": "https://images.unsplash.com/photo-1590502593741-fc59325c8ccf?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["mutton", "kashmiri", "gravy"],
+    "category": "gravy",
+    "rating": 4.7,
+    "ratingCount": 168,
+    "stock": 15,
+    "addons": [
+      { "name": "Butter Naan", "price": 30 },
+      { "name": "Steamed Rice", "price": 40 }
+    ]
+  },
+  {
+    "restaurantId": "res_6eRrnUNcQj",
+    "name": "Tandoori Mushroom",
+    "description": "Juicy mushrooms marinated in tandoori masala and grilled to perfection.",
+    "price": 170,
+    "discountPrice": 150,
+    "image": "https://images.unsplash.com/photo-1605479481745-15f451df3d91?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["starter", "tandoori", "mushroom"],
+    "category": "starter",
+    "rating": 4.4,
+    "ratingCount": 93,
+    "stock": 25,
+    "addons": [
+      { "name": "Mint Sauce", "price": 10 },
+      { "name": "Onion Salad", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_6eRrnUNcQj",
+    "name": "Fish Tikka",
+    "description": "Boneless fish marinated in spices and grilled over charcoal.",
+    "price": 260,
+    "discountPrice": 240,
+    "image": "https://images.unsplash.com/photo-1627308595049-88c296bc17d4?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["fish", "grilled", "spicy"],
+    "category": "starter",
+    "rating": 4.5,
+    "ratingCount": 121,
+    "stock": 18,
+    "addons": [
+      { "name": "Tartar Sauce", "price": 15 },
+      { "name": "Green Chutney", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_6eRrnUNcQj",
+    "name": "Paneer Tikka Wrap",
+    "description": "Soft wrap filled with grilled paneer tikka, veggies, and sauces.",
+    "price": 150,
+    "discountPrice": 135,
+    "image": "https://images.unsplash.com/photo-1627308595334-4719d050f6c6?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["wrap", "paneer", "grilled"],
+    "category": "snack",
+    "rating": 4.2,
+    "ratingCount": 84,
+    "stock": 30,
+    "addons": [
+      { "name": "Extra Cheese", "price": 20 },
+      { "name": "Spicy Mayo", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_6eRrnUNcQj",
+    "name": "Methi Malai Chicken",
+    "description": "Creamy chicken curry with fresh methi leaves and mild spices.",
+    "price": 260,
+    "discountPrice": 235,
+    "image": "https://images.unsplash.com/photo-1627531055563-73b79cbf7cf4?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["gravy", "chicken", "creamy"],
+    "category": "gravy",
+    "rating": 4.6,
+    "ratingCount": 137,
+    "stock": 22,
+    "addons": [
+      { "name": "Tandoori Roti", "price": 20 },
+      { "name": "Onion Rings", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_6eRrnUNcQj",
+    "name": "Veg Hakka Noodles",
+    "description": "Chinese-style stir-fried noodles with vegetables and soy sauce.",
+    "price": 140,
+    "discountPrice": 125,
+    "image": "https://images.unsplash.com/photo-1589307004399-dc81c19d6d4b?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["noodles", "chinese", "veg"],
+    "category": "chinese",
+    "rating": 4.3,
+    "ratingCount": 110,
+    "stock": 28,
+    "addons": [
+      { "name": "Chilli Paneer", "price": 45 },
+      { "name": "Garlic Sauce", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_6eRrnUNcQj",
+    "name": "Keema Pav",
+    "description": "Spiced minced meat served with butter-toasted pav buns.",
+    "price": 180,
+    "discountPrice": 160,
+    "image": "https://images.unsplash.com/photo-1630921140822-bad63cdcee23?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["mumbai", "keema", "snack"],
+    "category": "snack",
+    "rating": 4.5,
+    "ratingCount": 98,
+    "stock": 20,
+    "addons": [
+      { "name": "Extra Pav", "price": 10 },
+      { "name": "Butter Topping", "price": 5 }
+    ]
+  },
+  {
+    "restaurantId": "res_6eRrnUNcQj",
+    "name": "Mixed Veg Curry",
+    "description": "Assorted vegetables cooked in a spicy Indian curry base.",
+    "price": 160,
+    "discountPrice": 145,
+    "image": "https://images.unsplash.com/photo-1612874742349-49bfbac7d35e?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["curry", "mixed veg", "spicy"],
+    "category": "gravy",
+    "rating": 4.3,
+    "ratingCount": 75,
+    "stock": 26,
+    "addons": [
+      { "name": "Chapati", "price": 15 },
+      { "name": "Ghee Rice", "price": 25 }
+    ]
+  },
+  {
+    "restaurantId": "res_6eRrnUNcQj",
+    "name": "Garlic Butter Rice",
+    "description": "Fluffy basmati rice tossed in garlic butter and herbs.",
+    "price": 130,
+    "discountPrice": 115,
+    "image": "https://images.unsplash.com/photo-1608830995151-5f01004e6c91?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["rice", "garlic", "butter"],
+    "category": "rice",
+    "rating": 4.2,
+    "ratingCount": 68,
+    "stock": 24,
+    "addons": [
+      { "name": "Fried Egg", "price": 20 },
+      { "name": "Pickle", "price": 5 }
+    ]
+  },
+  {
+    "restaurantId": "res_6eRrnUNcQj",
+    "name": "Chicken Kofta Curry",
+    "description": "Minced chicken balls in a rich and spicy curry sauce.",
+    "price": 270,
+    "discountPrice": 250,
+    "image": "https://images.unsplash.com/photo-1633966767030-1cdbce259b77?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["kofta", "chicken", "spicy"],
+    "category": "gravy",
+    "rating": 4.6,
+    "ratingCount": 104,
+    "stock": 19,
+    "addons": [
+      { "name": "Butter Naan", "price": 25 },
+      { "name": "Plain Rice", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_RjyZapfCoG",
+    "name": "Peri Peri Chicken Wings",
+    "description": "Spicy grilled chicken wings coated in fiery peri peri sauce.",
+    "price": 210,
+    "discountPrice": 190,
+    "image": "https://images.unsplash.com/photo-1627745279736-7310a348f8ac?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["wings", "peri peri", "starter"],
+    "category": "starter",
+    "rating": 4.5,
+    "ratingCount": 115,
+    "stock": 20,
+    "addons": [
+      { "name": "Extra Sauce", "price": 15 },
+      { "name": "Garlic Dip", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_RjyZapfCoG",
+    "name": "Corn Cheese Balls",
+    "description": "Crispy on the outside, cheesy on the inside—perfect vegetarian snack.",
+    "price": 160,
+    "discountPrice": 140,
+    "image": "https://images.unsplash.com/photo-1594007654729-9c63ba6c7240?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["snack", "cheese", "corn"],
+    "category": "snack",
+    "rating": 4.3,
+    "ratingCount": 89,
+    "stock": 25,
+    "addons": [
+      { "name": "Sweet Chilli Sauce", "price": 10 },
+      { "name": "Extra Cheese", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_RjyZapfCoG",
+    "name": "Malai Kofta",
+    "description": "Rich and creamy curry with soft paneer-potato balls.",
+    "price": 220,
+    "discountPrice": 200,
+    "image": "https://images.unsplash.com/photo-1632824580503-3e7b601ec5f3?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["gravy", "paneer", "north indian"],
+    "category": "gravy",
+    "rating": 4.4,
+    "ratingCount": 97,
+    "stock": 18,
+    "addons": [
+      { "name": "Butter Naan", "price": 25 },
+      { "name": "Jeera Rice", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_RjyZapfCoG",
+    "name": "Lemon Herb Grilled Fish",
+    "description": "Fresh fish fillet grilled with lemon and herbs.",
+    "price": 270,
+    "discountPrice": 245,
+    "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["fish", "grilled", "healthy"],
+    "category": "main course",
+    "rating": 4.6,
+    "ratingCount": 78,
+    "stock": 14,
+    "addons": [
+      { "name": "Garlic Bread", "price": 20 },
+      { "name": "Lemon Wedges", "price": 5 }
+    ]
+  },
+  {
+    "restaurantId": "res_RjyZapfCoG",
+    "name": "Pav Bhaji",
+    "description": "Mumbai street-style spicy bhaji served with buttered pav.",
+    "price": 120,
+    "discountPrice": 110,
+    "image": "https://images.unsplash.com/photo-1592816759908-95b0f4f6b34d?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["mumbai", "snack", "bhaji"],
+    "category": "snack",
+    "rating": 4.5,
+    "ratingCount": 143,
+    "stock": 22,
+    "addons": [
+      { "name": "Extra Pav", "price": 10 },
+      { "name": "Cheese Topping", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_RjyZapfCoG",
+    "name": "Paneer Butter Masala",
+    "description": "Cottage cheese cubes simmered in a buttery tomato gravy.",
+    "price": 210,
+    "discountPrice": 195,
+    "image": "https://images.unsplash.com/photo-1606788075764-7d1178796e86?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["paneer", "gravy", "north indian"],
+    "category": "gravy",
+    "rating": 4.7,
+    "ratingCount": 158,
+    "stock": 20,
+    "addons": [
+      { "name": "Butter Roti", "price": 20 },
+      { "name": "Steamed Rice", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_RjyZapfCoG",
+    "name": "Egg Curry",
+    "description": "Boiled eggs in a spicy onion-tomato gravy.",
+    "price": 180,
+    "discountPrice": 160,
+    "image": "https://images.unsplash.com/photo-1590080876399-c68bf1cf4c84?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["egg", "curry", "protein-rich"],
+    "category": "gravy",
+    "rating": 4.4,
+    "ratingCount": 92,
+    "stock": 19,
+    "addons": [
+      { "name": "Boiled Egg", "price": 15 },
+      { "name": "Fried Egg", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_RjyZapfCoG",
+    "name": "Chicken Fried Rice",
+    "description": "Wok-tossed rice with chicken, eggs, and vegetables.",
+    "price": 180,
+    "discountPrice": 165,
+    "image": "https://images.unsplash.com/photo-1601050690590-8c5c5b6fdded?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["rice", "chinese", "non_veg"],
+    "category": "rice",
+    "rating": 4.6,
+    "ratingCount": 135,
+    "stock": 26,
+    "addons": [
+      { "name": "Manchurian Gravy", "price": 40 },
+      { "name": "Chilli Chicken", "price": 50 }
+    ]
+  },
+  {
+    "restaurantId": "res_RjyZapfCoG",
+    "name": "Veg Spring Rolls",
+    "description": "Crispy rolls stuffed with sautéed veggies and noodles.",
+    "price": 130,
+    "discountPrice": 120,
+    "image": "https://images.unsplash.com/photo-1630098450071-90e099ee89b1?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["starter", "chinese", "rolls"],
+    "category": "starter",
+    "rating": 4.2,
+    "ratingCount": 88,
+    "stock": 30,
+    "addons": [
+      { "name": "Chilli Garlic Dip", "price": 10 },
+      { "name": "Schezwan Sauce", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_RjyZapfCoG",
+    "name": "Chocolate Lava Cake",
+    "description": "Warm chocolate cake with molten center served with vanilla ice cream.",
+    "price": 160,
+    "discountPrice": 145,
+    "image": "https://images.unsplash.com/photo-1612197597776-57b4311ec609?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["dessert", "chocolate", "cake"],
+    "category": "dessert",
+    "rating": 4.9,
+    "ratingCount": 178,
+    "stock": 15,
+    "addons": [
+      { "name": "Extra Ice Cream Scoop", "price": 25 },
+      { "name": "Choco Chips", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_IP-wpqJv6z",
+    "name": "Mexican Nachos Supreme",
+    "description": "Crispy nachos loaded with cheese, beans, jalapeños, and salsa.",
+    "price": 200,
+    "discountPrice": 180,
+    "image": "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["nachos", "mexican", "cheese"],
+    "category": "snack",
+    "rating": 4.5,
+    "ratingCount": 112,
+    "stock": 22,
+    "addons": [
+      { "name": "Extra Cheese", "price": 25 },
+      { "name": "Guacamole Dip", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_IP-wpqJv6z",
+    "name": "Butter Garlic Prawns",
+    "description": "Juicy prawns tossed in garlic butter and herbs.",
+    "price": 320,
+    "discountPrice": 295,
+    "image": "https://images.unsplash.com/photo-1603048299487-cacde6a3bc69?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["seafood", "garlic", "starter"],
+    "category": "starter",
+    "rating": 4.6,
+    "ratingCount": 84,
+    "stock": 12,
+    "addons": [
+      { "name": "Lemon Butter Sauce", "price": 15 },
+      { "name": "Grilled Bread", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_IP-wpqJv6z",
+    "name": "Paneer Tikka Masala",
+    "description": "Tandoori paneer cubes in a rich tikka masala gravy.",
+    "price": 230,
+    "discountPrice": 210,
+    "image": "https://images.unsplash.com/photo-1611270679783-d7e93fd1db79?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["paneer", "gravy", "tikka"],
+    "category": "gravy",
+    "rating": 4.7,
+    "ratingCount": 142,
+    "stock": 18,
+    "addons": [
+      { "name": "Garlic Naan", "price": 25 },
+      { "name": "Butter Roti", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_IP-wpqJv6z",
+    "name": "Mutton Biryani",
+    "description": "Aromatic basmati rice cooked with tender mutton and spices.",
+    "price": 320,
+    "discountPrice": 290,
+    "image": "https://images.unsplash.com/photo-1592415486685-4d6f0e447cb4?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["biryani", "mutton", "rice"],
+    "category": "rice",
+    "rating": 4.8,
+    "ratingCount": 198,
+    "stock": 15,
+    "addons": [
+      { "name": "Raita", "price": 20 },
+      { "name": "Boiled Egg", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_IP-wpqJv6z",
+    "name": "Schezwan Noodles",
+    "description": "Spicy Indo-Chinese noodles tossed with vegetables and Schezwan sauce.",
+    "price": 160,
+    "discountPrice": 145,
+    "image": "https://images.unsplash.com/photo-1628260418682-d15e992917e3?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["chinese", "noodles", "spicy"],
+    "category": "main course",
+    "rating": 4.3,
+    "ratingCount": 110,
+    "stock": 20,
+    "addons": [
+      { "name": "Fried Egg", "price": 20 },
+      { "name": "Veg Manchurian", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_IP-wpqJv6z",
+    "name": "Chicken Manchurian Gravy",
+    "description": "Classic Indo-Chinese chicken balls in tangy gravy.",
+    "price": 220,
+    "discountPrice": 200,
+    "image": "https://images.unsplash.com/photo-1634319912095-77cf15989cb4?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["chinese", "gravy", "chicken"],
+    "category": "gravy",
+    "rating": 4.4,
+    "ratingCount": 99,
+    "stock": 17,
+    "addons": [
+      { "name": "Extra Gravy", "price": 20 },
+      { "name": "Steamed Rice", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_IP-wpqJv6z",
+    "name": "Chole Bhature",
+    "description": "Spicy chickpea curry served with puffed bhature.",
+    "price": 140,
+    "discountPrice": 130,
+    "image": "https://images.unsplash.com/photo-1631134155913-d1c880ddf186?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["punjabi", "chole", "bread"],
+    "category": "main course",
+    "rating": 4.6,
+    "ratingCount": 127,
+    "stock": 23,
+    "addons": [
+      { "name": "Extra Bhature", "price": 15 },
+      { "name": "Onion Salad", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_IP-wpqJv6z",
+    "name": "Sizzling Brownie",
+    "description": "Hot brownie with sizzling chocolate sauce and vanilla ice cream.",
+    "price": 190,
+    "discountPrice": 170,
+    "image": "https://images.unsplash.com/photo-1612197597776-57b4311ec609?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["dessert", "brownie", "ice cream"],
+    "category": "dessert",
+    "rating": 4.9,
+    "ratingCount": 154,
+    "stock": 12,
+    "addons": [
+      { "name": "Extra Ice Cream", "price": 25 },
+      { "name": "Choco Chips", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_IP-wpqJv6z",
+    "name": "Greek Salad",
+    "description": "Fresh cucumbers, tomatoes, olives, and feta tossed in vinaigrette.",
+    "price": 160,
+    "discountPrice": 145,
+    "image": "https://images.unsplash.com/photo-1613145991491-096fa6a6394d?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["salad", "healthy", "feta"],
+    "category": "salad",
+    "rating": 4.2,
+    "ratingCount": 77,
+    "stock": 18,
+    "addons": [
+      { "name": "Extra Feta", "price": 20 },
+      { "name": "Olive Oil Drizzle", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_IP-wpqJv6z",
+    "name": "Tandoori Chicken Full",
+    "description": "Whole chicken marinated in tandoori spices and grilled to perfection.",
+    "price": 480,
+    "discountPrice": 450,
+    "image": "https://images.unsplash.com/photo-1631515243341-763f07ba98eb?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["tandoori", "grilled", "chicken"],
+    "category": "main course",
+    "rating": 4.8,
+    "ratingCount": 132,
+    "stock": 10,
+    "addons": [
+      { "name": "Mint Chutney", "price": 10 },
+      { "name": "Lemon Wedges", "price": 5 }
+    ]
+  },
+  {
+    "restaurantId": "res_ssQwIN-JsP",
+    "name": "Classic Margherita Pizza",
+    "description": "Thin crust pizza topped with fresh tomatoes, mozzarella, and basil.",
+    "price": 320,
+    "discountPrice": 290,
+    "image": "https://images.unsplash.com/photo-1548365328-417a7a0e2898?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["pizza", "italian", "cheese"],
+    "category": "main course",
+    "rating": 4.7,
+    "ratingCount": 156,
+    "stock": 25,
+    "addons": [
+      { "name": "Extra Cheese", "price": 40 },
+      { "name": "Olives", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_ssQwIN-JsP",
+    "name": "BBQ Chicken Wings",
+    "description": "Spicy grilled chicken wings glazed with BBQ sauce.",
+    "price": 280,
+    "discountPrice": 260,
+    "image": "https://images.unsplash.com/photo-1547592180-15b43d07cc94?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["bbq", "chicken", "starter"],
+    "category": "starter",
+    "rating": 4.5,
+    "ratingCount": 134,
+    "stock": 18,
+    "addons": [
+      { "name": "Ranch Dip", "price": 20 },
+      { "name": "Extra Sauce", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_ssQwIN-JsP",
+    "name": "Vegetable Spring Rolls",
+    "description": "Crispy rolls stuffed with seasoned mixed vegetables.",
+    "price": 150,
+    "discountPrice": 140,
+    "image": "https://images.unsplash.com/photo-1562967916-eb82221dfb6e?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["snack", "asian", "crispy"],
+    "category": "snack",
+    "rating": 4.4,
+    "ratingCount": 96,
+    "stock": 30,
+    "addons": [
+      { "name": "Sweet Chili Sauce", "price": 15 },
+      { "name": "Soy Sauce", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_ssQwIN-JsP",
+    "name": "Prawn Fried Rice",
+    "description": "Stir-fried rice tossed with prawns, vegetables, and soy sauce.",
+    "price": 270,
+    "discountPrice": 250,
+    "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["rice", "seafood", "fried"],
+    "category": "rice",
+    "rating": 4.6,
+    "ratingCount": 110,
+    "stock": 20,
+    "addons": [
+      { "name": "Extra Prawns", "price": 50 },
+      { "name": "Egg Fried Rice", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_ssQwIN-JsP",
+    "name": "Paneer Butter Masala",
+    "description": "Soft paneer cubes cooked in a creamy tomato-based gravy.",
+    "price": 230,
+    "discountPrice": 210,
+    "image": "https://images.unsplash.com/photo-1604908177526-6d3f060ff76e?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["paneer", "butter", "gravy"],
+    "category": "gravy",
+    "rating": 4.7,
+    "ratingCount": 148,
+    "stock": 22,
+    "addons": [
+      { "name": "Butter Naan", "price": 25 },
+      { "name": "Jeera Rice", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_ssQwIN-JsP",
+    "name": "Chicken Alfredo Pasta",
+    "description": "Creamy Alfredo pasta with grilled chicken strips and parmesan.",
+    "price": 300,
+    "discountPrice": 280,
+    "image": "https://images.unsplash.com/photo-1525755662778-989d0524087e?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["pasta", "italian", "creamy"],
+    "category": "main course",
+    "rating": 4.6,
+    "ratingCount": 120,
+    "stock": 19,
+    "addons": [
+      { "name": "Extra Cheese", "price": 40 },
+      { "name": "Garlic Bread", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_ssQwIN-JsP",
+    "name": "Caesar Salad",
+    "description": "Fresh romaine lettuce, croutons, and parmesan tossed in Caesar dressing.",
+    "price": 180,
+    "discountPrice": 160,
+    "image": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["salad", "healthy", "croutons"],
+    "category": "salad",
+    "rating": 4.3,
+    "ratingCount": 105,
+    "stock": 26,
+    "addons": [
+      { "name": "Grilled Chicken", "price": 50 },
+      { "name": "Extra Dressing", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_ssQwIN-JsP",
+    "name": "Fish Curry",
+    "description": "Tangy and spicy fish curry cooked with coastal spices.",
+    "price": 280,
+    "discountPrice": 260,
+    "image": "https://images.unsplash.com/photo-1601933475000-2bc6793bfae9?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["fish", "curry", "spicy"],
+    "category": "gravy",
+    "rating": 4.5,
+    "ratingCount": 90,
+    "stock": 14,
+    "addons": [
+      { "name": "Steamed Rice", "price": 30 },
+      { "name": "Lemon Wedges", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_ssQwIN-JsP",
+    "name": "Chocolate Lava Cake",
+    "description": "Warm chocolate cake with molten chocolate center.",
+    "price": 190,
+    "discountPrice": 170,
+    "image": "https://images.unsplash.com/photo-1617191513064-0d5aa120f69b?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["dessert", "chocolate", "cake"],
+    "category": "dessert",
+    "rating": 4.9,
+    "ratingCount": 180,
+    "stock": 20,
+    "addons": [
+      { "name": "Vanilla Ice Cream", "price": 30 },
+      { "name": "Whipped Cream", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_ssQwIN-JsP",
+    "name": "Veggie Burger",
+    "description": "Grilled vegetable patty with lettuce, tomato, and cheese in a bun.",
+    "price": 220,
+    "discountPrice": 200,
+    "image": "https://images.unsplash.com/photo-1550317138-10000687a72b?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["burger", "vegetarian", "fast food"],
+    "category": "main course",
+    "rating": 4.4,
+    "ratingCount": 110,
+    "stock": 28,
+    "addons": [
+      { "name": "Extra Cheese", "price": 30 },
+      { "name": "French Fries", "price": 50 }
+    ]
+  },
+  {
+    "restaurantId": "res_DppXu9pxFe",
+    "name": "Tandoori Chicken",
+    "description": "Juicy chicken marinated in yogurt and spices, grilled to perfection.",
+    "price": 350,
+    "discountPrice": 320,
+    "image": "https://images.unsplash.com/photo-1605478529110-3614790d9ff5?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["grilled", "spicy", "starter"],
+    "category": "starter",
+    "rating": 4.7,
+    "ratingCount": 150,
+    "stock": 20,
+    "addons": [
+      { "name": "Mint Chutney", "price": 15 },
+      { "name": "Onion Salad", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_DppXu9pxFe",
+    "name": "Hakka Noodles",
+    "description": "Stir-fried noodles with vegetables and soy sauce.",
+    "price": 180,
+    "discountPrice": 160,
+    "image": "https://images.unsplash.com/photo-1607279951415-9f8e3e8c0c4e?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["noodles", "chinese", "fast food"],
+    "category": "main course",
+    "rating": 4.4,
+    "ratingCount": 130,
+    "stock": 25,
+    "addons": [
+      { "name": "Extra Veggies", "price": 20 },
+      { "name": "Chili Sauce", "price": 10 }
+    ]
+  },
+  {
+    "restaurantId": "res_DppXu9pxFe",
+    "name": "Mutton Rogan Josh",
+    "description": "Tender mutton cooked in aromatic Kashmiri spices.",
+    "price": 420,
+    "discountPrice": 390,
+    "image": "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["mutton", "gravy", "spicy"],
+    "category": "gravy",
+    "rating": 4.8,
+    "ratingCount": 95,
+    "stock": 12,
+    "addons": [
+      { "name": "Butter Naan", "price": 30 },
+      { "name": "Steamed Rice", "price": 25 }
+    ]
+  },
+  {
+    "restaurantId": "res_DppXu9pxFe",
+    "name": "Mushroom Masala",
+    "description": "Sautéed mushrooms in spicy onion-tomato gravy.",
+    "price": 240,
+    "discountPrice": 220,
+    "image": "https://images.unsplash.com/photo-1576402187877-9f1f17f2c276?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["mushroom", "gravy", "spicy"],
+    "category": "gravy",
+    "rating": 4.6,
+    "ratingCount": 102,
+    "stock": 22,
+    "addons": [
+      { "name": "Tandoori Roti", "price": 15 },
+      { "name": "Boondi Raita", "price": 20 }
+    ]
+  },
+  {
+    "restaurantId": "res_DppXu9pxFe",
+    "name": "Chicken Biryani",
+    "description": "Long-grain rice cooked with spiced chicken and herbs.",
+    "price": 300,
+    "discountPrice": 280,
+    "image": "https://images.unsplash.com/photo-1626082896061-8098b84dfd79?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["biryani", "rice", "spicy"],
+    "category": "rice",
+    "rating": 4.9,
+    "ratingCount": 220,
+    "stock": 18,
+    "addons": [
+      { "name": "Raita", "price": 20 },
+      { "name": "Boiled Egg", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_DppXu9pxFe",
+    "name": "Veg Club Sandwich",
+    "description": "Triple layered sandwich with vegetables and cheese.",
+    "price": 150,
+    "discountPrice": 140,
+    "image": "https://images.unsplash.com/photo-1600628422019-2b13f8d35b8b?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["snack", "sandwich", "cheese"],
+    "category": "snack",
+    "rating": 4.3,
+    "ratingCount": 110,
+    "stock": 24,
+    "addons": [
+      { "name": "Potato Chips", "price": 20 },
+      { "name": "Extra Cheese", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_DppXu9pxFe",
+    "name": "Garlic Butter Prawns",
+    "description": "Prawns sautéed in garlic butter and herbs.",
+    "price": 380,
+    "discountPrice": 350,
+    "image": "https://images.unsplash.com/photo-1633158829574-04d177fd1fd4?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["non_veg"],
+    "tags": ["seafood", "prawns", "starter"],
+    "category": "starter",
+    "rating": 4.6,
+    "ratingCount": 85,
+    "stock": 14,
+    "addons": [
+      { "name": "Lemon Butter Dip", "price": 25 },
+      { "name": "Garlic Bread", "price": 30 }
+    ]
+  },
+  {
+    "restaurantId": "res_DppXu9pxFe",
+    "name": "Falafel Wrap",
+    "description": "Middle Eastern falafel balls wrapped in pita bread with veggies.",
+    "price": 200,
+    "discountPrice": 180,
+    "image": "https://images.unsplash.com/photo-1621187943736-2d451f31f61d?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["wrap", "falafel", "mediterranean"],
+    "category": "main course",
+    "rating": 4.4,
+    "ratingCount": 98,
+    "stock": 26,
+    "addons": [
+      { "name": "Tahini Sauce", "price": 15 },
+      { "name": "Extra Falafel", "price": 25 }
+    ]
+  },
+  {
+    "restaurantId": "res_DppXu9pxFe",
+    "name": "Chocolate Milkshake",
+    "description": "Thick chocolate milkshake topped with whipped cream.",
+    "price": 160,
+    "discountPrice": 150,
+    "image": "https://images.unsplash.com/photo-1599785209707-dc9acb70f3c5?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["beverage", "milkshake", "chocolate"],
+    "category": "beverages",
+    "rating": 4.8,
+    "ratingCount": 125,
+    "stock": 30,
+    "addons": [
+      { "name": "Ice Cream Scoop", "price": 30 },
+      { "name": "Choco Chips", "price": 15 }
+    ]
+  },
+  {
+    "restaurantId": "res_DppXu9pxFe",
+    "name": "Fruit Custard",
+    "description": "Chilled creamy custard loaded with seasonal fruits.",
+    "price": 120,
+    "discountPrice": 110,
+    "image": "https://images.unsplash.com/photo-1628840042056-d4c3f5e5b90a?w=400&h=300&fit=crop",
+    "isAvailable": true,
+    "typeOfFood": ["veg"],
+    "tags": ["dessert", "fruit", "custard"],
+    "category": "dessert",
+    "rating": 4.5,
+    "ratingCount": 80,
+    "stock": 28,
+    "addons": [
+      { "name": "Extra Fruit Mix", "price": 20 },
+      { "name": "Dry Fruits", "price": 25 }
+    ]
+  }
+]
