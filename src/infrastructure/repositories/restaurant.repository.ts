@@ -53,7 +53,7 @@ export class RestaurantRepository {
 
     // Build MongoDB filter object
     if (search) {
-      pureFilter.restaurantName = { $regex: search, $options: "i" };
+      pureFilter.restaurantName = { $regex: `^${search}`, $options: "i" };
     }
 
     // Extract pagination/sorting options
