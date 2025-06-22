@@ -1,6 +1,6 @@
 // application/use-cases/user/user.useCase.ts
 
-import { IUser } from "../../domain/interfaces/user.interface.js";
+import { Favourites, IUser } from "../../domain/interfaces/user.interface.js";
 import { FavoritesActions, IAddress } from "../../domain/interfaces/utils.interface.js";
 import { UserRepository } from "../../infrastructure/repositories/user.repository.js";
 
@@ -19,10 +19,10 @@ export const UserUseCase = {
     updateAddress: (userId: string, addressId: string, data: Partial<IAddress>) => userRepo.updateAddress(userId, addressId, data),
     deleteAddress: (userId: string, addressId: string) => userRepo.deleteAddress(userId, addressId),
 
-    updateFavourites: (userId: string, restaurantId: string, action: FavoritesActions) => {
+    updateFavourites: (userId: string, favourites: Favourites, action: FavoritesActions) => {
         const actionsMap = {
-            [FavoritesActions.ADD]: () => userRepo.addFavourite(userId, restaurantId),
-            [FavoritesActions.REMOVE]: () => userRepo.removeFavourite(userId, restaurantId),
+            [FavoritesActions.ADD]: () => userRepo.addFavourite(userId, favourites),
+            [FavoritesActions.REMOVE]: () => userRepo.removeFavourite(userId, favourites),
         };
 
         const operation = actionsMap[action];
@@ -30,5 +30,6 @@ export const UserUseCase = {
 
         return operation();
     }
+
 
 };

@@ -19,9 +19,12 @@ export const userIdSchema = z.object({
     userId: z.string().min(1, "userId is required")
 });
 
-export const favoriteValidator = userIdSchema.extend({
-    restaurantId: z.string().min(1, "userId is required"),
+export const favoriteValidator = z.object({
+    favourites: z.object({
+        restaurants: z.array(z.string()).optional(), // allow array or undefined
+        foodItems: z.array(z.string()).optional(),
+    }),
     action: z.nativeEnum(FavoritesActions),
-})
+});
 
 

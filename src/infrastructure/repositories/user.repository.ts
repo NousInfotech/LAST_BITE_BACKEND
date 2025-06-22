@@ -1,5 +1,5 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
-import { IUser } from "../../domain/interfaces/user.interface.js";
+import { Favourites, IUser } from "../../domain/interfaces/user.interface.js";
 import { IAddress } from "../../domain/interfaces/utils.interface.js";
 import { UserDoc, UserModel } from "../db/mongoose/schemas/user.schema.js";
 
@@ -40,24 +40,56 @@ export class UserRepository {
     /**
  * Add restaurant to favourites
  * @param {string} userId - User's custom ID
- * @param {string} restaurantId - Restaurant ID to add
+ * @param {Favourites} favourites - Favourite Restaurant and FoodItem Array of Id to add
  */
-    async addFavourite(userId: string, restaurantId: string) {
+    async addFavourite(userId: string, favourites: Favourites) {
+        const updateOps: any = {};
+
+        if (favourites.restaurants && favourites.restaurants.length > 0) {
+            updateOps["favourites.restaurants"] = { $each: favourites.restaurants };
+        }
+
+        if (favourites.foodItems && favourites.foodItems.length > 0) {
+            updateOps["favourites.foodItems"] = { $each: favourites.foodItems };
+        }
+
+        if (Object.keys(updateOps).length === 0) {
+            return; // Nothing to update
+        }
+
         return await this.updateUser(userId, {
-            $addToSet: { favourites: restaurantId },
+            $addToSet: updateOps,
         });
     }
+
 
     /**
      * Remove restaurant from favourites
      * @param {string} userId - User's custom ID
-     * @param {string} restaurantId - Restaurant ID to remove
+     * @param {Favourites} favourites - Favourite Restaurant and FoodItem Array of Id to remove
      */
-    async removeFavourite(userId: string, restaurantId: string) {
+    async removeFavourite(userId: string, favourites: Favourites) {
+        const updateOps: any = {};
+
+        if (favourites.restaurants && favourites.restaurants.length > 0) {
+            updateOps["favourites.restaurants"] = { $in: favourites.restaurants };
+        }
+
+        if (favourites.foodItems && favourites.foodItems.length > 0) {
+            updateOps["favourites.foodItems"] = { $in: favourites.foodItems };
+        }
+
+        if (Object.keys(updateOps).length === 0) {
+            return; // Nothing to update
+        }
+
         return await this.updateUser(userId, {
-            $pull: { favourites: restaurantId },
+            $pull: updateOps,
         });
     }
+
+    
+
 
 
     /**

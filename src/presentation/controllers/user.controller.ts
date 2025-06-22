@@ -129,17 +129,23 @@ export const UserController = {
     },
 
     async updateUserFavourites(req: CustomRequest, res: Response) {
-        const parsed = validate(userIdSchema, req, res);
+        const parsed = validate(userIdSchema, req, res); // ✅ fixed here
         if (!parsed) return;
+
+        const { userId } = parsed;
+
         const bodyCheck = validate(favoriteValidator, req.body, res);
         if (!bodyCheck) return;
-        const { restaurantId, action } = bodyCheck;
+
+        const { action, favourites } = bodyCheck;
 
         return tryCatch(res, async () => {
-            const favourites = await UserUseCase.updateFavourites(parsed.userId, restaurantId, action);
-            if (!favourites) return sendError(res, HTTP.NOT_FOUND, "User not found or favourites update failed");
+            const favouritesCollection = await UserUseCase.updateFavourites(userId, favourites, action);
+            if (!favouritesCollection) {
+                return sendError(res, HTTP.NOT_FOUND, "User not found or favourites update failed");
+            }
             return sendResponse(res, HTTP.OK, "Favourites updated successfully", favourites);
-
         });
-    },
+    }
+
 };
