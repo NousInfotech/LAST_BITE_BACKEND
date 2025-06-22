@@ -25,6 +25,7 @@ const userSchema = new Schema<UserDoc>(
     email: { type: String },
     profileImage: { type: String },
     favourites: FavouritesSchema,
+    hiddenRestaurants: [{ type: String }],
     addresses: [addressSchema],
   },
   {

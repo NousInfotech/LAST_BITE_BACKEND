@@ -11,6 +11,7 @@ export interface IUser {
     phoneNumber: string;
     email?: string;
     favourites?: Favourites;
+    hiddenRestaurants?: string[];
     profileImage?: string;
     addresses?: IAddress[];
     createdAt?: Date;

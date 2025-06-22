@@ -38,10 +38,10 @@ export class UserRepository {
     }
 
     /**
- * Add restaurant to favourites
- * @param {string} userId - User's custom ID
- * @param {Favourites} favourites - Favourite Restaurant and FoodItem Array of Id to add
- */
+     * Add restaurant to favourites
+     * @param {string} userId - User's custom ID
+     * @param {Favourites} favourites - Favourite Restaurant and FoodItem Array of Id to add
+     */
     async addFavourite(userId: string, favourites: Favourites) {
         const updateOps: any = {};
 
@@ -88,8 +88,33 @@ export class UserRepository {
         });
     }
 
-    
+    /**
+     * Add restaurant to Blcoked in user
+     * @param {string} userId - User's custom ID
+     * @param {Favourites} blockedRestaurants - Blocked Restaurants Id to be hidden
+     */
 
+    async addHiddenRestaurant(userId: string, restaurantIds: string[]) {
+        return await this.updateUser(userId, {
+            $addToSet: {
+                hiddenRestaurants: { $each: restaurantIds },
+            },
+        });
+    }
+
+    /**
+    * Remove restaurant to Blcoked in user
+    * @param {string} userId - User's custom ID
+    * @param {Favourites} blockedRestaurants - Blocked Restaurants Id to be hidden
+    */
+
+    async removeHiddenRestaurant(userId: string, restaurantIds: string[]) {
+        return await this.updateUser(userId, {
+            $pull: {
+                hiddenRestaurants: { $in: restaurantIds },
+            },
+        });
+    }
 
 
     /**

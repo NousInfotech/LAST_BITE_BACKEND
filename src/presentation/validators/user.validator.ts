@@ -27,4 +27,9 @@ export const favoriteValidator = z.object({
     action: z.nativeEnum(FavoritesActions),
 });
 
+export const blockedRestaurantsValidator = z.object({
+    restaurants: z.array(z.string()),
+    action: z.nativeEnum(FavoritesActions),
+})
+
 

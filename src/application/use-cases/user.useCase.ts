@@ -29,7 +29,17 @@ export const UserUseCase = {
         if (!operation) throw new Error("Invalid action for updateFavourites");
 
         return operation();
-    }
+    },
 
+    updateBlockedRestaurans: (userId: string, blocked: string[], action: FavoritesActions) => {
+        const actionsMap = {
+            [FavoritesActions.ADD]: () => userRepo.addHiddenRestaurant(userId, blocked),
+            [FavoritesActions.REMOVE]: () => userRepo.removeHiddenRestaurant(userId, blocked),
+        };
+        const operation = actionsMap[action];
+        if (!operation) throw new Error("Invalid action for upadateBlocked Restaurants");
+
+        return operation();
+    }
 
 };

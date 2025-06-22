@@ -6,6 +6,7 @@ import {
     updateAddressSchema,
     updateUserSchema,
     favoriteValidator,
+    blockedRestaurantsValidator,
 } from "../validators/user.validator.js";
 import { sendResponse } from "../../utils/sendResponse.js";
 import { sendError } from "../../utils/sendError.js";
@@ -145,6 +146,25 @@ export const UserController = {
                 return sendError(res, HTTP.NOT_FOUND, "User not found or favourites update failed");
             }
             return sendResponse(res, HTTP.OK, "Favourites updated successfully", favourites);
+        });
+    },
+    async updateUserBlcokedRestaurants(req: CustomRequest, res: Response) {
+        const parsed = validate(userIdSchema, req, res); // ✅ fixed here
+        if (!parsed) return;
+
+        const { userId } = parsed;
+
+        const bodyCheck = validate(blockedRestaurantsValidator, req.body, res);
+        if (!bodyCheck) return;
+
+        const { action, restaurants } = bodyCheck;
+
+        return tryCatch(res, async () => {
+            const favouritesCollection = await UserUseCase.updateBlockedRestaurans(userId, restaurants, action);
+            if (!favouritesCollection) {
+                return sendError(res, HTTP.NOT_FOUND, "User not found or blocked update failed");
+            }
+            return sendResponse(res, HTTP.OK, "Blocked updated successfully", restaurants);
         });
     }
 
