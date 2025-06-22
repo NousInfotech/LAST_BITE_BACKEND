@@ -9,6 +9,7 @@ import {
     foodItemSchema,
     updateFoodItemSchema,
     foodItemIdParamsSchema,
+    foodItemIdArraySchema,
 } from "../validators/foodItem.validator.js";
 import { restaurantIdSchema } from "../validators/restaurant.validator.js";
 
@@ -71,7 +72,24 @@ export const FoodItemController = {
             return sendResponse(res, HTTP.OK, "Food items fetched successfully", foodItems);
         });
     },
+    async getAllFoodItemsById(req: Request, res: Response) {
+        // ✅ Validate request body using Zod
+        const bodyCheck = validate(foodItemIdArraySchema, req.body, res);
+        if (!bodyCheck) return;
 
+        const { foodItemIds } = bodyCheck;
+
+        return tryCatch(res, async () => {
+            const foodItems = await FoodItemUseCase.bulkGetByFoodItemIds(foodItemIds);
+
+            if (!foodItems || foodItems.length === 0) {
+                return sendError(res, HTTP.NOT_FOUND, "No food items found");
+            }
+
+            return sendResponse(res, HTTP.OK, "Food items fetched successfully", foodItems);
+        });
+    },
+    
     async getFoodItemByRestaurantId(req: Request, res: Response) {
 
         const parsed = validate(restaurantIdSchema, req.params, res);
@@ -79,7 +97,7 @@ export const FoodItemController = {
         if (!parsed) return;
 
         const { restaurantId } = req.params;
-        
+
         return tryCatch(res, async () => {
             const foodItems = await FoodItemUseCase.getByRestaurantId(restaurantId);
             return sendResponse(res, HTTP.OK, "Food items fetched successfully", foodItems);

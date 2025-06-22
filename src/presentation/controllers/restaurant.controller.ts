@@ -3,6 +3,7 @@ import { validate } from "../../utils/validation.js";
 import {
     updateRestaurantSchema,
     restaurantIdSchema,
+    restaurantIdArraySchema,
 } from "../validators/restaurant.validator.js";
 import { sendResponse } from "../../utils/sendResponse.js";
 import { sendError } from "../../utils/sendError.js";
@@ -80,4 +81,25 @@ export const RestaurantController = {
             return sendResponse(res, HTTP.OK, "Restaurants fetched successfully", restaurants);
         });
     },
+
+    async getAllRestauransById(req: CustomRequest, res: Response) {
+        // ✅ Validate restaurantIds from req.body
+        const parsed = validate(restaurantIdArraySchema, req.body, res);
+        if (!parsed) return;
+
+        const { restaurantIds } = parsed;
+        const role = req.role;
+
+        return tryCatch(res, async () => {
+            const restaurants = await RestaurantUseCase.bulkGetByRestaurantIds(restaurantIds, role as Role);
+
+            if (!restaurants || restaurants.length === 0) {
+                return sendError(res, HTTP.NOT_FOUND, "No restaurants found");
+            }
+
+            return sendResponse(res, HTTP.OK, "Restaurants fetched successfully", restaurants);
+        });
+    }
+
+
 };

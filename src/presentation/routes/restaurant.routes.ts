@@ -24,5 +24,6 @@ restaurantRouter.use(authMiddleware(["restaurantAdmin", "superAdmin", "user", "r
 restaurantRouter.put("/:restaurantId", RestaurantController.updateRestaurant);
 restaurantRouter.delete("/:restaurantId", RestaurantController.deleteRestaurant);
 restaurantRouter.get("/", RestaurantController.getAllRestaurants);
+restaurantRouter.get("/bulk", RestaurantController.getAllRestauransById);
 restaurantRouter.get("/:restaurantId", RestaurantController.getRestaurantById);
 export default restaurantRouter;

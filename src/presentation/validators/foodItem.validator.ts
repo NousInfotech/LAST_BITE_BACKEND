@@ -11,3 +11,10 @@ export const updateFoodItemSchema = foodItemSchema.partial();
 export const foodItemIdParamsSchema = z.object({
   foodItemId: z.string().min(1, "foodItemId is required"),
 });
+
+export const foodItemIdArraySchema = z.object({
+  foodItemIds: z.array(
+    foodItemIdParamsSchema.shape.foodItemId
+  ).min(1, "At least one foodItem is required"),
+});
+
