@@ -4,6 +4,7 @@ import {
     imageUpdateSchema,
     imageDeleteSchema,
     validateFolderByRole,
+    imageFileSchema,
 } from '../validators/image-upload.validator.js';
 import { UploadImageUseCase } from '../../application/use-cases/uploadImage.useCase.js';
 import { validate } from '../../utils/validation.js';
@@ -19,30 +20,39 @@ interface FileUploadCustomRequest extends CustomRequest {
 
 export class ImageUploadController {
     static async uploadImage(req: FileUploadCustomRequest, res: Response) {
-        // Validate request body
-        const validated = validate(imageUploadSchema, req.body, res);
-        if (!validated) return;
+        // Validate folder name
+        const folderValidation = validate(imageUploadSchema, req.body, res);
+        if (!folderValidation) return;
 
-        const { folderName } = validated;
+        // Validate image file
+        const fileValidation = validate(imageFileSchema, req, res);
+        if (!fileValidation) return;
+
+        const { folderName } = folderValidation;
+        const { file: imageFile } = fileValidation;
         const role = req.role as Role;
-        const imageFile = req.file;
 
+        // Check file presence
         if (!imageFile) {
             sendError(res, HTTP.NOT_FOUND, "File is Missing");
-            return;
+            return
         }
 
+        // Check if the user is authorized to upload in this folder
         if (!validateFolderByRole(folderName, role)) {
             sendError(res, HTTP.NOT_FOUND, "Un-Authorized Access");
-            return;
+            return
         }
 
+        // Proceed with upload
         return tryCatch(res, async () => {
             const imageUrl = await UploadImageUseCase.processAndUploadImage(imageFile, folderName);
+
             if (!imageUrl) {
                 sendError(res, HTTP.NOT_FOUND, "File Uploading Failed");
-                return;
+                return
             }
+
             return sendResponse(res, HTTP.OK, "Image Uploaded successfully", imageUrl);
         });
     }
@@ -53,7 +63,7 @@ export class ImageUploadController {
         if (!validated) return;
 
         const { folderName, oldImageUrl } = validated;
-        const role = req.role as Role;
+        const role = req.role as Role | undefined;
         const newFile = req.file;
 
         if (!newFile) {

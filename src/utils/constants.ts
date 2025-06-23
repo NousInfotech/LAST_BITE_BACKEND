@@ -55,28 +55,30 @@ export const HTTP: IHTTPStatusCodes = {
 
 
 export const imageFolders = [
-    "user",
-    "rider",
+    "users",
+    "riders",
     "rider-documents",
-    "restaurant",
+    "restaurants",
     "restaurant-documents",
-    "foodItem",
+    "foodItems",
 ] as const;
+
+
 
 export type ImageFolder = (typeof imageFolders)[number];
 
 // Mapping of which roles are allowed to upload to which folders
 export const allowedFoldersByRole: Record<Role, ImageFolder[]> = {
-    user: ["user"],
-    rider: ["rider", "rider-documents"],
-    restaurantAdmin: ["restaurant", "restaurant-documents", "foodItem"],
+    user: ["users"],
+    rider: ["riders", "rider-documents"],
+    restaurantAdmin: ["restaurants", "restaurant-documents", "foodItems"],
     superAdmin: [
-        "user",
-        "rider",
+        "users",
+        "riders",
         "rider-documents",
-        "restaurant",
+        "restaurants",
         "restaurant-documents",
-        "foodItem",
+        "foodItems",
     ],
 };
 

@@ -5,12 +5,15 @@ import { Role } from "../../domain/interfaces/utils.interface.js";
 // For upload: need new image file, and folderName
 export const imageUploadSchema = z.object({
     folderName: z.enum(imageFolders),
+});
+
+export const imageFileSchema = z.object({
     file: z
         .any()
         .refine((file) => file && file.mimetype?.startsWith("image/"), {
             message: "File must be an image.",
         }),
-});
+})
 
 // For update: need oldImageUrl, new image file, and folderName
 export const imageUpdateSchema = z.object({
@@ -29,7 +32,15 @@ export const imageDeleteSchema = z.object({
 });
 
 // Folder permission validation (same as before)
-export const validateFolderByRole = (folder: ImageFolder, role: Role): boolean => {
+export const PUBLIC_FOLDERS: ImageFolder[] = ["restaurants", "users"]; // folders allowed without role
+
+export const validateFolderByRole = (folder: ImageFolder, role?: Role): boolean => {
+    if (!role) {
+        // If no role, only allow public folders
+        return PUBLIC_FOLDERS.includes(folder);
+    }
+
     const allowed = allowedFoldersByRole[role];
     return allowed?.includes(folder) ?? false;
 };
+

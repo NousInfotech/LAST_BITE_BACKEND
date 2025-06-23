@@ -2,17 +2,30 @@ import { Router } from "express";
 import multer from "multer";
 import { ImageUploadController } from "../controllers/imageUpload.controller.js";
 import { authMiddleware } from "../../middleware/authMiddleware.js";
+import rateLimit from 'express-rate-limit';
+
+const publicUploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // max 10 uploads per IP
+  message: "Too many uploads from this IP, please try again later.",
+});
+
 
 // Multer setup (in-memory)
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error("Only JPG, PNG and WebP allowed"));
+    }
+    cb(null, true);
+  },
+});
+
 
 const imageUploadRouter = Router();
-
-// ------------------------------
-// Protected Routes (All Auth Roles)
-// ------------------------------
-imageUploadRouter.use(authMiddleware(["user", "restaurantAdmin", "rider", "superAdmin"]));
-
 /**
  * @route POST /api/image-upload
  * @desc Upload an image (requires 'file' and 'folderName')
@@ -22,6 +35,13 @@ imageUploadRouter.post(
   upload.single("file"), // Multer middleware to handle file upload
   ImageUploadController.uploadImage
 );
+
+
+// ------------------------------
+// Protected Routes (All Auth Roles)
+// ------------------------------
+imageUploadRouter.use(authMiddleware(["user", "restaurantAdmin", "rider", "superAdmin"]));
+
 
 /**
  * @route PUT /api/image-upload
