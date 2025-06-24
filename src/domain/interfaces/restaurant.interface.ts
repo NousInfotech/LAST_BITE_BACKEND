@@ -12,7 +12,7 @@ export interface IAddressGeo {
   state: string;
   country: string;
   fullAddress: string;
-  tag?:string;
+  tag?: string;
 }
 
 export interface IDocuments {
@@ -47,6 +47,7 @@ export interface IRestaurant {
   cuisines?: string[];
   typeOfFood?: FoodType[];
   profilePhoto?: string;
+  menuImage: string;
   isActive?: boolean;
   availableCategories?: string[]; // e.g., ["biryani", "noodles", "desserts"]
   rating?: number; // from 1.0 to 5.0

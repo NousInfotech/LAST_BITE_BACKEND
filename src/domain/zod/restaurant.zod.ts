@@ -55,9 +55,10 @@ export const restaurantSchema = z.object({
   timings: z.array(timingSchema),
   tags: z.array(z.string()),
   cuisines: z.array(z.string()).optional(),
-  typeOfFood: z.array(z.nativeEnum(FoodType)).optional(),
+  typeOfFood: z.array(z.nativeEnum(FoodType)),
   profilePhoto: z.string().optional(),
+  menuImage: z.string(),
   isActive: z.boolean().optional(),
-  availableCategories: z.array(z.string()).optional(),
+  availableCategories: z.array(z.string()),
   rating: z.number().min(1).max(5).default(3.5).optional(),
 });
