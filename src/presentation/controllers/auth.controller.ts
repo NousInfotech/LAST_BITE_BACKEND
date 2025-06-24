@@ -19,17 +19,9 @@ export const AuthController = {
         const validation = validate(phoneAndRoleSchema, req.body, res);
         if (!validation) return;
 
-        const { phoneNumber, role, isNewUser } = validation;
+        const { phoneNumber } = validation;
 
         return tryCatch(res, async () => {
-            // If it's a login attempt (not new user), check if user exists
-            if (!isNewUser) {
-                const loginData = await getRoleBasedIdByPhone(phoneNumber, role);
-                if (!loginData) {
-                    return sendError(res, HTTP.NOT_FOUND, `No ${role} found with this phone number`);
-                }
-            }
-
             const otpSent = await sendOtp(phoneNumber);
             if (!otpSent) {
                 return sendError(res, HTTP.BAD_REQUEST, "OTP could not be sent");
@@ -39,12 +31,11 @@ export const AuthController = {
         });
     },
 
-
     async verifyOtp(req: Request, res: Response) {
         const validation = validate(otpSchema, req.body, res);
         if (!validation) return;
 
-        const { phoneNumber, otp, role } = validation;
+        const { phoneNumber, otp, role, isNewUser } = validation;
 
         return tryCatch(res, async () => {
             const isVerified = await verifyOtp(phoneNumber, otp);
@@ -52,14 +43,16 @@ export const AuthController = {
                 return sendError(res, HTTP.UNAUTHORIZED, "Invalid OTP");
             }
 
-            const loginData = await getRoleBasedIdByPhone(phoneNumber, role);
-            if (!loginData) {
-                return sendError(res, HTTP.NOT_FOUND, `No ${role} found with this phone number`);
+            if (!isNewUser) {
+                const loginData = await getRoleBasedIdByPhone(phoneNumber, role);
+                if (!loginData) {
+                    return sendError(res, HTTP.NOT_FOUND, `No ${role} found with this phone number`);
+                }
+                const token = generateToken({ role, roleBasedId: loginData.roleBasedId! });
+
+                return sendResponse(res, HTTP.OK, "OTP verified successfully", { token });
             }
-
-            const token = generateToken({ role, roleBasedId: loginData.roleBasedId! });
-
-            return sendResponse(res, HTTP.OK, "OTP verified successfully", { token });
+            return sendResponse(res, HTTP.OK, "OTP verified successfully");
         });
     },
 

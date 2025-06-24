@@ -18,18 +18,17 @@ const otpField = z.string()
 // Exported schemas
 export const phoneNumberSchema = z.object({
   phoneNumber: phoneNumberField,
-
 });
 
 export const otpSchema = z.object({
   phoneNumber: phoneNumberField,
   otp: otpField,
   role: roleField,
+  isNewUser: z.boolean()
 });
 
 export const phoneAndRoleSchema = z.object({
   phoneNumber: phoneNumberField,
   role: roleField,
-  isNewUser: z.boolean()
 });
 
