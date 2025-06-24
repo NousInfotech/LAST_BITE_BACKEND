@@ -15,6 +15,7 @@ import { tryCatch } from "../../utils/tryCatch.js";
 import { UserUseCase } from "../../application/use-cases/user.useCase.js";
 import { userSchema } from "../../domain/zod/user.zod.js";
 import { CustomRequest } from "../../domain/interfaces/utils.interface.js";
+import { generateToken } from "../../config/jwt.config.js";
 
 
 export const UserController = {
@@ -24,7 +25,8 @@ export const UserController = {
 
         return tryCatch(res, async () => {
             const newUser = await UserUseCase.createUser(req.body);
-            return sendResponse(res, HTTP.CREATED, "User created successfully", newUser);
+            const token = generateToken({ role: "user", roleBasedId: newUser.userId! });
+            return sendResponse(res, HTTP.CREATED, "User Created Successfully OTP verified successfully", { newUser, token });
         });
     },
 

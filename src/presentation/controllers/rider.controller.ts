@@ -6,6 +6,7 @@ import { sendError } from "../../utils/sendError.js";
 import { HTTP } from "../../utils/constants.js";
 import { RiderUseCase } from "../../application/use-cases/rider.useCase.js";
 import { riderSchema, updateRiderSchema, riderIdParamsSchema } from "../validators/rider.validator.js";
+import { generateToken } from "../../config/jwt.config.js";
 
 export const RiderController = {
   async createRider(req: Request, res: Response) {
@@ -14,7 +15,8 @@ export const RiderController = {
 
     return tryCatch(res, async () => {
       const rider = await RiderUseCase.createRider(req.body);
-      return sendResponse(res, HTTP.CREATED, "Rider created successfully", rider);
+      const token = generateToken({ role: "user", roleBasedId: rider.riderId! });
+      return sendResponse(res, HTTP.CREATED, "OTP verified successfully, Rider created successfully", { rider, token });
     });
   },
 

@@ -6,6 +6,7 @@ import { sendError } from "../../utils/sendError.js";
 import { HTTP } from "../../utils/constants.js";
 import { RestaurantAdminUseCase } from "../../application/use-cases/restaurantAdmin.useCase.js";
 import { adminSchema, updateAdminSchema, adminIdParamsSchema } from "../validators/restaurantAdmin.validator.js";
+import { generateToken } from "../../config/jwt.config.js";
 
 export const RestaurantAdminController = {
   async createAdmin(req: Request, res: Response) {
@@ -14,7 +15,8 @@ export const RestaurantAdminController = {
 
     return tryCatch(res, async () => {
       const admin = await RestaurantAdminUseCase.createAdmin(req.body);
-      return sendResponse(res, HTTP.CREATED, "Admin created successfully", admin);
+      const token = generateToken({ role: "user", roleBasedId: admin.restaurantAdminId! });
+      return sendResponse(res, HTTP.CREATED, "OTP verified successfully", { admin, token });
     });
   },
 
