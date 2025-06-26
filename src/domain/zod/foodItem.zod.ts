@@ -12,7 +12,7 @@ export const foodItemZodSchema = z.object({
   isAvailable: z.boolean().optional(),
   typeOfFood: z.array(z.nativeEnum(FoodType)),
   tags: z.array(z.string()).optional(),
-  category: z.string().optional(),
+  category: z.string(),
   rating: z.number().optional(),
   ratingCount: z.number().optional(),
   stock: z.number().optional(),

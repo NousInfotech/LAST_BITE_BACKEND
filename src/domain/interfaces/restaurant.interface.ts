@@ -47,9 +47,9 @@ export interface IRestaurant {
   cuisines?: string[];
   typeOfFood?: FoodType[];
   profilePhoto?: string;
-  menuImage: string;
+  menuImages: string[];
   isActive?: boolean;
-  availableCategories?: string[]; // e.g., ["biryani", "noodles", "desserts"]
+  availableCategories: string[]; // e.g., ["biryani", "noodles", "desserts"]
   rating?: number; // from 1.0 to 5.0
   createdAt?: Date;
   updatedAt?: Date;

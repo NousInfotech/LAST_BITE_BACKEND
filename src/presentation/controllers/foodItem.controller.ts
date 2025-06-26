@@ -67,8 +67,9 @@ export const FoodItemController = {
     },
 
     async getAllFoodItems(req: Request, res: Response) {
+        const filters = req.query;
         return tryCatch(res, async () => {
-            const foodItems = await FoodItemUseCase.getAllFoodItems();
+            const foodItems = await FoodItemUseCase.getAllFoodItems(filters);
             return sendResponse(res, HTTP.OK, "Food items fetched successfully", foodItems);
         });
     },
@@ -89,7 +90,7 @@ export const FoodItemController = {
             return sendResponse(res, HTTP.OK, "Food items fetched successfully", foodItems);
         });
     },
-    
+
     async getFoodItemByRestaurantId(req: Request, res: Response) {
 
         const parsed = validate(restaurantIdSchema, req.params, res);

@@ -60,11 +60,12 @@ const restaurantSchema = new Schema<RestaurantDoc>(
     },
 
     profilePhoto: String,
-    menuImage: String,
+    menuImages: [String],
     isActive: { type: Boolean, default: false },
     availableCategories: {
       type: [String],
       default: [],
+      required: true
     },
 
     rating: {

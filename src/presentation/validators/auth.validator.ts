@@ -29,6 +29,5 @@ export const otpSchema = z.object({
 
 export const phoneAndRoleSchema = z.object({
   phoneNumber: phoneNumberField,
-  role: roleField,
 });
 

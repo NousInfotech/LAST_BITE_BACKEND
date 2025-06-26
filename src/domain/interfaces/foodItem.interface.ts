@@ -16,7 +16,7 @@ export interface IFoodItem {
   isAvailable?: boolean;
   typeOfFood: FoodType[];
   tags?: string[];
-  category?: string;
+  category: string;
   rating?: number;
   ratingCount?: number;
   stock?: number;

@@ -27,7 +27,7 @@ const foodItemSchema = new Schema<FoodItemDoc>(
             required: true,
         },
         tags: [{ type: String }],
-        category: { type: String },
+        category: { type: String, required: true },
         rating: { type: Number },
         ratingCount: { type: Number },
         stock: { type: Number },

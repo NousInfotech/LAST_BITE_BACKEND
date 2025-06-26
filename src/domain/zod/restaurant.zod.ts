@@ -57,7 +57,7 @@ export const restaurantSchema = z.object({
   cuisines: z.array(z.string()).optional(),
   typeOfFood: z.array(z.nativeEnum(FoodType)),
   profilePhoto: z.string().optional(),
-  menuImage: z.string(),
+  menuImages: z.array(z.string()),
   isActive: z.boolean().optional(),
   availableCategories: z.array(z.string()),
   rating: z.number().min(1).max(5).default(3.5).optional(),

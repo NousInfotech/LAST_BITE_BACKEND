@@ -1,6 +1,7 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
 import { IFoodItem } from "../../domain/interfaces/foodItem.interface.js";
 import { FoodItemDoc, FoodItemModel } from "../db/mongoose/schemas/foodItem.schema.js";
+import { extractQueryOptions } from "../db/helper/utils.helper.js";
 
 export class FoodItemRepository {
   /**
@@ -47,7 +48,21 @@ export class FoodItemRepository {
    * @returns {Promise<FoodItemDoc[]>}
    */
   async getAllFoodItems(filter: FilterQuery<IFoodItem> = {}): Promise<FoodItemDoc[]> {
-    return await FoodItemModel.find(filter, { _id: 0, __v: 0 }).lean();
+    // Extract query options from filter (pagination, sorting)
+    const { sortBy, order, page, limit, search, ...pureFilter } = filter;
+
+    // Build MongoDB filter object
+    if (search) {
+      pureFilter.name = { $regex: `^${search}`, $options: "i" };
+    }
+    const queryOptions = extractQueryOptions({ sortBy, order, page, limit });
+    // Extract pagination/sorting options
+
+    return await FoodItemModel.find(pureFilter, { _id: 0, __v: 0 })
+      .sort(queryOptions.sort)
+      .skip(queryOptions.skip || 0)
+      .limit(queryOptions.limit || 10)
+      .lean();
   }
 
   /**

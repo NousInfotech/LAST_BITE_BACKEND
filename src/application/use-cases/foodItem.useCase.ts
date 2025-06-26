@@ -8,18 +8,21 @@ const restaurantRepo = new RestaurantRepository();
 export const FoodItemUseCase = {
     // Create a food item
     createFoodItem: async (data: IFoodItem) => {
-        const { restaurantId } = data;
+        const { restaurantId, category } = data;
 
-        // Check if the restaurant exists before creating the food item
         const restaurant = await restaurantRepo.findByRestaurantId(restaurantId);
         if (!restaurant) {
-            throw new Error(`Restaurant with restaurantId "${restaurantId}" does not exist.`);
+            throw new Error(`Restaurant with ID "${restaurantId}" does not exist.`);
         }
 
-        // Create the food item
+        const isValidCategory = restaurant.availableCategories.includes(category?.trim().toLowerCase());
+        if (!isValidCategory) {
+            throw new Error(`Category "${category}" is not allowed for this restaurant.`);
+        }
+
+        // If valid, create food item
         return await foodItemRepo.create(data);
     },
-
     // Get a food item by custom foodItemId
     getFoodItemById: (foodItemId: string) => foodItemRepo.findByFoodItemId(foodItemId),
 
