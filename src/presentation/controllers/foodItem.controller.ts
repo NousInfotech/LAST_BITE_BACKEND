@@ -70,6 +70,10 @@ export const FoodItemController = {
         const filters = req.query;
         return tryCatch(res, async () => {
             const foodItems = await FoodItemUseCase.getAllFoodItems(filters);
+            if (!foodItems || foodItems.length == 0) {
+                sendError(res, HTTP.NOT_FOUND, "Food Items Not Found");
+                return;
+            }
             return sendResponse(res, HTTP.OK, "Food items fetched successfully", foodItems);
         });
     },

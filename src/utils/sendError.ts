@@ -11,6 +11,7 @@ export const sendError = (
 ) => {
     return res.status(statusCode).json({
         success: false,
+        statusCode,
         message,
         error: error?.message || error || "Unknown error",
     });

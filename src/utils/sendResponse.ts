@@ -12,6 +12,7 @@ export const sendResponse = (
 ) => {
     return res.status(statusCode).json({
         success: statusCode < 400,
+        statusCode,
         message,
         data,
     });
