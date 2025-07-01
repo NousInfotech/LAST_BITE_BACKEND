@@ -17,3 +17,13 @@ export interface IUser {
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+export interface IUserCollection {
+    userId: string;
+    collectionId: string;      // Your custom user ID (e.g. usr_abc123)
+    name: string;              // Collection name
+    foodItemIds: string[];     // List of food item IDs
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+

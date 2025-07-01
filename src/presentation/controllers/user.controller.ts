@@ -13,7 +13,7 @@ import { sendError } from "../../utils/sendError.js";
 import { HTTP } from "../../utils/constants.js";
 import { tryCatch } from "../../utils/tryCatch.js";
 import { UserUseCase } from "../../application/use-cases/user.useCase.js";
-import { userSchema } from "../../domain/zod/user.zod.js";
+import { userCollectionSchema, userSchema } from "../../domain/zod/user.zod.js";
 import { CustomRequest } from "../../domain/interfaces/utils.interface.js";
 import { generateToken } from "../../config/jwt.config.js";
 
@@ -150,6 +150,7 @@ export const UserController = {
             return sendResponse(res, HTTP.OK, "Favourites updated successfully", favourites);
         });
     },
+
     async updateUserBlcokedRestaurants(req: CustomRequest, res: Response) {
         const parsed = validate(userIdSchema, req, res); // ✅ fixed here
         if (!parsed) return;
@@ -168,6 +169,61 @@ export const UserController = {
             }
             return sendResponse(res, HTTP.OK, "Blocked updated successfully", restaurants);
         });
-    }
+    },
+
+    async createCollection(req: CustomRequest, res: Response) {
+        const body = { ...req.body, userId: req.userId }
+        const validation = validate(userCollectionSchema, body, res);
+        if (!validation) return;
+
+        return tryCatch(res, async () => {
+            const collection = await UserUseCase.createCollection(body);
+            if (!collection) sendError(res, HTTP.NOT_FOUND, "Collections Not Found");
+            return sendResponse(res, HTTP.CREATED, "Collection created successfully", { collection });
+        });
+    },
+
+    async getCollections(req: CustomRequest, res: Response) {
+        return tryCatch(res, async () => {
+            const filter = { ...req.query, userId: req.userId }; // Assuming user info from auth middleware
+            const collections = await UserUseCase.getCollections(filter);
+            return sendResponse(res, HTTP.OK, "Collections fetched successfully", { collections });
+        });
+    },
+
+    async getCollectionById(req: CustomRequest, res: Response) {
+        return tryCatch(res, async () => {
+            const collection = await UserUseCase.getCollectionById(req.params.collectionId);
+            if (!collection) return sendResponse(res, HTTP.NOT_FOUND, "Collection not found");
+            return sendResponse(res, HTTP.OK, "Collection fetched successfully", { collection });
+        });
+    },
+
+    async updateCollection(req: CustomRequest, res: Response) {
+        return tryCatch(res, async () => {
+            const updated = await UserUseCase.updateCollection(req.params.collectionId, req.body);
+            if (!updated) return sendResponse(res, HTTP.NOT_FOUND, "Collection not found");
+            return sendResponse(res, HTTP.OK, "Collection updated successfully", { updated });
+        });
+    },
+
+    async deleteCollection(req: CustomRequest, res: Response) {
+        return tryCatch(res, async () => {
+            const deleted = await UserUseCase.deleteCollection(req.params.collectionId);
+            if (!deleted) return sendResponse(res, HTTP.NOT_FOUND, "Collection not found");
+            return sendResponse(res, HTTP.OK, "Collection deleted successfully", { deleted });
+        });
+    },
+
+    async removeFoodItem(req: CustomRequest, res: Response) {
+        return tryCatch(res, async () => {
+            const { collectionId, foodItemId } = req.query;
+            console.log(collectionId, foodItemId)
+            const updated = await UserUseCase.removeFoodItemFromCollection(collectionId as string, foodItemId as string);
+            if (!updated) return sendResponse(res, HTTP.NOT_FOUND, "Collection or food item not found");
+            return sendResponse(res, HTTP.OK, "Food item removed from collection", { updated });
+        });
+    },
+
 
 };

@@ -1,7 +1,8 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
-import { Favourites, IUser } from "../../domain/interfaces/user.interface.js";
+import { Favourites, IUser, IUserCollection } from "../../domain/interfaces/user.interface.js";
 import { IAddress } from "../../domain/interfaces/utils.interface.js";
-import { UserDoc, UserModel } from "../db/mongoose/schemas/user.schema.js";
+import { UserCollectionModel, UserDoc, UserModel } from "../db/mongoose/schemas/user.schema.js";
+import { extractQueryOptions } from "../db/helper/utils.helper.js";
 
 export class UserRepository {
     /**
@@ -209,4 +210,70 @@ export class UserRepository {
 
         return user.addresses;
     }
+
+    /**
+  * GET: Fetch all collections with optional filters (pagination + search)
+  */
+    async getAllCollections(filter: FilterQuery<IUserCollection> & Record<string, any> = {}) {
+        const { sortBy = "createdAt", order = "desc", page = 1, limit = 10, search, ...pureFilter } = filter;
+
+        if (search) {
+            pureFilter.name = { $regex: search, $options: "i" };
+        }
+
+        const queryOptions = extractQueryOptions({ sortBy, order, page, limit });
+
+        return await UserCollectionModel.find(pureFilter, { _id: 0, __v: 0 })
+            .sort(queryOptions.sort)
+            .skip(queryOptions.skip as number)
+            .limit(queryOptions.limit as number)
+            .lean();
+    }
+
+    /**
+     * GET: Fetch a single collection by ID
+     */
+    async getCollectionById(collectionId: string) {
+        return await UserCollectionModel.findById(collectionId, { _id: 0, __v: 0 }).lean()
+    }
+
+    /**
+     * POST: Create a new user collection
+     */
+    async createCollection(data: IUserCollection) {
+        const newCollection = new UserCollectionModel(data);
+        return await newCollection.save();
+    }
+
+    /**
+  * PUT: Update a user collection by custom collectionId
+  */
+    async updateCollection(collectionId: string, updateData: UpdateQuery<IUserCollection>) {
+        return await UserCollectionModel.findOneAndUpdate(
+            { collectionId },               // filter by custom ID
+            updateData,
+            { new: true }
+        ).lean();
+    }
+
+    /**
+     * DELETE: Remove a user collection by custom collectionId
+     */
+    async deleteCollection(collectionId: string) {
+        return await UserCollectionModel.findOneAndDelete({ collectionId }).lean();
+    }
+
+    /**
+     * DELETE: Remove a specific foodItem from a collection using custom collectionId
+     */
+    async removeFoodItem(collectionId: string, foodItemId: string) {
+        console.log(collectionId, foodItemId);
+        return await UserCollectionModel.findOneAndUpdate(
+            { collectionId },
+            { $pull: { foodItemIds: foodItemId } },
+            { new: true }
+        ).lean();
+    }
+
+
 }

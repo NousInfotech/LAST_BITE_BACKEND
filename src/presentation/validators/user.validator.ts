@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { userSchema } from "../../domain/zod/user.zod.js";
+import { userCollectionSchema, userSchema } from "../../domain/zod/user.zod.js";
 import { AddressSchema } from "../../domain/zod/utils.zod.js";
 import { FavoritesActions } from "../../domain/interfaces/utils.interface.js";
 

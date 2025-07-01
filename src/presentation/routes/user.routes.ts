@@ -32,6 +32,13 @@ userRouter.get("/me/addresses", UserController.getAddresses);
 userRouter.put("/me/addresses/:addressId", UserController.updateAddress);
 userRouter.delete("/me/addresses/:addressId", UserController.deleteAddress);
 
-
+// ------------------------------
+// Collection Routes (nested under userId)
+// ------------------------------
+userRouter.post("/wishlist", UserController.createCollection);
+userRouter.get("/wishlist", UserController.getCollections);
+userRouter.put("/wishlist/:collectionId", UserController.updateCollection);
+userRouter.delete("/wishlist/food-item", UserController.removeFoodItem);
+userRouter.delete("/wishlist/:collectionId", UserController.deleteCollection);
 
 export default userRouter;
