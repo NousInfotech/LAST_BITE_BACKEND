@@ -18,11 +18,12 @@ restaurantRouter.post("/", RestaurantController.createRestaurant);
 // Authenticated & Authorized Routes
 // ------------------------------
 
+restaurantRouter.patch("/status/:restaurantId", authMiddleware(["superAdmin"]), RestaurantController.updateRestaurantStatus);
 restaurantRouter.use(authMiddleware(["restaurantAdmin", "superAdmin", "user", "rider"]));
 
 
 restaurantRouter.put("/:restaurantId", RestaurantController.updateRestaurant);
-restaurantRouter.delete("/:restaurantId", RestaurantController.deleteRestaurant);
+restaurantRouter.delete("/:restaurantId", authMiddleware(["superAdmin"]), RestaurantController.deleteRestaurant);
 restaurantRouter.get("/", RestaurantController.getAllRestaurants);
 restaurantRouter.get("/bulk", RestaurantController.getAllRestauransById);
 restaurantRouter.get("/:restaurantId", RestaurantController.getRestaurantById);

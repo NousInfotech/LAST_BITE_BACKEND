@@ -1,6 +1,6 @@
 import { Schema, Document, Model, model } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
-import { Days } from "../../../../domain/interfaces/utils.interface.js";
+import { RestaurantStatusEnum, Days } from "../../../../domain/interfaces/utils.interface.js";
 import { IRestaurant } from "../../../../domain/interfaces/restaurant.interface.js";
 import { FoodType } from "../../../../domain/interfaces/utils.interface.js";
 import { addressSchemaGeo } from "./utils.schema.js";
@@ -42,6 +42,33 @@ export const timingSchema = new Schema(
 
 // ——— Address sub‑schema with GeoJSON point + 2dsphere index ———
 
+const RestaurantStatusSchema = new Schema(
+  {
+    status: {
+      type: String,
+      enum: Object.values(RestaurantStatusEnum),
+      default: RestaurantStatusEnum.PENDING,
+      required: true,
+    },
+    message: {
+      type: String,
+    },
+    days: {
+      type: Number,
+      required: function (this: any) {
+        return this.status === RestaurantStatusEnum.SUSPENDED;
+      },
+      min: [1, 'Suspension must be at least 1 day'],
+      max: [365, 'Suspension cannot exceed 365 days'], // Optional
+    },
+    updatedAt: {
+      type: Date,
+      default: () => new Date(),
+    },
+  },
+  { _id: false }
+);
+
 
 // ——— Top‑level Restaurant schema ———
 const restaurantSchema = new Schema<RestaurantDoc>(
@@ -67,7 +94,7 @@ const restaurantSchema = new Schema<RestaurantDoc>(
       default: [],
       required: true
     },
-
+    restaurantStatus: { type: RestaurantStatusSchema, default: () => ({ status: RestaurantStatusEnum.PENDING }), updatedAt: new Date() },
     rating: {
       type: Number,
       min: 1,

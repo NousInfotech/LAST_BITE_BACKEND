@@ -15,7 +15,7 @@ export const RiderController = {
 
     return tryCatch(res, async () => {
       const rider = await RiderUseCase.createRider(req.body);
-      const token = generateToken({ role: "user", roleBasedId: rider.riderId! });
+      const token = generateToken({ role: "rider", roleBasedId: rider.riderId! });
       return sendResponse(res, HTTP.CREATED, "OTP verified successfully, Rider created successfully", { rider, token });
     });
   },

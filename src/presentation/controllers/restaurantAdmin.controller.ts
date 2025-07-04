@@ -15,7 +15,7 @@ export const RestaurantAdminController = {
 
     return tryCatch(res, async () => {
       const admin = await RestaurantAdminUseCase.createAdmin(req.body);
-      const token = generateToken({ role: "user", roleBasedId: admin.restaurantAdminId! });
+      const token = generateToken({ role: "restaurantAdmin", roleBasedId: admin.restaurantAdminId! });
       return sendResponse(res, HTTP.CREATED, "OTP verified successfully", { admin, token });
     });
   },

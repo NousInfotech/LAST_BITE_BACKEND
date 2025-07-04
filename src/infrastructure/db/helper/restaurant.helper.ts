@@ -1,5 +1,5 @@
 import { RestaurantDoc } from "../mongoose/schemas/restaurant.schema";
-import { Role } from "../../../domain/interfaces/utils.interface.js";
+import { RestaurantStatusEnum, Role } from "../../../domain/interfaces/utils.interface.js";
 
 type SanitizedRestaurant = Partial<RestaurantDoc>;
 
@@ -58,5 +58,22 @@ export function sanitizeRestaurantByRole(
       return {}; // Or throw an error if needed
   }
 }
+
+const validTransitions: Record<RestaurantStatusEnum, RestaurantStatusEnum[]> = {
+  [RestaurantStatusEnum.PENDING]: [RestaurantStatusEnum.VERIFIED, RestaurantStatusEnum.REJECTED],
+  [RestaurantStatusEnum.VERIFIED]: [RestaurantStatusEnum.SUSPENDED, RestaurantStatusEnum.BANNED],
+  [RestaurantStatusEnum.REJECTED]: [RestaurantStatusEnum.VERIFIED],
+  [RestaurantStatusEnum.SUSPENDED]: [RestaurantStatusEnum.VERIFIED],
+  [RestaurantStatusEnum.BANNED]: [RestaurantStatusEnum.VERIFIED],
+};
+
+export function isValidStatusTransition(
+  current: RestaurantStatusEnum | undefined,
+  next: RestaurantStatusEnum
+): boolean {
+  const from = current ?? RestaurantStatusEnum.PENDING;
+  return validTransitions[from]?.includes(next);
+}
+
 
 

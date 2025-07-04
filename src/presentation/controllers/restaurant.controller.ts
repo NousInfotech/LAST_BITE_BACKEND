@@ -4,6 +4,7 @@ import {
     updateRestaurantSchema,
     restaurantIdSchema,
     restaurantIdArraySchema,
+    restaurantStatusSchema,
 } from "../validators/restaurant.validator.js";
 import { sendResponse } from "../../utils/sendResponse.js";
 import { sendError } from "../../utils/sendError.js";
@@ -12,6 +13,7 @@ import { tryCatch } from "../../utils/tryCatch.js";
 import { RestaurantUseCase } from "../../application/use-cases/restaurant.useCase.js";
 import { restaurantSchema } from "../../domain/zod/restaurant.zod.js";
 import { CustomRequest, Role } from "../../domain/interfaces/utils.interface.js";
+import { IRestaurantStatus } from "../../domain/interfaces/restaurant.interface.js";
 
 export const RestaurantController = {
     async createRestaurant(req: CustomRequest, res: Response) {
@@ -55,6 +57,24 @@ export const RestaurantController = {
             const updated = await RestaurantUseCase.updateRestaurant(restaurantId, req.body);
             if (!updated) return sendError(res, HTTP.NOT_FOUND, "Restaurant not found");
             return sendResponse(res, HTTP.OK, "Restaurant updated successfully", updated);
+        });
+    },
+
+    async updateRestaurantStatus(req: CustomRequest, res: Response) {
+        // Validate params: only restaurantId
+        const paramCheck = validate(restaurantIdSchema, req.params, res);
+        if (!paramCheck) return;
+
+        // Validate body partial restaurant schema
+        const bodyCheck = validate(restaurantStatusSchema, req.body, res) as IRestaurantStatus;
+        if (!bodyCheck) return;
+
+        const { restaurantId } = paramCheck;
+
+        return tryCatch(res, async () => {
+            const updated = await RestaurantUseCase.updateRestaurantStatus(restaurantId, bodyCheck);
+            if (!updated) return sendError(res, HTTP.NOT_FOUND, "Restaurant not found");
+            return sendResponse(res, HTTP.OK, "Restaurant Status updated successfully", updated);
         });
     },
 

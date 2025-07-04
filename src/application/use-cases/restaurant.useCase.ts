@@ -1,6 +1,6 @@
 import { RestaurantRepository } from "../../infrastructure/repositories/restaurant.repository.js";
 import { sanitizeRestaurantByRole } from "../../infrastructure/db/helper/restaurant.helper.js";
-import { IRestaurant } from "../../domain/interfaces/restaurant.interface.js";
+import { IRestaurantStatus, IRestaurant } from "../../domain/interfaces/restaurant.interface.js";
 import { UpdateQuery, FilterQuery } from "mongoose";
 import { Role } from "../../domain/interfaces/utils.interface.js";
 import { RestaurantDoc } from "../../infrastructure/db/mongoose/schemas/restaurant.schema.js";
@@ -37,6 +37,13 @@ export const RestaurantUseCase = {
     updateRestaurant: (restaurantId: string, updateData: UpdateQuery<IRestaurant>) => {
         return restaurantRepo.updateRestaurant(restaurantId, updateData);
     },
+    /**
+      * Update a restaurant status by id
+      */
+    updateRestaurantStatus: (restaurantId: string, state: IRestaurantStatus) => {
+        return restaurantRepo.updateRestaurantStatus(restaurantId, state.status, state.message, state.days);
+    },
+
 
     /**
      * Delete a restaurant by its ID

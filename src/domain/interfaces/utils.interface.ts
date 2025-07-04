@@ -68,6 +68,15 @@ export enum FavoritesActions {
     REMOVE = "remove"
 }
 
+export enum RestaurantStatusEnum {
+    PENDING = "PENDING",
+    VERIFIED = "VERIFIED",
+    REJECTED = "REJECTED",
+    SUSPENDED = "SUSPENDED",
+    BANNED = "BANNED",
+}
+
+
 export interface CustomRequest extends Request {
     role?: Role;
     userId?: string;

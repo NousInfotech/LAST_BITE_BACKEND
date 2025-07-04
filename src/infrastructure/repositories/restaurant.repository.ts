@@ -2,6 +2,8 @@ import { FilterQuery, UpdateQuery } from "mongoose";
 import { IRestaurant } from "../../domain/interfaces/restaurant.interface.js";
 import { RestaurantDoc, RestaurantModel } from "../db/mongoose/schemas/restaurant.schema.js";
 import { extractQueryOptions } from "../db/helper/utils.helper.js";
+import { RestaurantStatusEnum } from "../../domain/interfaces/utils.interface.js";
+import { isValidStatusTransition } from "../db/helper/restaurant.helper.js";
 
 export class RestaurantRepository {
   /**
@@ -32,6 +34,70 @@ export class RestaurantRepository {
   async updateRestaurant(restaurantId: string, updateData: UpdateQuery<IRestaurant>) {
     return await RestaurantModel.findOneAndUpdate({ restaurantId }, updateData, { new: true });
   }
+
+  /**
+ * Update the restaurantStatus of a restaurant by its restaurantId
+ * 
+ * @param {string} restaurantId - The custom restaurantId of the restaurant to update
+ * @param {AdminStatusEnum} status - New admin status to set (e.g., VERIFIED, REJECTED)
+ * @param {string} [message] - Optional message or reason for the status update
+ * @returns {Promise<IRestaurant | null>} - The updated restaurant document or null if not found
+ *
+ * @throws {Error} If the provided status is not a valid AdminStatusEnum value
+ */
+
+  async updateRestaurantStatus(
+    restaurantId: string,
+    status: RestaurantStatusEnum,
+    message?: string,
+    days?: number // Add this explicitly for suspension
+  ): Promise<IRestaurant | null> {
+    // Validate status
+    if (!Object.values(RestaurantStatusEnum).includes(status)) {
+      throw new Error(`Invalid restaurant status: ${status}`);
+    }
+
+    // Fetch existing restaurant
+    const restaurant = await RestaurantModel.findOne({ restaurantId }).lean();
+
+    if (!restaurant) {
+      throw new Error(`Restaurant not found for ID: ${restaurantId}`);
+    }
+
+    const currentStatus = restaurant?.restaurantStatus?.status as RestaurantStatusEnum | undefined;
+
+    // Validate transition
+    if (!isValidStatusTransition(currentStatus, status)) {
+      throw new Error(`Invalid transition from ${currentStatus ?? "UNSET"} to ${status}`);
+    }
+
+    // Prepare update object
+    const updateData: any = {
+      "restaurantStatus.status": status,
+      "restaurantStatus.updatedAt": new Date().toISOString(),
+    };
+
+    if (message) updateData["restaurantStatus.message"] = message;
+
+    // Add `days` only if suspended
+    if (status === RestaurantStatusEnum.SUSPENDED) {
+      if (!days || typeof days !== "number" || days < 1) {
+        throw new Error("Suspension must include a valid number of days.");
+      }
+      updateData["restaurantStatus.days"] = days;
+    } else {
+      // Clean up previous suspension fields (if any)
+      updateData["restaurantStatus.days"] = undefined;
+    }
+
+    // Perform DB update
+    return await RestaurantModel.findOneAndUpdate(
+      { restaurantId },
+      { $set: updateData },
+      { new: true }
+    );
+  }
+
 
   /**
    * Delete a restaurant by its restaurantId
