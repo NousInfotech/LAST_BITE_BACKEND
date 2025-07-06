@@ -1,6 +1,11 @@
-## 👤 User API
 
-```
+# 🧾 **User API Documentation**
+
+---
+
+## 👤 User Routes
+
+```ts
 // POST /users
 // Public Route
 {
@@ -10,13 +15,15 @@
   profileImage?: string;
   addresses?: Address[];
 }
+```
 
+### 🔐 Authenticated Routes (Require JWT)
+
+```ts
 // GET /users/me
-// Authenticated Route
-// Returns user based on decoded JWT
+// Returns the authenticated user info
 
 // PUT /users/me
-// Authenticated Route
 {
   name?: string;
   email?: string;
@@ -24,7 +31,7 @@
 }
 
 // DELETE /users/me
-// Authenticated Route
+// Deletes the authenticated user
 ```
 
 ---
@@ -45,19 +52,25 @@
   address: string;
   tag?: string;
 }
+```
 
+```ts
 // GET /users/me/addresses
 // Returns Address[]
 
-// PUT /users/me/addresses/:addressId
-// Same as POST body
+/**
+ * PUT /users/me/addresses/:addressId
+ * Same body as POST
+ */
 
-// DELETE /users/me/addresses/:addressId
-Sure! Here's a clean and concise **API documentation** for your two PATCH routes:
+/**
+ * DELETE /users/me/addresses/:addressId
+ */
+```
 
 ---
 
-## 🔧 PATCH `/user/favorites`
+## ❤️ PATCH `/users/me/favorites`
 
 ### ✅ Description:
 
@@ -65,7 +78,7 @@ Add or remove restaurants or food items from a user's **favorites** list.
 
 ### 🔐 Authorization:
 
-✅ **Required** (Bearer Token) — `req.userId` is expected to be injected by auth middleware.
+✅ Required (Bearer Token)
 
 ### 📥 Request Body:
 
@@ -79,17 +92,17 @@ Add or remove restaurants or food items from a user's **favorites** list.
 }
 ```
 
-### 🧾 Body Fields:
+### 🧾 Fields:
 
-| Field                    | Type       | Required | Description                                     |
-| ------------------------ | ---------- | -------- | ----------------------------------------------- |
-| `favourites.restaurants` | `string[]` | Optional | Array of restaurant IDs to add/remove           |
-| `favourites.foodItems`   | `string[]` | Optional | Array of food item IDs to add/remove            |
-| `action`                 | `string`   | ✅ Yes    | `"ADD"` or `"REMOVE"` to indicate the operation |
+| Field                      | Type         | Required | Description                  |
+| -------------------------- | ------------ | -------- | ---------------------------- |
+| `favourites.restaurants` | `string[]` | Optional | Restaurant IDs to add/remove |
+| `favourites.foodItems`   | `string[]` | Optional | Food item IDs to add/remove  |
+| `action`                 | `string`   | ✅ Yes   | `"ADD"`or `"REMOVE"`     |
 
 > ⚠️ At least one of `restaurants` or `foodItems` must be provided.
 
-### 📤 Response (Success):
+### 📤 Response:
 
 ```json
 {
@@ -104,16 +117,17 @@ Add or remove restaurants or food items from a user's **favorites** list.
 }
 ```
 
+---
 
-## 🔧 PATCH `/user/hidden-restaurants`
+## 🙈 PATCH `/users/me/hidden-restaurants`
 
 ### ✅ Description:
 
-Add or remove hidden restaurants from the user's profile. These restaurants may be hidden from views like discovery or home feed.
+Add or remove hidden restaurants from the user's profile. These are hidden from recommendations/feed.
 
 ### 🔐 Authorization:
 
-✅ **Required** (Bearer Token)
+✅ Required (Bearer Token)
 
 ### 📥 Request Body:
 
@@ -124,14 +138,14 @@ Add or remove hidden restaurants from the user's profile. These restaurants may 
 }
 ```
 
-### 🧾 Body Fields:
+### 🧾 Fields:
 
-| Field               | Type       | Required | Description                   |
-| ------------------- | ---------- | -------- | ----------------------------- |
-| `hiddenRestaurants` | `string[]` | ✅ Yes    | Restaurant IDs to hide/unhide |
-| `action`            | `string`   | ✅ Yes    | `"ADD"` or `"REMOVE"`         |
+| Field                 | Type         | Required | Description                   |
+| --------------------- | ------------ | -------- | ----------------------------- |
+| `hiddenRestaurants` | `string[]` | ✅ Yes   | Restaurant IDs to hide/unhide |
+| `action`            | `string`   | ✅ Yes   | `"ADD"`or `"REMOVE"`      |
 
-### 📤 Response (Success):
+### 📤 Response:
 
 ```json
 {
@@ -145,25 +159,120 @@ Add or remove hidden restaurants from the user's profile. These restaurants may 
 
 ---
 
-### ❌ Error Responses:
+## 🛒 Cart Routes (User)
 
-#### 400 — Bad Request
+---
+
+### 🔁 PATCH `/users/cart`
+
+### ✅ Description:
+
+Add, update, or remove items in the user's cart.
+
+### 🔐 Authorization:
+
+✅ Required (Bearer Token)
+
+### 📥 Request Body:
+
+```json
+[
+  {
+    "foodItemId": "food_abc123",
+    "quantity": 2
+  },
+  {
+    "foodItemId": "food_xyz456",
+    "quantity": 0
+  }
+]
+```
+
+### 🧾 Fields:
+
+| Field          | Type       | Required | Description                           |
+| -------------- | ---------- | -------- | ------------------------------------- |
+| `foodItemId` | `string` | ✅ Yes   | Unique ID of the food item            |
+| `quantity`   | `number` | ✅ Yes   | Quantity to set;`0`removes the item |
+
+> 🔄 If the item exists, its quantity is updated.
+>
+> 🗑️ Quantity of `0` or less removes the item.
+
+### 📤 Response:
+
+```json
+{
+  "success": true,
+  "message": "Cart updated successfully",
+  "data": {
+    "userCart": [
+      {
+        "foodItemId": "food_abc123",
+        "quantity": 2,
+        "createdAt": "2025-07-06T09:23:26.368Z",
+        "updatedAt": "2025-07-06T09:31:17.603Z"
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 📦 GET `/users/cart`
+
+### ✅ Description:
+
+Returns the current items in the user's cart.
+
+### 🔐 Authorization:
+
+✅ Required (Bearer Token)
+
+### 📤 Response:
+
+```json
+{
+  "success": true,
+  "message": "Cart fetched successfully",
+  "data": {
+    "userCart": [
+      {
+        "foodItemId": "food_abc123",
+        "quantity": 2,
+        "createdAt": "2025-07-06T09:23:26.368Z",
+        "updatedAt": "2025-07-06T09:31:17.603Z"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## ❌ Error Responses (Shared)
+
+### 400 — Bad Request
 
 ```json
 {
   "success": false,
   "message": "Validation failed",
-  "error": "hiddenRestaurants must be a non-empty array"
+  "error": "Missing or invalid fields"
 }
 ```
 
-#### 404 — User not found
+### 404 — Not Found
 
 ```json
 {
   "success": false,
-  "message": "User not found or update failed",
-  "error": "Unknown error"
+  "message": "User not found",
+  "error": "No matching user"
 }
-
 ```
+
+---
+
+Let me know if you want this as a downloadable Markdown file or OpenAPI (Swagger) spec.
