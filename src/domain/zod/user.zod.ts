@@ -18,4 +18,10 @@ export const userCollectionSchema = z.object({
   foodItemIds: z.array(z.string()).min(1, "At least one food item is required"),
 });
 
+export const userCartSchema = z.object({
+  foodItemId: z.string().min(1, "Food ItemId is needed"),
+  quantity: z.number().min(0, "Quantity must be 0 or more")
+
+});
+
 

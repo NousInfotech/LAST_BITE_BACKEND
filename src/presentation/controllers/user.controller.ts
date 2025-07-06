@@ -7,6 +7,7 @@ import {
     updateUserSchema,
     favoriteValidator,
     blockedRestaurantsValidator,
+    cartValidator,
 } from "../validators/user.validator.js";
 import { sendResponse } from "../../utils/sendResponse.js";
 import { sendError } from "../../utils/sendError.js";
@@ -218,12 +219,30 @@ export const UserController = {
     async removeFoodItem(req: CustomRequest, res: Response) {
         return tryCatch(res, async () => {
             const { collectionId, foodItemId } = req.query;
-            console.log(collectionId, foodItemId)
             const updated = await UserUseCase.removeFoodItemFromCollection(collectionId as string, foodItemId as string);
             if (!updated) return sendResponse(res, HTTP.NOT_FOUND, "Collection or food item not found");
             return sendResponse(res, HTTP.OK, "Food item removed from collection", { updated });
         });
     },
+
+    async updateCart(req: CustomRequest, res: Response) {
+        const { cart } = req.body;
+        const validation = validate(cartValidator, cart, res);
+        if (!validation) return;
+        return tryCatch(res, async () => {
+            const userCart = await UserUseCase.updateUserCart(req.userId as string, cart);
+            if (!userCart) return sendResponse(res, HTTP.NOT_FOUND, "Cart is Empty");
+            return sendResponse(res, HTTP.OK, "Cart updated succesfully", { userCart });
+        })
+    },
+
+    async getUserCart(req: CustomRequest, res: Response) {
+        return tryCatch(res, async () => {
+            const userCart = await UserUseCase.getUserCart(req.userId as string);
+            if (!userCart) return sendResponse(res, HTTP.NOT_FOUND, "Cart is Empty");
+            return sendResponse(res, HTTP.OK, "Cart Fetched Successfully", { userCart });
+        })
+    }
 
 
 };

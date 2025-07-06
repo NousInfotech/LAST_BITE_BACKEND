@@ -1,5 +1,5 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
-import { Favourites, IUser, IUserCollection } from "../../domain/interfaces/user.interface.js";
+import { Favourites, IUser, IUserCart, IUserCollection } from "../../domain/interfaces/user.interface.js";
 import { IAddress } from "../../domain/interfaces/utils.interface.js";
 import { UserCollectionModel, UserDoc, UserModel } from "../db/mongoose/schemas/user.schema.js";
 import { extractQueryOptions } from "../db/helper/utils.helper.js";
@@ -275,5 +275,53 @@ export class UserRepository {
         ).lean();
     }
 
+    /**
+      * GET: Fetch cart items for a given user
+    **/
+    async getCartItems(userId: string): Promise<IUserCart[]> {
+        const user = await UserModel.findOne({ userId }, { cart: 1 });
+
+        if (!user) throw new Error("User not found");
+
+        return user.cart;
+    }
+    /**
+    * DELETE: Remove a specific foodItem from a collection using custom collectionId
+    */
+
+   async patchCartItems(userId: string, items: IUserCart[]) {
+    const user = await UserModel.findOne({ userId });
+    if (!user || !user.cart) throw new Error("User not found");
+
+    // 1. Deduplicate existing cart (if any duplicates somehow got in earlier)
+    const uniqueCartMap = new Map<string, IUserCart>();
+    for (const item of user.cart) {
+        uniqueCartMap.set(item.foodItemId, item); // latest one wins
+    }
+    user.cart = Array.from(uniqueCartMap.values());
+
+    // 2. Apply patch logic
+    for (const payload of items) {
+        const index = user.cart.findIndex((c) => c.foodItemId === payload.foodItemId);
+
+        if (payload.quantity <= 0) {
+            if (index !== -1) {
+                user.cart.splice(index, 1); // remove
+            }
+        } else {
+            if (index !== -1) {
+                user.cart[index].quantity = payload.quantity; // update
+            } else {
+                user.cart.push({
+                    foodItemId: payload.foodItemId,
+                    quantity: payload.quantity
+                });
+            }
+        }
+    }
+
+    await user.save();
+    return user.cart;
+}
 
 }

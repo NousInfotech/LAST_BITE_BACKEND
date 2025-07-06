@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { userCollectionSchema, userSchema } from "../../domain/zod/user.zod.js";
+import { userCartSchema, userCollectionSchema, userSchema } from "../../domain/zod/user.zod.js";
 import { AddressSchema } from "../../domain/zod/utils.zod.js";
 import { FavoritesActions } from "../../domain/interfaces/utils.interface.js";
+import { AnonymizeContextImpl } from "twilio/lib/rest/video/v1/room/participant/anonymize.js";
 
 
 // Schema for updating a user
@@ -31,5 +32,7 @@ export const blockedRestaurantsValidator = z.object({
     restaurants: z.array(z.string()),
     action: z.nativeEnum(FavoritesActions),
 })
+
+export const cartValidator = z.array(userCartSchema);
 
 

@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model, Types } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
 import { addressSchema } from "./utils.schema.js";
 import { IAddress } from "../../../../domain/interfaces/utils.interface.js";
-import { Favourites, IUser, IUserCollection } from "../../../../domain/interfaces/user.interface.js";
+import { Favourites, IUser, IUserCart, IUserCollection } from "../../../../domain/interfaces/user.interface.js";
 
 // -------------------------
 // User Document Interface
@@ -21,6 +21,17 @@ const FavouritesSchema = new Schema<Favourites>(
   },
   { _id: false, timestamps: true }
 );
+// -------------------------
+// Cart Schema
+// ------------------------
+
+const CartSchema = new Schema<IUserCart>(
+  {
+    foodItemId: { type: String, required: true, unique: true },
+    quantity: { type: Number, required: true }
+  },
+  { _id: false, timestamps: true }
+)
 
 // -------------------------
 // User Schema
@@ -33,6 +44,7 @@ const userSchema = new Schema<UserDoc>(
     email: { type: String, unique: true },
     profileImage: { type: String },
     favourites: FavouritesSchema,
+    cart: [{ type: CartSchema, default: [] }],
     hiddenRestaurants: [{ type: String }],
     addresses: [addressSchema],
   },

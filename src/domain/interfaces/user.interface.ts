@@ -5,6 +5,11 @@ export interface Favourites {
     foodItems?: string[];
 }
 
+export interface IUserCart {
+    foodItemId: string;
+    quantity: number;
+}
+
 export interface IUser {
     userId?: string;
     name: string;
@@ -14,6 +19,7 @@ export interface IUser {
     hiddenRestaurants?: string[];
     profileImage?: string;
     addresses?: IAddress[];
+    cart: IUserCart[];
     createdAt?: Date;
     updatedAt?: Date;
 }

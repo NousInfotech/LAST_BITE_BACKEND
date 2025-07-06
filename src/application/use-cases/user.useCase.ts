@@ -1,4 +1,4 @@
-import { Favourites, IUser, IUserCollection } from "../../domain/interfaces/user.interface.js";
+import { Favourites, IUser, IUserCart, IUserCollection } from "../../domain/interfaces/user.interface.js";
 import { FavoritesActions, IAddress } from "../../domain/interfaces/utils.interface.js";
 import { UserRepository } from "../../infrastructure/repositories/user.repository.js";
 import { UpdateQuery, FilterQuery } from "mongoose";
@@ -55,4 +55,9 @@ export const UserUseCase = {
     deleteCollection: (collectionId: string) => userRepo.deleteCollection(collectionId),
     removeFoodItemFromCollection: (collectionId: string, foodItemId: string) =>
         userRepo.removeFoodItem(collectionId, foodItemId),
+
+    // cart operations 
+    // can perform crud (except foodItemId) on the cart items in multiple
+    getUserCart: (userId: string) => userRepo.getCartItems(userId),
+    updateUserCart: (userId: string, cart: IUserCart[]) => userRepo.patchCartItems(userId, cart),
 };

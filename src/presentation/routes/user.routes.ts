@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../controllers/user.controller.js";
 import { authMiddleware } from "../../middleware/authMiddleware.js";
+import { userCartSchema } from "../../domain/zod/user.zod.js";
 
 const userRouter = Router();
 
@@ -40,5 +41,13 @@ userRouter.get("/wishlist", UserController.getCollections);
 userRouter.put("/wishlist/:collectionId", UserController.updateCollection);
 userRouter.delete("/wishlist/food-item", UserController.removeFoodItem);
 userRouter.delete("/wishlist/:collectionId", UserController.deleteCollection);
+
+
+// ------------------------------
+// Cart Routes (nested under userId)
+// ------------------------------
+
+userRouter.get("/cart", UserController.getUserCart);
+userRouter.patch("/cart", UserController.updateCart);
 
 export default userRouter;
