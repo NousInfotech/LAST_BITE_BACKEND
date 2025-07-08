@@ -59,6 +59,7 @@ export interface IRestaurant {
   restaurantStatus?: IRestaurantStatus;
   availableCategories: string[]; // e.g., ["biryani", "noodles", "desserts"]
   rating?: number; // from 1.0 to 5.0
+  packagingCharges?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

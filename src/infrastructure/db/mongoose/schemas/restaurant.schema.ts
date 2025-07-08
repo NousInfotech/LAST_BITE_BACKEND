@@ -101,6 +101,7 @@ const restaurantSchema = new Schema<RestaurantDoc>(
       max: 5,
       default: 3.5,
     },
+    packagingCharges: { type: Number, default: 0 },
 
   },
   { timestamps: true }

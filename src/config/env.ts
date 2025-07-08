@@ -17,4 +17,8 @@ export const config = {
   awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
   awsRegion: process.env.AWS_REGION || 'ap-south-1',
   awsS3Bucket: process.env.AWS_S3_BUCKET || '',
+
+  // razorpay
+  razorpayKeyId: process.env.TEST_RAZORPAY_KEY_ID || '',
+  razorpayKeySecret: process.env.TEST_RAZORPAY_KEY_SECRET || '',
 };

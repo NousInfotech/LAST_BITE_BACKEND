@@ -61,4 +61,5 @@ export const restaurantSchema = z.object({
   isActive: z.boolean().optional(),
   availableCategories: z.array(z.string()),
   rating: z.number().min(1).max(5).default(3.5).optional(),
+  packagingCharges: z.number().default(0).optional(),
 });

@@ -11,6 +11,7 @@ import restaurantRouter from './presentation/routes/restaurant.routes.js';
 import foodItemRouter from './presentation/routes/foodItem.routes.js';
 import imageUploadRouter from './presentation/routes/imageUpload.route.js';
 import superAdminRouter from './presentation/routes/superAdmin.routes.js';
+import orderRouter from './presentation/routes/order.routes.js';
 
 const app: Application = express();
 
@@ -41,6 +42,8 @@ app.use('/food-item', foodItemRouter);
 // file uploadin routes
 app.use('/image', imageUploadRouter);
 
+// order routes
+app.use('/orders', orderRouter);
 
 
 export default app;
