@@ -17,10 +17,22 @@ const app: Application = express();
 
 // Basic middlewares
 app.use(helmet());                  // Secure HTTP headers
-app.use(cors({                      // Enable CORS
-    origin: "*",
+const allowedOrigins = [
+    "https://lastbite-admin.vercel.app", // production frontend
+    "http://localhost:3000"              // local dev (optional)
+];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true,
 }));
+
 app.use(morgan('dev'));             // Logging
 app.use(express.json());            // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
