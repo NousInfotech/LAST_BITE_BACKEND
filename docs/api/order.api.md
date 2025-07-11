@@ -17,7 +17,6 @@ All endpoints require authentication as a user (`authMiddleware(["user"])`).
   ],
   "orderNotes": "string (optional)",
   "location": {
-    "pickup": { "lat": 0, "lng": 0 },
     "dropoff": { "lat": 0, "lng": 0 }
   }
 }

@@ -11,10 +11,6 @@ export const OrderCreateSchema = z.object({
   restaurantId: z.string().min(1),
   orderNotes: z.string().optional(),
   location: z.object({
-    pickup: z.object({
-      lat: z.number(),
-      lng: z.number(),
-    }),
     dropoff: z.object({
       lat: z.number(),
       lng: z.number(),

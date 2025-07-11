@@ -1,5 +1,5 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
-import { IRestaurant } from "../../domain/interfaces/restaurant.interface.js";
+import { IAddressGeo, IRestaurant } from "../../domain/interfaces/restaurant.interface.js";
 import { RestaurantDoc, RestaurantModel } from "../db/mongoose/schemas/restaurant.schema.js";
 import { extractQueryOptions } from "../db/helper/utils.helper.js";
 import { RestaurantStatusEnum } from "../../domain/interfaces/utils.interface.js";
@@ -25,19 +25,29 @@ export class RestaurantRepository {
     return await RestaurantModel.findOne({ restaurantId }, { _id: 0, __v: 0 }).lean();
   }
 
+  async getRestaurantLocationById(restaurantId: string): Promise<IAddressGeo> {
+    const restaurant = await RestaurantModel.findOne(
+      { restaurantId },
+      { _id: 0, address: 1 }
+    ).lean();
+    
+    return restaurant?.address as IAddressGeo;
+  }
+
+
   /**
  * Get only the packagingCharges of a restaurant by its restaurantId
  * @param {string} restaurantId
  * @returns {Promise<number | null>}
  */
-async getPackagingChargesByRestaurantId(restaurantId: string): Promise<number | null> {
-  const restaurant = await RestaurantModel.findOne(
-    { restaurantId },
-    { _id: 0, packagingCharges: 1 } // ✅ only fetch packagingCharges
-  ).lean();
+  async getPackagingChargesByRestaurantId(restaurantId: string): Promise<number | null> {
+    const restaurant = await RestaurantModel.findOne(
+      { restaurantId },
+      { _id: 0, packagingCharges: 1 } // ✅ only fetch packagingCharges
+    ).lean();
 
-  return restaurant?.packagingCharges ?? null;
-}
+    return restaurant?.packagingCharges ?? null;
+  }
 
 
 

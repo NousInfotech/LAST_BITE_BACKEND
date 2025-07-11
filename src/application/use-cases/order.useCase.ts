@@ -17,7 +17,7 @@ interface CreateOrderParams {
     userId: string;
     restaurantId: string;
     orderNotes?: string;
-    location: Omit<IOrderLocation, "distance">;
+    location: Omit<IOrderLocation, "distance" | "pickup">;
     items: IItem[];
 }
 
@@ -66,6 +66,14 @@ const calculateTotalPricing = async (
         finalPayable: Math.round(finalPayable),
     };
 };
+
+const getPickupLocation = async (
+    restaurantId: string
+) => {
+    const restaurantAddress = await restaurantRepo.getRestaurantLocationById(restaurantId);
+    const [lng, lat] = restaurantAddress.location.coordinates;
+    return { lat, lng }
+}
 
 export const OrderUseCase = {
     // Step 1: Frontend hits this to get Razorpay order
@@ -131,6 +139,7 @@ export const OrderUseCase = {
         const { itemsTotal, enrichedItems } = await calculateFoodItemsTotal(items);
         const deliveryFee = 0;
         const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
+        const restaurantLocation = await restaurantRepo.getRestaurantLocationById(restaurantId as string);
 
         // 5. Create the order
         const order = await orderRepo.createOrder({
@@ -189,12 +198,13 @@ export const OrderUseCase = {
         const { itemsTotal, enrichedItems } = await calculateFoodItemsTotal(items);
         const deliveryFee = 0;
         const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
+        const pickupLocation = await getPickupLocation(restaurantId);
 
         const order = await orderRepo.createOrder({
             refIds: { userId, restaurantId },
             foodItems: enrichedItems,
             pricing,
-            delivery: { location: { ...location, distance: 10 } },
+            delivery: { location: { ...location, pickup: pickupLocation, distance: 10 } },
             payment: { paymentType: IPaymentType.COD },
             orderStatus: IOrderStatusEnum.PENDING, // COD might be confirmed at dispatch
             notes: orderNotes ?? "",
