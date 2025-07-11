@@ -21,11 +21,6 @@ const paymentSchema = new Schema<PaymentDoc>(
       total: { type: Number, required: true },
       currency: { type: String, default: "INR" },
     },
-    payments: {
-      restaurant: { type: Number, required: true },
-      rider: { type: Number, required: true },
-      platform: { type: Number, required: true },
-    },
     timestamps: {
       createdAt: { type: Date, default: Date.now },
       paidAt: { type: Date },
