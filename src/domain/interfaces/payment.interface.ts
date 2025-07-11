@@ -1,5 +1,5 @@
 export interface IPayment {
-  paymentId: string;
+  paymentId?: string;
   razorpay: {
     orderId: string;
     paymentId: string;
@@ -10,12 +10,6 @@ export interface IPayment {
     total: number;
     currency: "INR";
   };
-  payments: {
-    restaurant: number;
-    rider: number;
-    platform: number;
-  };
-  method: "RAZORPAY";
   timestamps: {
     createdAt: Date;
     paidAt?: Date;

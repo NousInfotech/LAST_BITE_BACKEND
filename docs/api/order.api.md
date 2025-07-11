@@ -1,133 +1,93 @@
-# Order API Documentation
+# Order API
 
-## Authentication
-All endpoints require a valid Bearer token (user role) in the `Authorization` header.
+All endpoints require authentication as a user (`authMiddleware(["user"])`).
 
 ---
 
-## 1. Create Razorpay Order
+## Create Online Order
 
-**POST** `/payment/create`
-
-Creates a Razorpay order for online payment. Returns a Razorpay order ID to the frontend. No app order is created yet.
-
-### Request Headers
-- `Authorization: Bearer <token>`
+**POST** `/order/online`
 
 ### Request Body
-```json
+```
 {
-  "items": [
-    { "foodItemId": "string", "quantity": number, "additionals": [ ... ] }
-  ],
   "restaurantId": "string",
-  "notes": {
-    "location": { "lat": number, "lng": number }
-  },
-  "paymentType": "ONLINE"
-}
-```
-
-### Response
-- **201 Created**
-```json
-{
-  "success": true,
-  "statusCode": 201,
-  "message": "Razorpay order created",
-  "data": {
-    "razorpayOrderId": "string"
-  }
-}
-```
-
----
-
-## 2. Verify Razorpay Payment & Create Order
-
-**POST** `/payment/verify`
-
-Verifies the Razorpay payment signature. If valid, creates the app order and payment.
-
-### Request Headers
-- `Authorization: Bearer <token>`
-
-### Request Body
-```json
-{
-  "orderId": "string",           // Razorpay order ID
-  "paymentId": "string",         // Razorpay payment ID
-  "signature": "string",         // Razorpay signature
-  "notes": {                      // Original order data (same as /payment/create)
-    "items": [ ... ],
-    "restaurantId": "string",
-    "notes": { "location": { "lat": number, "lng": number } },
-    "paymentType": "ONLINE"
-  }
-}
-```
-
-### Response
-- **200 OK**
-```json
-{
-  "success": true,
-  "statusCode": 200,
-  "message": "Payment verified and order created",
-  "data": {
-    "order": { ... },
-    "razorpayOrderId": "string"
-  }
-}
-```
-
----
-
-## 3. Create COD Order
-
-**POST** `/create`
-
-Directly creates an order for Cash on Delivery (COD).
-
-### Request Headers
-- `Authorization: Bearer <token>`
-
-### Request Body
-```json
-{
   "items": [
-    { "foodItemId": "string", "quantity": number }
+    { "foodItemId": "string", "quantity": 1, "additionals": [] }
   ],
-  "restaurantId": "string",
-  "paymentType": "COD",
-  "notes": {
-    "location": { "lat": number, "lng": number }
+  "orderNotes": "string (optional)",
+  "location": {
+    "pickup": { "lat": 0, "lng": 0 },
+    "dropoff": { "lat": 0, "lng": 0 }
   }
 }
 ```
+- `userId` is injected from the authenticated user.
 
 ### Response
-- **201 Created**
-```json
+- `201 Created`
+- Body:
+```
 {
   "success": true,
-  "statusCode": 201,
-  "message": "Order created successfully (COD)",
-  "data": {
-    "order": { ... }
-  }
+  "message": "Razorpay Order created successfully",
+  "data": { ...orderObject }
 }
 ```
 
 ---
 
-## Error Responses
-All endpoints return standardized error responses:
-```json
+## Verify Order & Payment
+
+**POST** `/order/verify`
+
+### Request Body
+```
 {
-  "success": false,
-  "statusCode": 400,
-  "message": "Error message",
-  "error": "Error details"
+  "orderId": "string",
+  "paymentId": "string",
+  "signature": "string"
 }
-``` 
+```
+
+### Response
+- `201 Created`
+- Body:
+```
+{
+  "success": true,
+  "message": "Order created successfully",
+  "data": { ...orderObject }
+}
+```
+
+---
+
+## Update Order Status
+
+**PATCH** `/order/status/:orderId`
+
+### Request Body
+```
+{
+  "status": "CONFIRMED" // or any valid IOrderStatusEnum value
+}
+```
+
+### Response
+- `200 OK`
+- Body:
+```
+{
+  "success": true,
+  "message": "Order status updated",
+  "data": { ...updatedOrderObject }
+}
+```
+
+---
+
+## Notes
+- All endpoints require a valid user authentication token.
+- `orderObject` and `updatedOrderObject` follow the latest IOrder interface structure.
+- Status values must be from the allowed `IOrderStatusEnum`. 

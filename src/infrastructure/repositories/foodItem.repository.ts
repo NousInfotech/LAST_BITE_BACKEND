@@ -2,6 +2,7 @@ import { FilterQuery, UpdateQuery } from "mongoose";
 import { IFoodItem } from "../../domain/interfaces/foodItem.interface.js";
 import { FoodItemDoc, FoodItemModel } from "../db/mongoose/schemas/foodItem.schema.js";
 import { extractQueryOptions } from "../db/helper/utils.helper.js";
+import { IOrderFoodItem } from "../../domain/interfaces/order.interface.js";
 
 export class FoodItemRepository {
   /**
@@ -82,6 +83,22 @@ export class FoodItemRepository {
   async bulkGetByFoodItemIds(foodItemIds: string[]): Promise<FoodItemDoc[]> {
     return await FoodItemModel.find({ foodItemId: { $in: foodItemIds } }, { _id: 0, __v: 0 }).lean();
   }
+
+  async getFoodItemsForOrder(
+    foodItemIds: string[]
+  ): Promise<Omit<IOrderFoodItem, "quantity" | "additionals">[]> {
+    const items = await FoodItemModel.find(
+      { foodItemId: { $in: foodItemIds } },
+      { foodItemId: 1, name: 1, price: 1, additionals: 1 } // project only what you need
+    ).lean();
+
+    return items.map(item => ({
+      foodItemId: item.foodItemId as string,
+      name: item.name,
+      price: item.price,
+    }));
+  }
+
 
   /**
    * Get all food items by restaurantId

@@ -1,86 +1,49 @@
-import { Request as ExpressRequest, Response } from "express";
+import { Request, Response } from "express";
 import { OrderUseCase } from "../../application/use-cases/order.useCase.js";
-import { createOrderService } from "../../application/services/razorpay.service.js";
-import { validatePaymentVerification } from "razorpay/dist/utils/razorpay-utils.js";
-import { config } from "../../config/env.js";
 import { sendResponse } from "../../utils/sendResponse.js";
 import { sendError } from "../../utils/sendError.js";
-import { tryCatch } from "../../utils/tryCatch.js";
 import { HTTP } from "../../utils/constants.js";
-import { RazorpayOrderInput, RazorpayVerifyInput, CodOrderInput } from "../validators/order.validator.js";
+import { tryCatch } from "../../utils/tryCatch.js";
 import { validate } from "../../utils/validation.js";
-
-interface AuthRequest extends ExpressRequest {
-  userId?: string;
-}
+import { OrderCreateSchema, OrderVerifySchema, OrderStatusUpdateSchema } from "../validators/order.validator.js";
+import { CustomRequest } from "../../domain/interfaces/utils.interface.js";
 
 export const OrderController = {
-  // POST /payment/create (Razorpay)
-  async createRazorpayOrder(req: AuthRequest, res: Response) {
-    return tryCatch(res, async () => {
-      const userId = req.userId as string;
-      const validation = validate(RazorpayOrderInput, req.body, res);
-      if (!validation) return;
-      const { items, restaurantId, notes } = validation;
-      // Calculate amount (simulate, or use a pricing util if needed)
-      // For now, require amount from frontend or calculate here if needed
-      // We'll just use a placeholder amount for demonstration
-      const amount = 1000; // TODO: Calculate based on items, restaurant, etc.
-      const razorpayOrder = await createOrderService({
-        amount,
-        currency: "INR",
-        receipt: `order_${Date.now()}`,
-        notes: { userId, items, restaurantId, notes },
-      });
-      return sendResponse(res, HTTP.CREATED, "Razorpay order created", { razorpayOrderId: razorpayOrder.id });
-    });
-  },
+    async createOrder(req: CustomRequest, res: Response) {
+        const userId = req.userId
+        const validated = validate(OrderCreateSchema, { ...req.body, userId }, res);
+        if (!validated) return;
+        return tryCatch(res, async () => {
+            const { userId, restaurantId, items, orderNotes, location } = validated;
+            const order = await OrderUseCase.createOnlineOrder({
+                userId,
+                restaurantId,
+                items,
+                orderNotes,
+                location,
+            });
+            return sendResponse(res, HTTP.CREATED, "Razorpay Order created successfully", order);
+        });
+    },
 
-  // POST /payment/verify (Razorpay)
-  async verifyRazorpayPayment(req: AuthRequest, res: Response) {
-    return tryCatch(res, async () => {
-      const userId = req.userId as string;
-      const validation = validate(RazorpayVerifyInput, req.body, res);
-      if (!validation) return;
-      const { orderId, paymentId, signature, notes } = validation;
-      const isValid = validatePaymentVerification(
-        { order_id: orderId, payment_id: paymentId },
-        signature,
-        config.razorpayKeySecret
-      );
-      if (!isValid) {
-        return sendError(res, HTTP.BAD_REQUEST, "Invalid payment signature");
-      }
-      // Now create the app order and payment
-      const { items, restaurantId, notes: orderNotes } = notes;
-      const paymentType = "ONLINE";
-      const result = await OrderUseCase.createOrderWithPayment({
-        user: { userId },
-        items,
-        restaurantId,
-        paymentType,
-        notes: orderNotes,
-      });
-      return sendResponse(res, HTTP.OK, "Payment verified and order created", result);
-    });
-  },
+    async verifyOrder(req: Request, res: Response) {
+        const validated = validate(OrderVerifySchema, req.body, res);
+        if (!validated) return;
+        return tryCatch(res, async () => {
+            const verifiedOrder = await OrderUseCase.verifyPaymentAndCreateOrder(validated)
+            if (!verifiedOrder) return sendError(res, HTTP.INTERNAL_SERVER_ERROR, "Error in Order Creation")
+            return sendResponse(res, HTTP.CREATED, "Order created successfully", verifiedOrder);
+        })
+    },
 
-  // POST /create (COD)
-  async createCODOrder(req: AuthRequest, res: Response) {
-    return tryCatch(res, async () => {
-      const userId = req.userId as string;
-      const validation = validate(CodOrderInput, { ...req.body, userId }, res);
-      if (!validation) return;
-      const { items, restaurantId, notes } = validation;
-      const paymentType = "COD";
-      const result = await OrderUseCase.createOrderWithPayment({
-        user: { userId },
-        items,
-        restaurantId,
-        paymentType,
-        notes,
-      });
-      return sendResponse(res, HTTP.CREATED, "Order created successfully (COD)", result);
-    });
-  },
-}; 
+    async updateOrderStatus(req: Request, res: Response) {
+        const { orderId } = req.params;
+        const validated = validate(OrderStatusUpdateSchema, { ...req.body, orderId }, res);
+        if (!validated) return;
+        return tryCatch(res, async () => {
+            const updatedOrder = await OrderUseCase.updateOrderStatus(orderId, validated.status);
+            if (!updatedOrder) return sendError(res, HTTP.NOT_FOUND, "Order not found or status not updated");
+            return sendResponse(res, HTTP.OK, "Order status updated", updatedOrder);
+        });
+    },
+};

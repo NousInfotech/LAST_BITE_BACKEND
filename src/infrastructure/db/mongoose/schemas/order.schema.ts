@@ -1,6 +1,6 @@
-import { Schema, Document, Model, model, Types } from "mongoose";
+import { Schema, Document, Model, model } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
-import { IOrder } from "../../../../domain/interfaces/order.interface.js";
+import { IOrder, IOrderStatusEnum, IPaymentType, IRefIds } from "../../../../domain/interfaces/order.interface.js";
 
 // Subschemas
 const AdditionalsSchema = new Schema(
@@ -9,7 +9,7 @@ const AdditionalsSchema = new Schema(
     price: { type: Number, required: true },
   },
   { _id: false }
-); 
+);
 
 const FoodItemSchema = new Schema(
   {
@@ -17,7 +17,7 @@ const FoodItemSchema = new Schema(
     name: { type: String, required: true },
     quantity: { type: Number, required: true },
     price: { type: Number, required: true },
-    additionals: [AdditionalsSchema],
+    additionals: { type: [AdditionalsSchema], default: [] },
   },
   { _id: false }
 );
@@ -25,10 +25,11 @@ const FoodItemSchema = new Schema(
 const PricingSchema = new Schema(
   {
     itemsTotal: { type: Number, required: true },
+    packagingFee: { type: Number, required: true },
     deliveryFee: { type: Number, required: true },
     platformFee: { type: Number, required: true },
     tax: { type: Number, required: true },
-    discount: { type: Number },
+    discount: { type: Number, default: 0 },
     finalPayable: { type: Number, required: true },
   },
   { _id: false }
@@ -49,36 +50,67 @@ const LocationSchema = new Schema(
   { _id: false }
 );
 
-export interface OrderDoc extends IOrder, Document {}
+const PidgeInfoSchema = new Schema(
+  {
+    networkId: String,
+    quoteId: String,
+    price: Number,
+    status: {
+      type: String,
+      enum: ["ASSIGNED", "IN_PROGRESS", "COMPLETED", "FAILED"],
+    },
+    trackingUrl: String,
+  },
+  { _id: false }
+);
+
+const RefIdSchema = new Schema<IRefIds>(
+  {
+    userId: { type: String, required: true },
+    restaurantId: { type: String, required: true },
+  },
+  { _id: false }
+)
+
+// Main order schema
+export interface OrderDoc extends IOrder, Document { }
 
 const orderSchema = new Schema<OrderDoc>(
   {
     orderId: { type: String, unique: true },
-    paymentId: { type: String },
-    paymentType: { type: String, enum: ["ONLINE"], required: true },
-    userId: { type: String, ref: "User", required: true },
-    restaurantId: { type: String, ref: "Restaurant", required: true },
-    riderId: { type: String, ref: "Rider", default: null },
-    foodItems: [FoodItemSchema],
-    pricing: PricingSchema,
-    location: LocationSchema,
+
+    refIds: { type: RefIdSchema, required: true },
+
+    foodItems: { type: [FoodItemSchema], required: true },
+
+    pricing: { type: PricingSchema, required: true },
+
+    delivery: {
+      location: { type: LocationSchema, required: true },
+      pidge: { type: PidgeInfoSchema, default: undefined },
+    },
+
+    payment: {
+      paymentId: { type: String },
+      paymentType: {
+        type: String,
+        enum: IPaymentType,
+        required: true,
+      },
+    },
+
     orderStatus: {
       type: String,
-      enum: [
-        "PENDING",
-        "CONFIRMED",
-        "ASSIGNED",
-        "IN_TRANSIT",
-        "DELIVERED",
-        "CANCELLED",
-        "FAILED",
-      ],
-      default: "PENDING",
-    },
+      enum: Object.values(IOrderStatusEnum),
+      default: IOrderStatusEnum.PENDING,
+    }
+    ,
+
+    notes: { type: String, default: "" },
   },
   { timestamps: true }
 );
 
 addCustomIdHook(orderSchema, "orderId", "ord", "Order");
 
-export const OrderModel: Model<OrderDoc> = model<OrderDoc>("Order", orderSchema); 
+export const OrderModel: Model<OrderDoc> = model<OrderDoc>("Order", orderSchema);

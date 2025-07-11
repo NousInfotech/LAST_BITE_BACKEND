@@ -55,7 +55,7 @@ app.use('/food-item', foodItemRouter);
 app.use('/image', imageUploadRouter);
 
 // order routes
-app.use('/orders', orderRouter);
+app.use('/order', orderRouter);
 
 
 export default app;

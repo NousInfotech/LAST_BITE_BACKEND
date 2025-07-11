@@ -8,6 +8,14 @@ export class OrderRepository {
     return await order.save();
   }
 
+  async updateOrderStatus(orderId: string, status: IOrder["orderStatus"]) {
+    return await OrderModel.findOneAndUpdate(
+      { orderId },
+      { orderStatus: status, updatedAt: new Date() },
+      { new: true }
+    ).lean();
+  }
+
   async getOrders(filter: FilterQuery<IOrder> = {}): Promise<OrderDoc[]> {
     return await OrderModel.find(filter, { _id: 0, __v: 0 }).lean();
   }
@@ -15,4 +23,13 @@ export class OrderRepository {
   async getOrderById(orderId: string): Promise<OrderDoc | null> {
     return await OrderModel.findOne({ orderId }, { _id: 0, __v: 0 }).lean();
   }
+
+  async updatePaymentId(orderId: string, paymentId: string) {
+    return await OrderModel.findOneAndUpdate(
+      { orderId },
+      { $set: { "payment.paymentId": paymentId } },
+      { new: true } // to return the updated document
+    ).lean();
+  }
+
 } 

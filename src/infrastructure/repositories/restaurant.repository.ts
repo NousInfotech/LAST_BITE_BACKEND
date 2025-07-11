@@ -26,6 +26,22 @@ export class RestaurantRepository {
   }
 
   /**
+ * Get only the packagingCharges of a restaurant by its restaurantId
+ * @param {string} restaurantId
+ * @returns {Promise<number | null>}
+ */
+async getPackagingChargesByRestaurantId(restaurantId: string): Promise<number | null> {
+  const restaurant = await RestaurantModel.findOne(
+    { restaurantId },
+    { _id: 0, packagingCharges: 1 } // ✅ only fetch packagingCharges
+  ).lean();
+
+  return restaurant?.packagingCharges ?? null;
+}
+
+
+
+  /**
    * Update a restaurant by its restaurantId
    * @param {string} restaurantId - Custom restaurantId to update
    * @param {UpdateQuery<IRestaurant>} updateData - Data to update

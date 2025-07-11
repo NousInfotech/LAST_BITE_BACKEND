@@ -26,7 +26,6 @@ const paymentSchema = new Schema<PaymentDoc>(
       rider: { type: Number, required: true },
       platform: { type: Number, required: true },
     },
-    method: { type: String, enum: ["RAZORPAY"], default: "RAZORPAY" },
     timestamps: {
       createdAt: { type: Date, default: Date.now },
       paidAt: { type: Date },
