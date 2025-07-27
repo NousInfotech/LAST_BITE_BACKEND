@@ -21,4 +21,8 @@ export const config = {
   // razorpay
   razorpayKeyId: process.env.TEST_RAZORPAY_KEY_ID || '',
   razorpayKeySecret: process.env.TEST_RAZORPAY_KEY_SECRET || '',
+
+  pidgeUserName: process.env.PIDGE_USERNAME || '',
+  pidgePassword: process.env.PIDGE_PASSWORD || '',
+  pidgeBaseUrl: process.env.PIDGE_BASE_URL || '',
 };

@@ -12,6 +12,7 @@ import foodItemRouter from './presentation/routes/foodItem.routes.js';
 import imageUploadRouter from './presentation/routes/imageUpload.route.js';
 import superAdminRouter from './presentation/routes/superAdmin.routes.js';
 import orderRouter from './presentation/routes/order.routes.js';
+import pidgeRouter from './presentation/routes/pidge.routes.js';
 
 const app: Application = express();
 
@@ -56,6 +57,7 @@ app.use('/image', imageUploadRouter);
 
 // order routes
 app.use('/order', orderRouter);
+app.use('/delivery', pidgeRouter)
 
 
 export default app;
