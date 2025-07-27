@@ -1,4 +1,4 @@
-import { IOrder, IOrderFoodItem, IOrderLocation, IOrderPricing, IOrderStatusEnum, IPaymentType } from "../../domain/interfaces/order.interface.js";
+import { IOrder, IOrderFeedback, IOrderFoodItem, IOrderLocation, IOrderPricing, IOrderStatusEnum, IPaymentType } from "../../domain/interfaces/order.interface.js";
 import { FoodItemRepository } from "../../infrastructure/repositories/foodItem.repository.js";
 import { OrderRepository } from "../../infrastructure/repositories/order.repository.js";
 import { RestaurantRepository } from "../../infrastructure/repositories/restaurant.repository.js";
@@ -221,4 +221,12 @@ export const OrderUseCase = {
         if (!updatedOrder) throw new Error("Order not found or status not updated");
         return updatedOrder;
     },
+
+    // feedback 
+
+    customerFeedback: async (orderId: string, feedback: IOrderFeedback) => {
+        const customer_feedback = await orderRepo.setOrderFeedback(orderId, feedback);
+        if (!customer_feedback) throw new Error("Error in updating the feedback");
+        return customer_feedback;
+    }
 };

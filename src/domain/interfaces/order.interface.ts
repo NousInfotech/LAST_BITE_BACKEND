@@ -34,26 +34,41 @@ export type IOrderStatus =
   | "CANCELLED"
   | "FAILED";
 
-  export enum IPaymentType {
-    ONLINE = "ONLINE",
-    COD = "COD", // optional if you allow COD later
-  }
-  
-  export enum IOrderStatusEnum {
-    PENDING = "PENDING",
-    CONFIRMED = "CONFIRMED",
-    ASSIGNED = "ASSIGNED",
-    IN_TRANSIT = "IN_TRANSIT",
-    DELIVERED = "DELIVERED",
-    CANCELLED = "CANCELLED",
-    FAILED = "FAILED",
-    IN_PROGRESS = "IN_PROGRESS",
-  }
+export enum IPaymentType {
+  ONLINE = "ONLINE",
+  COD = "COD", // optional if you allow COD later
+}
+
+export enum IOrderStatusEnum {
+  PENDING = "PENDING",
+  CONFIRMED = "CONFIRMED",
+  ASSIGNED = "ASSIGNED",
+  IN_TRANSIT = "IN_TRANSIT",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
+  FAILED = "FAILED",
+  IN_PROGRESS = "IN_PROGRESS",
+}
 
 export interface IRefIds {
   userId: IRestaurant['restaurantId'];
   restaurantId: IUser['userId'];
 }
+
+export interface IOrderFeedback {
+  orderRating: number;      // how was the food ( in stars )
+  riderRating?: number;      // how was the delivery experience ( in stars )
+  review?: string;          // optional, general remarks
+}
+
+
+export type FeedbackIssueTag =
+  | "cold_food"
+  | "late_delivery"
+  | "missing_item"
+  | "poor_packaging"
+  | "rude_rider"
+  | "order_incorrect";
 
 export interface IOrder {
   orderId?: string;
@@ -79,7 +94,7 @@ export interface IOrder {
   };
 
   orderStatus: IOrderStatusEnum;
-
+  feedback?: IOrderFeedback;
   createdAt?: Date;
   updatedAt?: Date;
 }

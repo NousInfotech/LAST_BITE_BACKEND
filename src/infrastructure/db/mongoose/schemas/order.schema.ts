@@ -1,6 +1,7 @@
 import { Schema, Document, Model, model } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
-import { IOrder, IOrderStatusEnum, IPaymentType, IRefIds } from "../../../../domain/interfaces/order.interface.js";
+import { IOrder, IOrderFeedback, IOrderStatusEnum, IPaymentType, IRefIds } from "../../../../domain/interfaces/order.interface.js";
+import { number } from "zod";
 
 // Subschemas
 const AdditionalsSchema = new Schema(
@@ -10,6 +11,15 @@ const AdditionalsSchema = new Schema(
   },
   { _id: false }
 );
+
+const OrderFeedbackSchema = new Schema<IOrderFeedback>(
+  {
+    orderRating: { type: Number, required: true },
+    riderRating: { type: Number },
+    review: { type: String }
+  },
+  { _id: false }
+)
 
 const FoodItemSchema = new Schema(
   {
@@ -89,6 +99,8 @@ const orderSchema = new Schema<OrderDoc>(
       location: { type: LocationSchema, required: true },
       pidge: { type: PidgeInfoSchema, default: undefined },
     },
+
+    feedback: OrderFeedbackSchema,
 
     payment: {
       paymentId: { type: String },

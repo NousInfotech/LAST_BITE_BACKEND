@@ -5,7 +5,7 @@ import { sendError } from "../../utils/sendError.js";
 import { HTTP } from "../../utils/constants.js";
 import { tryCatch } from "../../utils/tryCatch.js";
 import { validate } from "../../utils/validation.js";
-import { OrderCreateSchema, OrderVerifySchema, OrderStatusUpdateSchema } from "../validators/order.validator.js";
+import { OrderCreateSchema, OrderVerifySchema, OrderStatusUpdateSchema, OrderFeedbackSchema } from "../validators/order.validator.js";
 import { CustomRequest } from "../../domain/interfaces/utils.interface.js";
 
 export const OrderController = {
@@ -46,4 +46,15 @@ export const OrderController = {
             return sendResponse(res, HTTP.OK, "Order status updated", updatedOrder);
         });
     },
+
+    async orderFeeback(req: Request, res: Response) {
+        const { orderId } = req.params;
+        const validated = validate(OrderFeedbackSchema, req.body, res);
+        if (!validated) return;
+        return tryCatch(res, async () => {
+            const updatedOrder = await OrderUseCase.customerFeedback(orderId, validated);
+            if (!updatedOrder) return sendError(res, HTTP.NOT_FOUND, "Order not found or feedback not posted");
+            return sendResponse(res, HTTP.OK, "Order feedback updated", updatedOrder);
+        });
+    }
 };
