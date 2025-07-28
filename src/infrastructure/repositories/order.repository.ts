@@ -1,5 +1,5 @@
 import { FilterQuery } from "mongoose";
-import { IOrder } from "../../domain/interfaces/order.interface.js";
+import { IOrder, IOrderFeedback } from "../../domain/interfaces/order.interface.js";
 import { OrderDoc, OrderModel } from "../db/mongoose/schemas/order.schema.js";
 
 export class OrderRepository {
@@ -14,6 +14,14 @@ export class OrderRepository {
       { orderStatus: status, updatedAt: new Date() },
       { new: true }
     ).lean();
+  }
+
+  async setOrderFeedback(orderId: string, feedback: IOrderFeedback) {
+    return await OrderModel.findOneAndUpdate(
+      { orderId },
+      { feedback: feedback, updatedAt: new Date() },
+      { new: true }
+    )
   }
 
   async getOrders(filter: FilterQuery<IOrder> = {}): Promise<OrderDoc[]> {

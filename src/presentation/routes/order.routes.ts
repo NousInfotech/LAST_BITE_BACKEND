@@ -11,6 +11,8 @@ orderRouter.post("/verify", OrderController.verifyOrder);
 orderRouter.patch('/status/:orderId', OrderController.updateOrderStatus);
 orderRouter.get("/", OrderController.getUserOrders);
 orderRouter.get("/past", OrderController.getUserPastOrders);
+orderRouter.patch('/:orderId/status', OrderController.updateOrderStatus);
+orderRouter.patch('/:orderId/feedback', OrderController.orderFeeback)
 
 
 export default orderRouter

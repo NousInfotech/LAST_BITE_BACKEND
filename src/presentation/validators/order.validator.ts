@@ -26,6 +26,12 @@ export const OrderVerifySchema = z.object({
 });
 
 export const OrderStatusUpdateSchema = z.object({
-  orderId:z.string().min(1),
+  orderId: z.string().min(1),
   status: z.nativeEnum(IOrderStatusEnum)
 });
+
+export const OrderFeedbackSchema = z.object({
+  orderRating: z.number(),
+  riderRating: z.number().optional(),
+  review: z.string().optional()
+})
