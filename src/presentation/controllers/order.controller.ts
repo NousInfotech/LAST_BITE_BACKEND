@@ -46,4 +46,27 @@ export const OrderController = {
             return sendResponse(res, HTTP.OK, "Order status updated", updatedOrder);
         });
     },
+
+    async getUserOrders(req: CustomRequest, res: Response) {
+        return tryCatch(res, async () => {
+            const userId = req.userId;
+            if (!userId) {
+                return sendError(res, HTTP.UNAUTHORIZED, "User ID not found in request");
+            }
+            
+            const orders = await OrderUseCase.getUserOrders(userId);
+            return sendResponse(res, HTTP.OK, "User orders fetched successfully", { orders });
+        });
+    },
+
+    async getUserPastOrders(req: CustomRequest, res: Response) {
+        return tryCatch(res, async () => {
+            const userId = req.userId;
+            if (!userId) {
+                return sendError(res, HTTP.UNAUTHORIZED, "User ID not found in request");
+            }
+            const orders = await OrderUseCase.getUserPastOrders(userId);
+            return sendResponse(res, HTTP.OK, "User past orders fetched successfully", { orders });
+        });
+    },
 };

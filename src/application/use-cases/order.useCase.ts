@@ -75,21 +75,27 @@ const getPickupLocation = async (
     return { lat, lng }
 }
 
+
+
 export const OrderUseCase = {
     // Step 1: Frontend hits this to get Razorpay order
     createOnlineOrder: async (data: CreateOrderParams) => {
         const { userId, restaurantId, orderNotes, items, location } = data;
 
         const { itemsTotal, enrichedItems } = await calculateFoodItemsTotal(items);
-        const deliveryFee = 0; // later via Pidge
+        
+       
+        const deliveryFee = 0; // Set delivery fee to 0
+        
         const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
 
+        // FIX: Stringify objects/arrays in notes
         const notes = {
-            userId,
-            restaurantId,
-            items,
-            location,
-            orderNotes,
+            userId: String(userId),
+            restaurantId: String(restaurantId),
+            items: JSON.stringify(items),
+            location: JSON.stringify(location),
+            orderNotes: orderNotes || "",
         };
 
         const razorpayOrder = await createRazorpayOrderService({
@@ -137,16 +143,26 @@ export const OrderUseCase = {
 
         // 4. Enrich items + pricing
         const { itemsTotal, enrichedItems } = await calculateFoodItemsTotal(items);
-        const deliveryFee = 0;
+        
+        // Set distance and delivery fee to 0
+        const pickup = await getPickupLocation(restaurantId);
+        const distance = 0; // Set distance to 0
+        const deliveryFee = 0; // Set delivery fee to 0
+        
         const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
-        const restaurantLocation = await restaurantRepo.getRestaurantLocationById(restaurantId as string);
 
-        // 5. Create the order
+        // 5. Create the order (include both pickup and dropoff)
         const order = await orderRepo.createOrder({
             refIds: { userId, restaurantId },
             foodItems: enrichedItems,
             pricing,
-            delivery: { location: { ...location, distance: 10 } },
+            delivery: { 
+                location: { 
+                    pickup, 
+                    dropoff: location.dropoff, 
+                    distance: distance 
+                } 
+            },
             payment: {
                 paymentType: IPaymentType.ONLINE,
                 paymentId,
@@ -196,15 +212,19 @@ export const OrderUseCase = {
     createCODOrder: async (data: CreateOrderParams) => {
         const { userId, restaurantId, items, location, orderNotes } = data;
         const { itemsTotal, enrichedItems } = await calculateFoodItemsTotal(items);
-        const deliveryFee = 0;
-        const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
+        
+        // Set distance and delivery fee to 0
         const pickupLocation = await getPickupLocation(restaurantId);
+        const distance = 0; // Set distance to 0
+        const deliveryFee = 0; // Set delivery fee to 0
+        
+        const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
 
         const order = await orderRepo.createOrder({
             refIds: { userId, restaurantId },
             foodItems: enrichedItems,
             pricing,
-            delivery: { location: { ...location, pickup: pickupLocation, distance: 10 } },
+            delivery: { location: { ...location, pickup: pickupLocation, distance: distance } },
             payment: { paymentType: IPaymentType.COD },
             orderStatus: IOrderStatusEnum.PENDING, // COD might be confirmed at dispatch
             notes: orderNotes ?? "",
@@ -220,5 +240,20 @@ export const OrderUseCase = {
         const updatedOrder = await orderRepo.updateOrderStatus(orderId, status);
         if (!updatedOrder) throw new Error("Order not found or status not updated");
         return updatedOrder;
+    },
+
+    // Get all orders for a user
+    getUserOrders: async (userId: string) => {
+        const orders = await orderRepo.getOrders({ "refIds.userId": userId });
+        return orders;
+    },
+
+    // Get all past orders for a user (DELIVERED or CANCELLED)
+    getUserPastOrders: async (userId: string) => {
+        const orders = await orderRepo.getOrders({
+            "refIds.userId": userId,
+            orderStatus: { $in: ["DELIVERED", "CANCELLED"] }
+        });
+        return orders;
     },
 };
