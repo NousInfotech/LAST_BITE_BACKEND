@@ -8,6 +8,8 @@ orderRouter.use(authMiddleware(["user"]))
 
 orderRouter.post("/online", OrderController.createOrder);
 orderRouter.post("/verify", OrderController.verifyOrder);
+orderRouter.get("/", OrderController.getUserOrders);
+orderRouter.get("/past", OrderController.getUserPastOrders);
 orderRouter.patch('/:orderId/status', OrderController.updateOrderStatus);
 orderRouter.patch('/:orderId/feedback', OrderController.orderFeeback)
 
