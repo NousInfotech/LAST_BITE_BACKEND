@@ -14,6 +14,7 @@ import superAdminRouter from './presentation/routes/superAdmin.routes.js';
 import orderRouter from './presentation/routes/order.routes.js';
 import pidgeRouter from './presentation/routes/pidge.routes.js';
 import martStoreRouter from './presentation/routes/martStore.routes.js';
+import martProductRouter from './presentation/routes/martProduct.routes.js';
 
 const app: Application = express();
 
@@ -55,6 +56,7 @@ app.use('/food-item', foodItemRouter);
 
 // martstore routes
 app.use('/instamart-store', martStoreRouter);
+app.use('/instamart-product', martProductRouter)
 
 // file uploadin routes
 app.use('/image', imageUploadRouter);
