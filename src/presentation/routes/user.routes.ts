@@ -23,7 +23,7 @@ userRouter.get("/me", UserController.getUserByUserId);
 userRouter.put("/me", UserController.updateUser);
 userRouter.delete("/me", UserController.deleteUser);
 userRouter.patch("/favorites", UserController.updateUserFavourites);
-userRouter.patch("/blocked-restaurants", UserController.updateUserBlcokedRestaurants)
+userRouter.patch("/block-restaurant", UserController.blockRestaurant)
 
 // ------------------------------
 // Address Routes (nested under userId)

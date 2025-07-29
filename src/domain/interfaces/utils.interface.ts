@@ -33,6 +33,7 @@ export enum RoleEnum {
     restaurantAdmin = "restaurantAdmin",
     rider = "rider",
     superAdmin = "superAdmin",
+    restaurant = "restaurant"
 }
 
 

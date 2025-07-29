@@ -152,7 +152,7 @@ export const UserController = {
         });
     },
 
-    async updateUserBlcokedRestaurants(req: CustomRequest, res: Response) {
+    async blockRestaurant(req: CustomRequest, res: Response) {
         const parsed = validate(userIdSchema, req, res); // ✅ fixed here
         if (!parsed) return;
 
@@ -161,14 +161,14 @@ export const UserController = {
         const bodyCheck = validate(blockedRestaurantsValidator, req.body, res);
         if (!bodyCheck) return;
 
-        const { action, restaurants } = bodyCheck;
+        const { action, restaurantId, issueDescription } = bodyCheck;
 
         return tryCatch(res, async () => {
-            const favouritesCollection = await UserUseCase.updateBlockedRestaurans(userId, restaurants, action);
+            const favouritesCollection = await UserUseCase.updateBlockedRestaurants(userId, { restaurantId, description: issueDescription as string }, action);
             if (!favouritesCollection) {
                 return sendError(res, HTTP.NOT_FOUND, "User not found or blocked update failed");
             }
-            return sendResponse(res, HTTP.OK, "Blocked updated successfully", restaurants);
+            return sendResponse(res, HTTP.OK, "Blocked updated successfully",);
         });
     },
 
