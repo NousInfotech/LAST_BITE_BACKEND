@@ -1,7 +1,7 @@
 import { Schema, model, Model, Document } from "mongoose";
 import { RestaurantStatusEnum } from "../../../../domain/interfaces/utils.interface.js";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
-import { IMartStore } from "../../../../domain/interfaces/martstore.interface.js";
+import { IMartStore } from "../../../../domain/interfaces/martStore.interface.js";
 import { addressSchemaGeo } from "./utils.schema.js";
 
 // ---- Mart Documents Sub-Schema ----

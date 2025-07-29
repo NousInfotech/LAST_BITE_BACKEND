@@ -1,5 +1,5 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
-import { IMartStore } from "../../domain/interfaces/martstore.interface.js";
+import { IMartStore } from "../../domain/interfaces/martStore.interface.js";
 import { MartStoreDoc, MartStoreModel } from "../db/mongoose/schemas/martStore.schema.js";
 import { extractQueryOptions } from "../db/helper/utils.helper.js";
 import { RestaurantStatusEnum } from "../../domain/interfaces/utils.interface.js";

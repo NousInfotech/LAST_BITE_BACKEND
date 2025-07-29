@@ -61,6 +61,8 @@ export const imageFolders = [
     "restaurants",
     "restaurant-documents",
     "foodItems",
+    "martstore-documents",
+    "martstore-products"
 ] as const;
 
 
@@ -80,6 +82,10 @@ export const allowedFoldersByRole: Record<Role, ImageFolder[]> = {
         "restaurant-documents",
         "foodItems",
     ],
+    martStoreAdmin: [
+        "martstore-documents",
+        'martstore-products'
+    ]
 };
 
 
@@ -87,7 +93,7 @@ export const allowedFoldersByRole: Record<Role, ImageFolder[]> = {
 // order constants 
 export const CURRENCY: string = "INR";
 export const GST: number = 5;
-export const platformFee:number = 10;
+export const platformFee: number = 10;
 
 
 

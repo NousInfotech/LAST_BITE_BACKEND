@@ -33,11 +33,14 @@ export enum RoleEnum {
     restaurantAdmin = "restaurantAdmin",
     rider = "rider",
     superAdmin = "superAdmin",
+    martStoreAdmin = "martStoreAdmin",
+    martStore = "martStore",
     restaurant = "restaurant"
 }
 
 
-export type Role = "user" | "restaurantAdmin" | "rider" | "superAdmin";
+export type Role = "user" | "restaurantAdmin" | "rider" | "superAdmin" | "martStoreAdmin" ;
+
 export interface IAddress {
     _id: string;
     latitude?: number;
@@ -84,5 +87,6 @@ export interface CustomRequest extends Request {
     restaurantAdminId?: string;
     superAdminId?: string;
     riderId?: string;
+
 }
 

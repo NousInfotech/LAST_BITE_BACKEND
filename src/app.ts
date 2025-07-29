@@ -48,6 +48,7 @@ app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use('/rider', riderRouter);
 app.use('/restaurant-admin', restaurantAdminRouter);
+app.use('/instamart-admin', martStoreRouter);
 app.use('/super-admin', superAdminRouter);
 
 // restaurant routes

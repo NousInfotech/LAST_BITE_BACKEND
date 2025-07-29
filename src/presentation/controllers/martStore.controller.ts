@@ -12,7 +12,7 @@ import { HTTP } from "../../utils/constants.js";
 import { tryCatch } from "../../utils/tryCatch.js";
 import { MartStoreUseCase } from "../../application/use-cases/martStore.useCase.js";
 import { CustomRequest, Role } from "../../domain/interfaces/utils.interface.js";
-import { IMartStoreStatus } from "../../domain/interfaces/martstore.interface.js";
+import { IMartStoreStatus } from "../../domain/interfaces/martStore.interface.js";
 import { MartStoreSchema } from "../../domain/zod/martStore.zod.js";
 
 export const MartStoreController = {

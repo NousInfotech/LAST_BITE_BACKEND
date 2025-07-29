@@ -1,5 +1,5 @@
 import { MartStoreRepository } from "../../infrastructure/repositories/martStore.repository.js";
-import { IMartStore, IMartStoreStatus } from "../../domain/interfaces/martstore.interface.js";
+import { IMartStore, IMartStoreStatus } from "../../domain/interfaces/martStore.interface.js";
 import { UpdateQuery, FilterQuery } from "mongoose";
 import { Role } from "../../domain/interfaces/utils.interface.js";
 
