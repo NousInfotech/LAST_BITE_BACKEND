@@ -1,9 +1,12 @@
+import { IIssue, IssueStatus } from "../../domain/interfaces/issue.interface.js";
 import { Favourites, IUser, IUserCart, IUserCollection } from "../../domain/interfaces/user.interface.js";
-import { FavoritesActions, IAddress } from "../../domain/interfaces/utils.interface.js";
+import { FavoritesActions, IAddress, RoleEnum } from "../../domain/interfaces/utils.interface.js";
+import { IssueRepository } from "../../infrastructure/repositories/issue.repository.js";
 import { UserRepository } from "../../infrastructure/repositories/user.repository.js";
 import { UpdateQuery, FilterQuery } from "mongoose";
 
 const userRepo = new UserRepository();
+const issueRepo = new IssueRepository();
 
 export const UserUseCase = {
     // User CRUD
@@ -33,17 +36,35 @@ export const UserUseCase = {
         return operation();
     },
 
-    updateBlockedRestaurans: (userId: string, blocked: string[], action: FavoritesActions) => {
+    updateBlockedRestaurants: async (
+        userId: string,
+        blocked: { description: string, restaurantId: string },
+        action: FavoritesActions
+    ) => {
         const actionsMap = {
-            [FavoritesActions.ADD]: () => userRepo.addHiddenRestaurant(userId, blocked),
-            [FavoritesActions.REMOVE]: () => userRepo.removeHiddenRestaurant(userId, blocked),
+            [FavoritesActions.ADD]: () => userRepo.addHiddenRestaurant(userId, [blocked.restaurantId]),
+            [FavoritesActions.REMOVE]: () => userRepo.removeHiddenRestaurant(userId, [blocked.restaurantId]),
         };
 
         const operation = actionsMap[action];
         if (!operation) throw new Error("Invalid action for updateBlocked Restaurants");
 
+        if (blocked.description) {
+            const issuePayload: IIssue = {
+                description: blocked.description,
+                raisedById: userId,
+                raisedByRole: RoleEnum.user,
+                targetRole: RoleEnum.restaurant,
+                targetId: blocked.restaurantId,
+                status: IssueStatus.OPEN
+            };
+
+            await issueRepo.createIssue(issuePayload);
+        }
+
         return operation();
-    },
+    }
+    ,
 
     // Collection CRUD
     createCollection: (data: IUserCollection) => userRepo.createCollection(data),

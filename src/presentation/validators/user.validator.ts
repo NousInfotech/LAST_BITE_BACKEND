@@ -29,7 +29,8 @@ export const favoriteValidator = z.object({
 });
 
 export const blockedRestaurantsValidator = z.object({
-    restaurants: z.array(z.string()),
+    restaurantId: z.string(),
+    issueDescription: z.string().optional(),
     action: z.nativeEnum(FavoritesActions),
 })
 
