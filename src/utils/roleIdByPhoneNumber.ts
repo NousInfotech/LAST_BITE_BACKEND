@@ -1,6 +1,7 @@
 import { RestaurantAdminUseCase } from "../application/use-cases/restaurantAdmin.useCase.js";
 import { RiderUseCase } from "../application/use-cases/rider.useCase.js";
 import { UserUseCase } from "../application/use-cases/user.useCase.js";
+import { MartStoreAdminUseCase } from "../application/use-cases/martStoreAdmin.useCase.js";
 
 const getRoleBasedIdByPhone = async (phoneNumber: string, role: string) => {
     switch (role) {
@@ -18,6 +19,11 @@ const getRoleBasedIdByPhone = async (phoneNumber: string, role: string) => {
             const admin = await RestaurantAdminUseCase.getAdminByPhoneNumber(phoneNumber);
             if (!admin) return null;
             return { roleBasedId: admin.restaurantAdminId };
+        }
+        case "martStoreAdmin": {
+            const admin = await MartStoreAdminUseCase.getAdminByPhoneNumber(phoneNumber);
+            if (!admin) return null;
+            return { roleBasedId: admin.martStoreAdminId };
         }
         default:
             return null;

@@ -9,12 +9,14 @@ import { RiderUseCase } from "../application/use-cases/rider.useCase.js";
 import { RestaurantAdminUseCase } from "../application/use-cases/restaurantAdmin.useCase.js";
 import { Role } from "../domain/interfaces/utils.interface.js";
 import { SuperAdminUseCase } from "../application/use-cases/superAdmin.useCase.js";
+import { MartStoreAdminUseCase } from "../application/use-cases/martStoreAdmin.useCase.js";
 
 export interface AuthenticatedRequest extends Request {
     userId?: string;
     restaurantAdminId?: string;
     riderId?: string;
     superAdminId?: string;
+    martStoreAdminId?: string;
     role?: Role;
 }
 
@@ -61,6 +63,10 @@ export const authMiddleware = (allowedRoles: string[] = []) => {
                 case "restaurantAdmin":
                     exists = await RestaurantAdminUseCase.getAdminById(roleBasedId);
                     if (exists) req.restaurantAdminId = roleBasedId;
+                    break;
+                case "martStoreAdmin":
+                    exists = await MartStoreAdminUseCase.getAdminById(roleBasedId);
+                    if (exists) req.martStoreAdminId = roleBasedId;
                     break;
                 case "rider":
                     exists = await RiderUseCase.getRiderById(roleBasedId);
