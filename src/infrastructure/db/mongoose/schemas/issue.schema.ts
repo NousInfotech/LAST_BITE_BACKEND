@@ -15,6 +15,7 @@ const issueSchema = new Schema<IssueDoc>(
         targetId: { type: String, required: true },
         description: { type: String, required: true },
         relatedOrderId: { type: String },
+        tags: { type: [String], required: true },
         status: {
             type: String,
             enum: Object.values(IssueStatus), // This converts the enum into array of valid strings

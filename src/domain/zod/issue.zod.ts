@@ -1,5 +1,5 @@
 // src/domain/zod/issue.schema.ts
-import { z } from 'zod';
+import { string, z } from 'zod';
 import { RoleEnum } from '../interfaces/utils.interface';
 import { IssueStatus } from '../interfaces/issue.interface';
 
@@ -11,6 +11,7 @@ export const issueZodSchema = z.object({
     description: z.string().min(5, 'Description must be at least 5 characters'),
     relatedOrderId: z.string().optional(),
     status: z.enum(['OPEN', 'IN_REVIEW', 'RESOLVED', 'REJECTED']).optional(),
+    tags: z.array(string()),
 });
 
 export const issueStatusSchema = z.object({

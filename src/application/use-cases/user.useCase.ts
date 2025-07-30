@@ -53,6 +53,7 @@ export const UserUseCase = {
             const issuePayload: IIssue = {
                 description: blocked.description,
                 raisedById: userId,
+                tags: ["restaurant-service", "restaurant", "food-item"],
                 raisedByRole: RoleEnum.user,
                 targetRole: RoleEnum.restaurant,
                 targetId: blocked.restaurantId,

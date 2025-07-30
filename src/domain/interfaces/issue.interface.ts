@@ -13,6 +13,7 @@ export interface IIssue {
   raisedByRole: RoleEnum;
   raisedById: string;
   targetRole: RoleEnum;
+  tags: string[];
   targetId: string;
   description: string;
   relatedOrderId?: string;
