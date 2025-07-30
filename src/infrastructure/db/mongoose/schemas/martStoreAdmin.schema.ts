@@ -3,10 +3,10 @@ import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
 import { IMartStoreAdmin } from "../../../../domain/interfaces/martStoreAdmin.interface.js";
 
 
-interface RestaurantAdminDoc extends IMartStoreAdmin, Document { }
+interface MartStoreAdminDoc extends IMartStoreAdmin, Document { }
 
 
-const martStoreAdminSchema = new Schema<RestaurantAdminDoc>(
+const martStoreAdminSchema = new Schema<MartStoreAdminDoc>(
   {
     martStoreAdminId: { type: String, unique: true },
     martStoreId: { type: String, required: true },
@@ -28,5 +28,5 @@ addCustomIdHook(
 );
 
 
-export const MartStoreAdminModel: Model<RestaurantAdminDoc> =
-  model<RestaurantAdminDoc>("RestaurantAdmin", martStoreAdminSchema);
+export const MartStoreAdminModel: Model<MartStoreAdminDoc> =
+  model<MartStoreAdminDoc>("MartStoreAdminAdmin", martStoreAdminSchema);
