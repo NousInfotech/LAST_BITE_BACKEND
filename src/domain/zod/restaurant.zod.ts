@@ -22,6 +22,7 @@ export const addressSchema = z.object({
   state: z.string(),
   country: z.string(),
   fullAddress: z.string(),
+  pincode: z.number(),
   tag: z.string().optional(),
 });
 

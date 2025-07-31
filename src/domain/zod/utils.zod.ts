@@ -10,6 +10,7 @@ export const AddressSchema = z.object({
     city: z.string(),
     state: z.string(),
     country: z.string(),
+    pincode: z.string(),
     address: z.string(), // Full written address
     tag: z.string(), // home, office, others
 });

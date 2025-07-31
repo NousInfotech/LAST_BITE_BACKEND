@@ -51,6 +51,7 @@ export interface IAddress {
     city?: string;
     state?: string;
     country?: string;
+    pincode?:number;
     fullAddress?: string;
     tag?: "home" | "office" | "friends" | "others";
 }
