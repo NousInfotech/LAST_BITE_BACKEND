@@ -1,0 +1,33 @@
+sequenceDiagram
+    participant User as Customer (Frontend)
+    participant FE as Frontend App
+    participant BE as Backend Server
+    participant Razorpay
+    participant Pidge
+    participant DB as Database
+
+    User->>FE: Clicks on Restaurant
+    User->>FE: Adds FoodItems to Cart (modify quantity)
+    User->>FE: Clicks "Checkout"
+    FE->>BE: GET /delivery/get-quote
+    BE->>Pidge: Fetch delivery quote, ETA, distance
+    Pidge-->>BE: Returns quote, ETA, distance
+    BE-->>FE: Send quote, ETA, distance
+    User->>FE: Clicks "Order Now"
+    FE->>BE: POST /create-razorpay-order (includes notes/orderPayload)
+    BE->>Razorpay: Create Razorpay Order
+    Razorpay-->>BE: Returns orderId
+    BE-->>FE: Returns orderId to frontend
+    FE->>Razorpay: Open Razorpay Checkout
+    Razorpay-->>User: Payment interface
+    Razorpay-->>FE: paymentId, orderId, paymentSignature
+    FE->>BE: POST /verify-payment (orderId, paymentId, signature)
+    BE->>Razorpay: Verify Razorpay Order
+    Razorpay-->>BE: Returns order status
+    BE->>DB: Create Order (with notes from earlier)
+    BE->>Pidge: Create Pidge Order
+    Pidge-->>BE: Confirms Pidge Order
+    BE->>DB: Create Platform Order Record
+    BE->>DB: Create Platform Payment Record
+    BE-->>FE: Return Order Confirmation
+    FE->>User: Navigate to Order Status Screen

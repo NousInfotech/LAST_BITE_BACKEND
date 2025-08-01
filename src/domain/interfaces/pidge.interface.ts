@@ -19,6 +19,12 @@ export interface PidgeContact {
     otp?: string;
 }
 
+interface PidgePointOfContact {
+    name: string;
+    mobile: string;
+    email: string;
+}
+
 export interface PidgeProduct {
     name: string;
     sku: string;
@@ -33,12 +39,6 @@ export interface PidgeProduct {
 export interface PidgePackage {
     label: string;
     quantity: number;
-    dead_weight: number;
-    code?: string;
-    volumetric_weight: number;
-    length: number;
-    breadth: number;
-    height: number;
 }
 
 export interface PidgeTrip {
@@ -59,6 +59,7 @@ export interface PidgeTrip {
     notes?: { name: string; value: string; }[];
     delivery_date?: string; // e.g. "2025-07-25"
     delivery_slot?: string; // e.g. "14:00-15:00"
+    instruction_to_reach?: string;
 }
 export interface PidgeCoordinates {
     latitude: number;
@@ -83,6 +84,28 @@ export interface GetPidgeQuoteInput {
         };
     }[];
 }
+
+export interface IPickup {
+    lat: number;
+    lng: number;
+    restaurantAddress: {
+        no: string;
+        street: string;
+        city: string;
+        state: string;
+        country: string;
+        pincode: string;
+    };
+}
+
+
+export interface CreatePidgeOrderPayload {
+    channel: string;
+    sender_detail: PidgeContact;
+    poc_detail: PidgePointOfContact;
+    trips: PidgeTrip[];
+}
+
 
 export interface PidgeQuoteResponse {
     data: {

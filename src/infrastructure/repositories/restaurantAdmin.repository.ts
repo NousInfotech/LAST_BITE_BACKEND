@@ -13,6 +13,11 @@ export class RestaurantAdminRepository {
     async findByRestaurantAdminId(restaurantAdminId: string) {
         return await RestaurantAdminModel.findOne({ restaurantAdminId }, { _id: 0, __v: 0 }).lean();
     }
+
+    async findByRestaurantAdminByRestaurantId(restaurantId: string) {
+        return await RestaurantAdminModel.findOne({ restaurantId }, { _id: 0, __v: 0 }).lean();
+    }
+
     /** Get restaurant admin by ID */
     async findByRestaurantAdminPhoneNumber(phoneNumber: string) {
         return await RestaurantAdminModel.findOne({ phoneNumber }, { _id: 0, __v: 0 }).lean();

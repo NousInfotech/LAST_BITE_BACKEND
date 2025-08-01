@@ -10,7 +10,7 @@ export const addressSchema = new Schema(
     city: { type: String },
     state: { type: String },
     country: { type: String },
-    pincode: { type: Number },
+    pincode: { type: String },
     fullAddress: { type: String },
     tag: {
       type: String,
@@ -42,7 +42,7 @@ export const addressSchemaGeo = new Schema(
     state: String,
     country: String,
     fullAddress: String,
-    pincode: Number,
+    pincode: String,
     tag: { type: String, enum: ["home", "office", "friends", "others"], default: "others" },
   },
   { _id: false, timestamps: true }

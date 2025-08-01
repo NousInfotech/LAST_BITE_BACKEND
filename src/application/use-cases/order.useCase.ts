@@ -5,11 +5,17 @@ import { RestaurantRepository } from "../../infrastructure/repositories/restaura
 import { createRazorpayOrderService, getRazorpayOrderById, verifyOrderService } from "../services/razorpay.service.js";
 import { GST } from "../../utils/constants.js";
 import { PaymentRepository } from "../../infrastructure/repositories/payment.repository.js";
+import { createPidgeOrder, CreatePidgeOrderPayload, getPidgeOrderStatus, getPidgePayload } from "../services/pidge.service.js";
+import { UserRepository } from "../../infrastructure/repositories/user.repository.js";
+import { RestaurantAdminRepository } from "../../infrastructure/repositories/restaurantAdmin.repository.js";
+import { IUser } from "../../domain/interfaces/user.interface.js";
 
 const orderRepo = new OrderRepository();
 const restaurantRepo = new RestaurantRepository();
 const foodItemRepo = new FoodItemRepository();
 const paymentRepo = new PaymentRepository();
+const userRepo = new UserRepository();
+const restaurantAdminRepo = new RestaurantAdminRepository();
 
 type IItem = Omit<IOrderFoodItem, "name" | "price" | "additionals">;
 
@@ -18,6 +24,7 @@ interface CreateOrderParams {
     restaurantId: string;
     orderNotes?: string;
     location: Omit<IOrderLocation, "distance" | "pickup">;
+    deliveryFee: number;
     items: IItem[];
 }
 
@@ -72,9 +79,8 @@ const getPickupLocation = async (
 ) => {
     const restaurantAddress = await restaurantRepo.getRestaurantLocationById(restaurantId);
     const [lng, lat] = restaurantAddress.location.coordinates;
-    return { lat, lng }
+    return { lat, lng, restaurantAddress }
 }
-
 
 
 export const OrderUseCase = {
@@ -83,11 +89,8 @@ export const OrderUseCase = {
         const { userId, restaurantId, orderNotes, items, location } = data;
 
         const { itemsTotal, enrichedItems } = await calculateFoodItemsTotal(items);
-        
-       
-        const deliveryFee = 0; // Set delivery fee to 0
-        
-        const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
+
+        const pricing = await calculateTotalPricing(itemsTotal, data.deliveryFee, 0, restaurantId);
 
         // FIX: Stringify objects/arrays in notes
         const notes = {
@@ -110,7 +113,6 @@ export const OrderUseCase = {
         };
     },
 
-    // Step 2: After Razorpay payment success webhook / verify call
     verifyPaymentAndCreateOrder: async ({
         orderId,
         paymentId,
@@ -120,48 +122,59 @@ export const OrderUseCase = {
         paymentId: string;
         signature: string;
     }) => {
-        // 1. Validate Razorpay Signature
+        // Step 1: Validate Razorpay Signature
         const isPaymentValid = verifyOrderService({ orderId, paymentId, signature });
         if (!isPaymentValid) throw new Error("Invalid payment signature");
 
-        // 2. Fetch Razorpay order to get the `notes`
+        // Step 2: Fetch Razorpay Order Notes
         const razorpayOrder = await getRazorpayOrderById(orderId);
         const notes = razorpayOrder.notes;
-
         if (!notes) throw new Error("Missing order notes from Razorpay");
 
-        // 3. Extract data from notes
         const items = typeof notes.items === "string" ? JSON.parse(notes.items) : [];
         const location = typeof notes.location === "string" ? JSON.parse(notes.location) : null;
         const userId = notes.userId?.toString();
         const restaurantId = notes.restaurantId?.toString();
         const orderNotes = typeof notes.orderNotes === "string" ? notes.orderNotes : "";
+        const deliveryFee = notes.deliveryCharges as number;
 
-        if (!userId || !restaurantId || !location) {
+        if (!userId || !restaurantId || !location || !deliveryFee) {
             throw new Error("Essential order info missing in Razorpay notes.");
         }
 
-        // 4. Enrich items + pricing
+        // Step 1: Calculate Items Total First
         const { itemsTotal, enrichedItems } = await calculateFoodItemsTotal(items);
-        
-        // Set distance and delivery fee to 0
-        const pickup = await getPickupLocation(restaurantId);
-        const distance = 0; // Set distance to 0
-        const deliveryFee = 0; // Set delivery fee to 0
-        
-        const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
 
-        // 5. Create the order (include both pickup and dropoff)
+        // Step 2: Parallelize the rest with itemsTotal available
+        const [pickup, pricing, restaurantAdmin, user] = await Promise.all([
+            getPickupLocation(restaurantId),
+            calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId),
+            restaurantAdminRepo.findByRestaurantAdminByRestaurantId(restaurantId),
+            userRepo.findByUserId(userId),
+        ]);
+
+
+        if (!restaurantAdmin || !user) throw new Error("User or RestaurantAdmin not found");
+
+        // Step 4: Create Pidge Order
+        const pidgePayload = getPidgePayload(pickup, restaurantAdmin, location, user as IUser, enrichedItems);
+        const pidgeResponse = await createPidgeOrder(pidgePayload);
+        const { pidgeOrderId, sourceOrderId } = pidgeResponse;
+        const pidgeGetOrder = await getPidgeOrderStatus(pidgeOrderId);
+
+        // Step 5: Create Local Order
         const order = await orderRepo.createOrder({
             refIds: { userId, restaurantId },
             foodItems: enrichedItems,
             pricing,
-            delivery: { 
-                location: { 
-                    pickup, 
-                    dropoff: location.dropoff, 
-                    distance: distance 
-                } 
+            delivery: {
+                location: { pickup, dropoff: location.dropoff },
+                pidge: {
+                    pidgeId: pidgeOrderId,
+                    orderId: sourceOrderId,
+                    billAmount: pidgeGetOrder.bill_amount,
+                    status: pidgeGetOrder.status,
+                },
             },
             payment: {
                 paymentType: IPaymentType.ONLINE,
@@ -173,14 +186,11 @@ export const OrderUseCase = {
             updatedAt: new Date(),
         });
 
-        // 6 & 7. Fire-and-forget the payment-related operations
+        // Step 6 & 7: Record Payment and Link to Order (async)
         void (async () => {
             try {
                 await paymentRepo.createPayment({
-                    razorpay: {
-                        orderId,
-                        paymentId,
-                    },
+                    razorpay: { orderId, paymentId },
                     linkedOrderId: order.orderId!,
                     paymentStatus: "PAID",
                     amount: {
@@ -212,12 +222,12 @@ export const OrderUseCase = {
     createCODOrder: async (data: CreateOrderParams) => {
         const { userId, restaurantId, items, location, orderNotes } = data;
         const { itemsTotal, enrichedItems } = await calculateFoodItemsTotal(items);
-        
+
         // Set distance and delivery fee to 0
         const pickupLocation = await getPickupLocation(restaurantId);
         const distance = 0; // Set distance to 0
         const deliveryFee = 0; // Set delivery fee to 0
-        
+
         const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
 
         const order = await orderRepo.createOrder({
