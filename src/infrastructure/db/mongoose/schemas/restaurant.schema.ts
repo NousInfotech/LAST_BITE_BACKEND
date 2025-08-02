@@ -1,12 +1,12 @@
 import { Schema, Document, Model, model } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
 import { RestaurantStatusEnum, Days } from "../../../../domain/interfaces/utils.interface.js";
-import { IRestaurant } from "../../../../domain/interfaces/restaurant.interface.js";
+import { IDocuments, IRestaurant, IRestaurantStatus, ITimings } from "../../../../domain/interfaces/restaurant.interface.js";
 import { FoodType } from "../../../../domain/interfaces/utils.interface.js";
 import { addressSchemaGeo } from "./utils.schema.js";
 
 // ——— Document sub‑schema (unchanged) ———
-const documentSchema = new Schema(
+const documentSchema = new Schema<IDocuments>(
   {
     panNumber: String,
     panImage: String,
@@ -18,12 +18,13 @@ const documentSchema = new Schema(
     cancelledChequeImage: String,
     bankIFSC: String,
     bankAccountNumber: String,
+    partnershipAgreement:String,
   },
   { _id: false, timestamps: true }
 );
 
 // ——— Timing sub‑schema (unchanged) ———
-export const timingSchema = new Schema(
+export const timingSchema = new Schema<ITimings>(
   {
     day: {
       type: String,
@@ -42,7 +43,7 @@ export const timingSchema = new Schema(
 
 // ——— Address sub‑schema with GeoJSON point + 2dsphere index ———
 
-const RestaurantStatusSchema = new Schema(
+const RestaurantStatusSchema = new Schema<IRestaurantStatus>(
   {
     status: {
       type: String,

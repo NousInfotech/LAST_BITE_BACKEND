@@ -27,6 +27,7 @@ export interface IDocuments {
   cancelledChequeImage: string;
   bankIFSC: string;
   bankAccountNumber: string;
+  partnershipAgreement: string;
 }
 
 export interface ITimings {
