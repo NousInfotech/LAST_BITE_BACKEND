@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { IOrderStatusEnum } from "../../domain/interfaces/order.interface.js";
+import { AddressSchema } from "../../domain/zod/utils.zod.js";
 
 export const OrderCreateSchema = z.object({
   items: z.array(z.object({
@@ -10,11 +11,9 @@ export const OrderCreateSchema = z.object({
   userId: z.string().min(1),
   restaurantId: z.string().min(1),
   orderNotes: z.string().optional(),
+  deliveryFee: z.number(),
   location: z.object({
-    dropoff: z.object({
-      lat: z.number(),
-      lng: z.number(),
-    }),
+    dropoff: AddressSchema,
   }),
 });
 

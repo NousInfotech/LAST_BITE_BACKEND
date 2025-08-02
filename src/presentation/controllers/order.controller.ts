@@ -14,12 +14,13 @@ export const OrderController = {
         const validated = validate(OrderCreateSchema, { ...req.body, userId }, res);
         if (!validated) return;
         return tryCatch(res, async () => {
-            const { userId, restaurantId, items, orderNotes, location } = validated;
+            const { userId, restaurantId, items, orderNotes, location, deliveryFee } = validated;
             const order = await OrderUseCase.createOnlineOrder({
                 userId,
                 restaurantId,
                 items,
                 orderNotes,
+                deliveryFee,
                 location,
             });
             return sendResponse(res, HTTP.CREATED, "Razorpay Order created successfully", order);
@@ -53,7 +54,7 @@ export const OrderController = {
             if (!userId) {
                 return sendError(res, HTTP.UNAUTHORIZED, "User ID not found in request");
             }
-            
+
             const orders = await OrderUseCase.getUserOrders(userId);
             return sendResponse(res, HTTP.OK, "User orders fetched successfully", { orders });
         });

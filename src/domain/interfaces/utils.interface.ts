@@ -42,15 +42,15 @@ export enum RoleEnum {
 export type Role = "user" | "restaurantAdmin" | "rider" | "superAdmin" | "martStoreAdmin";
 
 export interface IAddress {
-    _id: string;
-    latitude?: number;
-    longitude?: number;
-    no?: string;
-    street?: string;
-    area?: string;
-    city?: string;
-    state?: string;
-    country?: string;
+    latitude: number;
+    longitude: number;
+    no: string;
+    street: string;
+    area: string;
+    city: string;
+    state: string;
+    country: string;
+    pincode: string;
     fullAddress?: string;
     tag?: "home" | "office" | "friends" | "others";
 }

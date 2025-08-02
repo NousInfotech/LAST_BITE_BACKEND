@@ -1,6 +1,6 @@
 import { Schema, Document, Model, model } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
-import { IOrder, IOrderFeedback, IOrderStatusEnum, IPaymentType, IRefIds } from "../../../../domain/interfaces/order.interface.js";
+import { IOrder, IOrderFeedback, IOrderStatusEnum, IPaymentType, IPidgeOrder, IRefIds } from "../../../../domain/interfaces/order.interface.js";
 import { number } from "zod";
 
 // Subschemas
@@ -60,19 +60,29 @@ const LocationSchema = new Schema(
   { _id: false }
 );
 
-const PidgeInfoSchema = new Schema(
+const PidgeInfoSchema = new Schema<IPidgeOrder>(
   {
-    networkId: String,
-    quoteId: String,
-    price: Number,
+    pidgeId: {
+      type: String,
+      required: true, // Internal Pidge order ID (e.g., "1754000237925PEW8OVGI")
+    },
+    orderId: {
+      type: String,
+      required: true, // Your own system's order ID (e.g., "ORD123456")
+    },
+    billAmount: {
+      type: Number,
+      required: true, // Total delivery charge
+    },
     status: {
       type: String,
-      enum: ["ASSIGNED", "IN_PROGRESS", "COMPLETED", "FAILED"],
+      enum: ["cancelled", "pending", "fulfilled", "completed"], // Top-level status values
+      required: true,
     },
-    trackingUrl: String,
   },
   { _id: false }
 );
+
 
 const RefIdSchema = new Schema<IRefIds>(
   {

@@ -1,5 +1,6 @@
 import { IRestaurant } from "./restaurant.interface";
 import { IUser } from "./user.interface";
+import { IAddress } from "./utils.interface";
 
 export interface IOrderFoodItem {
   foodItemId: string;
@@ -21,7 +22,7 @@ export interface IOrderPricing {
 
 export interface IOrderLocation {
   pickup: { lat: number; lng: number };
-  dropoff: { lat: number; lng: number };
+  dropoff: Omit<IAddress, "tag">;
   distance?: number;
 }
 
@@ -70,6 +71,13 @@ export type FeedbackIssueTag =
   | "rude_rider"
   | "order_incorrect";
 
+export interface IPidgeOrder{
+  pidgeId: string;       // Internal Pidge order ID (e.g., "1754000237925PEW8OVGI")
+  orderId: string;       // Your own reference ID (e.g., "ORD123456")
+  billAmount: number;    // Total billable amount for delivery
+  status: "cancelled" | "pending" | "fulfilled" | "completed";
+}
+
 export interface IOrder {
   orderId?: string;
   refIds: IRefIds;
@@ -77,13 +85,7 @@ export interface IOrder {
   pricing: IOrderPricing;
   delivery?: {
     location: IOrderLocation;
-    pidge?: {
-      networkId: string;
-      quoteId: string;
-      price: number;
-      status: "ASSIGNED" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
-      trackingUrl?: string;
-    };
+    pidge?: IPidgeOrder;
   };
 
   notes?: string;

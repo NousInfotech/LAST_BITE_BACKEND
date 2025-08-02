@@ -12,6 +12,7 @@ export interface IAddressGeo {
   state: string;
   country: string;
   fullAddress: string;
+  pincode: string;
   tag?: string;
 }
 
