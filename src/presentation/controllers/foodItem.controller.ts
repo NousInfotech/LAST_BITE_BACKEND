@@ -105,7 +105,8 @@ export const FoodItemController = {
 
         return tryCatch(res, async () => {
             const foodItems = await FoodItemUseCase.getByRestaurantId(restaurantId);
-            return sendResponse(res, HTTP.OK, "Food items fetched successfully", foodItems);
+            // Return empty array instead of 404 error when no food items found
+            return sendResponse(res, HTTP.OK, "Food items fetched successfully", foodItems || []);
         });
     },
 };

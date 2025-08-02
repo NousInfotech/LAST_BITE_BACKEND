@@ -18,7 +18,8 @@ restaurantRouter.post("/", RestaurantController.createRestaurant);
 // Authenticated & Authorized Routes
 // ------------------------------
 
-restaurantRouter.patch("/status/:restaurantId", authMiddleware(["superAdmin"]), RestaurantController.updateRestaurantStatus);
+restaurantRouter.patch("/status/:restaurantId", authMiddleware(["superAdmin", "restaurantAdmin"]), RestaurantController.updateRestaurantStatus);
+restaurantRouter.patch("/active/:restaurantId", authMiddleware(["superAdmin", "restaurantAdmin"]), RestaurantController.toggleRestaurantActive);
 restaurantRouter.use(authMiddleware(["restaurantAdmin", "superAdmin", "user", "rider"]));
 
 

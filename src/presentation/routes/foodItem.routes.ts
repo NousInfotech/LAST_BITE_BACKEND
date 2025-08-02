@@ -10,8 +10,8 @@ const foodItemRouter = Router();
 foodItemRouter.get("/", FoodItemController.getAllFoodItems);
 foodItemRouter.get("/bulk", FoodItemController.getAllFoodItemsById);
 foodItemRouter.get("/:foodItemId", FoodItemController.getFoodItemById);
-foodItemRouter.get("/restaurant/:restaurantId", FoodItemController.getAllFoodItemsById);
-
+foodItemRouter.get("/restaurant/:restaurantId", FoodItemController.getFoodItemByRestaurantId);
+// foodItemRouter.get("/restaurant/:restaurantId", FoodItemController.getAllFoodItemsById);
 
 // ------------------------------
 // Protected Routes (restaurantAdmin & superAdmin)

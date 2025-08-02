@@ -22,7 +22,8 @@ const app: Application = express();
 app.use(helmet());                  // Secure HTTP headers
 const allowedOrigins = [
     "https://lastbite-admin.vercel.app", // production frontend
-    "http://localhost:3000"              // local dev (optional)
+    "http://localhost:3000",
+    "http://localhost:3039"             // local dev (optional)
 ];
 
 app.use(cors({

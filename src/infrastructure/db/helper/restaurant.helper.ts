@@ -41,6 +41,7 @@ export function sanitizeRestaurantByRole(
     case "restaurantAdmin":
       return {
         ...baseFields,
+        restaurantStatus: restaurant.restaurantStatus,
         documents: restaurant.documents,
         tags: restaurant.tags,
         cuisines: restaurant.cuisines,

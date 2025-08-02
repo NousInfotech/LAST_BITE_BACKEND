@@ -116,6 +116,13 @@ export class RestaurantRepository {
       updateData["restaurantStatus.days"] = undefined;
     }
 
+    // Update isActive based on status
+    if (status === RestaurantStatusEnum.VERIFIED) {
+      updateData["isActive"] = true;
+    } else if (status === RestaurantStatusEnum.REJECTED || status === RestaurantStatusEnum.SUSPENDED || status === RestaurantStatusEnum.BANNED) {
+      updateData["isActive"] = false;
+    }
+
     // Perform DB update
     return await RestaurantModel.findOneAndUpdate(
       { restaurantId },
