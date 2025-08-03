@@ -31,6 +31,7 @@ export function sanitizeRestaurantByRole(
         typeOfFood: restaurant.typeOfFood,
         availableCategories: restaurant.availableCategories,
         rating: restaurant.rating,
+        menuImages: restaurant.menuImages,
       };
 
     case "rider":
@@ -48,6 +49,8 @@ export function sanitizeRestaurantByRole(
         typeOfFood: restaurant.typeOfFood,
         availableCategories: restaurant.availableCategories,
         rating: restaurant.rating,
+        packagingCharges: restaurant.packagingCharges,
+        menuImages: restaurant.menuImages,
         createdAt: restaurant.createdAt,
         updatedAt: restaurant.updatedAt,
       };

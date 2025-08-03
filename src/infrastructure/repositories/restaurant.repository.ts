@@ -12,8 +12,30 @@ export class RestaurantRepository {
    * @returns {Promise<RestaurantDoc>}
    */
   async create(restaurantData: IRestaurant) {
+    console.log('=== RESTAURANT REPOSITORY DEBUG ===');
+    console.log('Repository data profile photo:', restaurantData.profilePhoto);
+    console.log('Repository data menu images:', restaurantData.menuImages);
+    console.log('Repository data documents:', restaurantData.documents);
+    console.log('Repository data PAN image:', restaurantData.documents?.panImage);
+    console.log('Repository data shop license image:', restaurantData.documents?.shopLicenseImage);
+    console.log('Repository data FSSAI certificate image:', restaurantData.documents?.fssaiCertificateImage);
+    console.log('Repository data GST certificate image:', restaurantData.documents?.gstCertificateImage);
+    console.log('Repository data cancelled cheque image:', restaurantData.documents?.cancelledChequeImage);
+    
     const restaurant = new RestaurantModel(restaurantData);
-    return await restaurant.save();
+    const savedRestaurant = await restaurant.save();
+    
+    console.log('=== SAVED RESTAURANT DEBUG ===');
+    console.log('Saved profile photo:', savedRestaurant.profilePhoto);
+    console.log('Saved menu images:', savedRestaurant.menuImages);
+    console.log('Saved documents:', savedRestaurant.documents);
+    console.log('Saved PAN image:', savedRestaurant.documents?.panImage);
+    console.log('Saved shop license image:', savedRestaurant.documents?.shopLicenseImage);
+    console.log('Saved FSSAI certificate image:', savedRestaurant.documents?.fssaiCertificateImage);
+    console.log('Saved GST certificate image:', savedRestaurant.documents?.gstCertificateImage);
+    console.log('Saved cancelled cheque image:', savedRestaurant.documents?.cancelledChequeImage);
+    
+    return savedRestaurant;
   }
 
   /**

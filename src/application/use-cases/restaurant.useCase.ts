@@ -12,6 +12,16 @@ export const RestaurantUseCase = {
      * Create a new restaurant
      */
     createRestaurant: (data: IRestaurant) => {
+        console.log('=== RESTAURANT USE CASE DEBUG ===');
+        console.log('Incoming data profile photo:', data.profilePhoto);
+        console.log('Incoming data menu images:', data.menuImages);
+        console.log('Incoming data documents:', data.documents);
+        console.log('Incoming data PAN image:', data.documents?.panImage);
+        console.log('Incoming data shop license image:', data.documents?.shopLicenseImage);
+        console.log('Incoming data FSSAI certificate image:', data.documents?.fssaiCertificateImage);
+        console.log('Incoming data GST certificate image:', data.documents?.gstCertificateImage);
+        console.log('Incoming data cancelled cheque image:', data.documents?.cancelledChequeImage);
+        
         return restaurantRepo.create(data);
     },
 

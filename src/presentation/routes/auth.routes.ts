@@ -13,7 +13,7 @@ authRouter.post("/verify-otp", AuthController.verifyOtp);
 authRouter.post("/check-login", AuthController.checkLogin);
 authRouter.post("/super-admin-login", AuthController.superAdminLogin);
 
-authRouter.use(authMiddleware(["user", "restaurantAdmin", "rider", "superAdmin"]));
+authRouter.use(authMiddleware(["user", "restaurantAdmin", "rider", "superAdmin", "martStoreAdmin"]));
 
 
 // ------------------------------

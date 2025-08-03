@@ -6,7 +6,7 @@ export const phoneNumberField = z
   .regex(/^\+[1-9]\d{9,14}$/, "Phone number must be in E.164 format");
 
 
-const roleField = z.enum(["user", "restaurantAdmin", "rider"], {
+const roleField = z.enum(["user", "restaurantAdmin", "rider", "martStoreAdmin", "superAdmin"], {
   required_error: "Role is required",
   invalid_type_error: "Invalid role"
 });
@@ -31,3 +31,7 @@ export const phoneAndRoleSchema = z.object({
   phoneNumber: phoneNumberField,
 });
 
+export const checkLoginSchema = z.object({
+  phoneNumber: phoneNumberField,
+  role: roleField,
+});

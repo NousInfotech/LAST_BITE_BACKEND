@@ -17,8 +17,17 @@ export async function uploadImageToS3({
     contentType,
 }: UploadParams): Promise<string> {
     try {
+        // Generate unique file name with timestamp and random string
+        const timestamp = Date.now();
+        const randomString = Math.random().toString(36).substring(2, 15);
+        const fileExtension = fileName.split('.').pop() || 'jpg';
+        const uniqueFileName = `${timestamp}_${randomString}.${fileExtension}`;
+        
         // Construct the full key (path in the bucket)
-        const key = `${folderName}/${fileName}`;
+        const key = `${folderName}/${uniqueFileName}`;
+        // const key = `${folderName}/${fileName}`;
+        
+        // Construct the full key (path in the bucket)
 
         const uploadParams = {
             Bucket: config.awsS3Bucket,
