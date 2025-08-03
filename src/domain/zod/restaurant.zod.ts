@@ -37,6 +37,7 @@ export const documentSchema = z.object({
   cancelledChequeImage: z.string(),
   bankIFSC: z.string(),
   bankAccountNumber: z.string(),
+  partnershipAgreeement:z.string(),
 });
 
 export const timingSchema = z.object({

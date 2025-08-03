@@ -86,7 +86,7 @@ const getPickupLocation = async (
 export const OrderUseCase = {
     // Step 1: Frontend hits this to get Razorpay order
     createOnlineOrder: async (data: CreateOrderParams) => {
-        const { userId, restaurantId, orderNotes, items, location } = data;
+        const { userId, restaurantId, orderNotes, items, location, deliveryFee } = data;
 
         const { itemsTotal, enrichedItems } = await calculateFoodItemsTotal(items);
 
@@ -99,6 +99,7 @@ export const OrderUseCase = {
             items: JSON.stringify(items),
             location: JSON.stringify(location),
             orderNotes: orderNotes || "",
+            deliveryCharges: deliveryFee,
         };
 
         const razorpayOrder = await createRazorpayOrderService({
@@ -213,7 +214,7 @@ export const OrderUseCase = {
             }
         })();
 
-        return order;
+        return { order, pidgeOrderId };
     },
 
 
