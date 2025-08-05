@@ -1,6 +1,6 @@
 import { Schema, Document, Model, model } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
-import { IOrder, IOrderFeedback, IOrderStatusEnum, IPaymentType, IPidgeOrder, IRefIds } from "../../../../domain/interfaces/order.interface.js";
+import { ICouponApplied, IOrder, IOrderFeedback, IOrderStatusEnum, IPaymentType, IPidgeOrder, IRefIds } from "../../../../domain/interfaces/order.interface.js";
 import { number } from "zod";
 
 // Subschemas
@@ -92,6 +92,16 @@ const RefIdSchema = new Schema<IRefIds>(
   { _id: false }
 )
 
+const CouponAppliedSchema = new Schema<ICouponApplied>(
+  {
+    couponId: { type: String, required: true },
+    code: { type: String, required: true },
+    discountValue: { type: Number, required: true },
+  },
+  { _id: false }
+);
+
+
 // Main order schema
 export interface OrderDoc extends IOrder, Document { }
 
@@ -120,6 +130,8 @@ const orderSchema = new Schema<OrderDoc>(
         required: true,
       },
     },
+
+    coupons: { type: [CouponAppliedSchema], default: [] },
 
     orderStatus: {
       type: String,

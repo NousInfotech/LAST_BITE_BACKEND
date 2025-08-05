@@ -1,7 +1,7 @@
 // src/domain/zod/issue.schema.ts
 import { string, z } from 'zod';
-import { RoleEnum } from '../interfaces/utils.interface';
-import { IssueStatus } from '../interfaces/issue.interface';
+import { RoleEnum } from '../interfaces/utils.interface.js';
+import { IssueStatus } from '../interfaces/issue.interface.js';
 
 export const issueZodSchema = z.object({
     raisedByRole: z.nativeEnum(RoleEnum),

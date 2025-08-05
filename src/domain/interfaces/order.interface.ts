@@ -10,6 +10,12 @@ export interface IOrderFoodItem {
   additionals?: { name: string; price: number }[];
 }
 
+export interface ICouponApplied {
+  couponId: string;       // Coupon's ObjectId as string
+  code: string;           // e.g., "LASTBITE50"
+  discountValue: number;  // Final discount applied for this coupon in the order
+}
+
 export interface IOrderPricing {
   itemsTotal: number;
   packagingFee: number;
@@ -89,6 +95,8 @@ export interface IOrder {
   };
 
   notes?: string;
+
+  coupons?:ICouponApplied[]
 
   payment: {
     paymentId?: string;

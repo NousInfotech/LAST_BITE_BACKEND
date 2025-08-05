@@ -1,6 +1,6 @@
 ## 🛠 **Issue API**
 
-**Base URL:** `/api/issues`
+**Base URL:** `/issues`
 
 ---
 
