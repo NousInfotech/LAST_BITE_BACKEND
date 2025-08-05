@@ -38,7 +38,7 @@ export class IssueRepository {
             .limit(queryOptions.limit || 10)
             .lean();
     }
-    
+
     async deleteIssue(issueId: string) {
         return await IssueModel.findOneAndDelete({ issueId });
     }
@@ -50,4 +50,13 @@ export class IssueRepository {
     async getIssuesAgainstTarget(targetId: string) {
         return await IssueModel.find({ targetId }, { _id: 0, __v: 0 }).lean();
     }
+
+    async updateIssueStatus(issueId: string, status: string) {
+        return await IssueModel.findOneAndUpdate(
+            { issueId },
+            { $set: { status } },
+            { new: true }
+        ).lean();
+    }
+
 }
