@@ -9,6 +9,10 @@ import { createPidgeOrder, CreatePidgeOrderPayload, getPidgeOrderStatus, getPidg
 import { UserRepository } from "../../infrastructure/repositories/user.repository.js";
 import { RestaurantAdminRepository } from "../../infrastructure/repositories/restaurantAdmin.repository.js";
 import { IUser } from "../../domain/interfaces/user.interface.js";
+import { NotificationRepository } from "../../infrastructure/repositories/notification.repository.js";
+import { sendUserNotification } from "../../presentation/sockets/userNotification.socket.js";
+import { RoleEnum } from "../../domain/interfaces/utils.interface.js";
+import { sendRestaurantNotification } from "../../presentation/sockets/restaurantNotification.socket.js";
 
 const orderRepo = new OrderRepository();
 const restaurantRepo = new RestaurantRepository();
@@ -16,6 +20,7 @@ const foodItemRepo = new FoodItemRepository();
 const paymentRepo = new PaymentRepository();
 const userRepo = new UserRepository();
 const restaurantAdminRepo = new RestaurantAdminRepository();
+const notificationRepo = new NotificationRepository();
 
 type IItem = Omit<IOrderFoodItem, "name" | "price" | "additionals">;
 
@@ -214,6 +219,43 @@ export const OrderUseCase = {
             }
         })();
 
+        // Step 8: Notify User
+        await notificationRepo.createNotification({
+            targetRole: RoleEnum.user,
+            targetRoleId: userId,
+            type: "order",
+            theme: "success",
+            message: `Order ${order.orderId} placed successfully.`,
+            metadata: {
+                orderId
+            },
+            createdAt: new Date(),
+        });
+
+        sendUserNotification(userId, {
+            type: "order",
+            message: `Your order ${order.orderId} has been placed successfully.`,
+        });
+
+        // Step 9: Notify Restaurant
+        await notificationRepo.createNotification({
+            targetRole: RoleEnum.restaurantAdmin,
+            targetRoleId: restaurantId,
+            type: "order",
+            message: `You have a new order ${order.orderId} from ${user.name}`,
+            theme: "success",
+            tags: ["order"],
+            metadata: {
+                orderId,
+            },
+            createdAt: new Date(),
+        });
+
+        sendRestaurantNotification(restaurantId, {
+            type: "ORDER_RECEIVED",
+            message: `New order from ${user.name} (${order.orderId})`,
+        });
+        
         return { order, pidgeOrderId };
     },
 
