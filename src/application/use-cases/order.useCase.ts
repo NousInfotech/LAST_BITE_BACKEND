@@ -13,6 +13,8 @@ import { NotificationRepository } from "../../infrastructure/repositories/notifi
 import { sendUserNotification } from "../../presentation/sockets/userNotification.socket.js";
 import { RoleEnum } from "../../domain/interfaces/utils.interface.js";
 import { sendRestaurantNotification } from "../../presentation/sockets/restaurantNotification.socket.js";
+import { IDiscount } from "../../domain/interfaces/payment.interface.js";
+import { disconnect } from "process";
 
 const orderRepo = new OrderRepository();
 const restaurantRepo = new RestaurantRepository();
@@ -30,6 +32,7 @@ interface CreateOrderParams {
     orderNotes?: string;
     location: Omit<IOrderLocation, "distance" | "pickup">;
     deliveryFee: number;
+    discount: IDiscount;
     items: IItem[];
 }
 
@@ -56,28 +59,39 @@ const calculateFoodItemsTotal = async (
 const calculateTotalPricing = async (
     itemsTotal: number,
     deliveryFee: number,
-    discount: number = 0,
+    discount: IDiscount | null,
     restaurantId: string
 ): Promise<IOrderPricing> => {
     let packagingFee = await restaurantRepo.getPackagingChargesByRestaurantId(restaurantId);
     packagingFee = packagingFee ?? 0;
 
     const platformFee = 10;
-    const tax = Math.round(itemsTotal * GST / 100);
+    const tax = Math.round(itemsTotal * GST / 100); // Assuming GST = 5
     const sgst = Math.round(itemsTotal * 0.025);
     const cgst = Math.round(itemsTotal * 0.025);
 
-    const finalPayable =
-        itemsTotal + packagingFee + deliveryFee + platformFee + tax - discount;
+    // 🔢 Calculate discount amount
+    let discountAmount = 0;
+    if (discount) {
+        if (discount.type === 'FIXED') {
+            discountAmount = discount.number;
+        } else if (discount.type === 'PERCENTAGE') {
+            discountAmount = Math.round(itemsTotal * (discount.number / 100));
+        }
+    }
 
-    // Revenue split logic:
+    const finalPayable = Math.max(0, Math.round(
+        itemsTotal + packagingFee + deliveryFee + platformFee + tax - discountAmount
+    ));
+
+    // 💸 Revenue split logic:
     // - Platform gets platformFee + 40% of itemsTotal
     const platformShare = platformFee + Math.round(itemsTotal * 0.4);
 
-    // - Delivery partner gets the delivery fee
+    // - Delivery partner gets deliveryFee
     const deliveryPartnerShare = deliveryFee;
 
-    // - Restaurant gets 55% of itemsTotal + full packaging fee
+    // - Restaurant gets 55% of itemsTotal + packaging fee
     const restaurantShare = Math.round(itemsTotal * 0.55) + packagingFee;
 
     return {
@@ -90,8 +104,8 @@ const calculateTotalPricing = async (
             cgst,
             sgst,
         },
-        discount: discount > 0 ? discount : undefined,
-        finalPayable: Math.round(finalPayable),
+        discount: discountAmount > 0 ? discountAmount : undefined,
+        finalPayable,
         distribution: {
             platform: platformShare,
             deliveryPartner: deliveryPartnerShare,
@@ -112,11 +126,11 @@ const getPickupLocation = async (
 export const OrderUseCase = {
     // Step 1: Frontend hits this to get Razorpay order
     createOnlineOrder: async (data: CreateOrderParams) => {
-        const { userId, restaurantId, orderNotes, items, location, deliveryFee } = data;
+        const { userId, restaurantId, orderNotes, items, location, deliveryFee, discount } = data;
 
         const { itemsTotal, enrichedItems } = await calculateFoodItemsTotal(items);
 
-        const pricing = await calculateTotalPricing(itemsTotal, data.deliveryFee, 0, restaurantId);
+        const pricing = await calculateTotalPricing(itemsTotal, data.deliveryFee, discount as unknown as IDiscount, restaurantId);
 
         // FIX: Stringify objects/arrays in notes
         const notes = {
@@ -126,6 +140,7 @@ export const OrderUseCase = {
             location: JSON.stringify(location),
             orderNotes: orderNotes || "",
             deliveryCharges: deliveryFee,
+            discount
         };
 
         const razorpayOrder = await createRazorpayOrderService({
@@ -164,6 +179,7 @@ export const OrderUseCase = {
         const restaurantId = notes.restaurantId?.toString();
         const orderNotes = typeof notes.orderNotes === "string" ? notes.orderNotes : "";
         const deliveryFee = notes.deliveryCharges as number;
+        const discount = notes.discount as unknown as IDiscount;
 
         if (!userId || !restaurantId || !location || !deliveryFee) {
             throw new Error("Essential order info missing in Razorpay notes.");
@@ -175,7 +191,7 @@ export const OrderUseCase = {
         // Step 2: Parallelize the rest with itemsTotal available
         const [pickup, pricing, restaurantAdmin, user] = await Promise.all([
             getPickupLocation(restaurantId),
-            calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId),
+            calculateTotalPricing(itemsTotal, deliveryFee, discount, restaurantId),
             restaurantAdminRepo.findByRestaurantAdminByRestaurantId(restaurantId),
             userRepo.findByUserId(userId),
         ]);
@@ -229,7 +245,7 @@ export const OrderUseCase = {
                         packagingFee: pricing.packagingFee,
                         platformFee: pricing.platformFee,
                         deliveryFee: deliveryFee,
-                        discount:pricing.discount,
+                        discount: pricing.discount,
                         tax: {
                             state: pricing.tax.sgst,
                             central: pricing.tax.cgst,
@@ -297,7 +313,7 @@ export const OrderUseCase = {
 
     // COD order flow — no Razorpay
     createCODOrder: async (data: CreateOrderParams) => {
-        const { userId, restaurantId, items, location, orderNotes } = data;
+        const { userId, restaurantId, items, location, orderNotes, discount } = data;
         const { itemsTotal, enrichedItems } = await calculateFoodItemsTotal(items);
 
         // Set distance and delivery fee to 0
@@ -305,7 +321,7 @@ export const OrderUseCase = {
         const distance = 0; // Set distance to 0
         const deliveryFee = 0; // Set delivery fee to 0
 
-        const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
+        const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, discount as unknown as IDiscount, restaurantId);
 
         const order = await orderRepo.createOrder({
             refIds: { userId, restaurantId },

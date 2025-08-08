@@ -1,3 +1,5 @@
+import { CouponTypeEnum } from "./coupon.interface";
+
 export interface IPayment {
   paymentId?: string;
   razorpay: {
@@ -37,3 +39,9 @@ export interface IPayment {
     refundedAt?: Date;
   };
 }
+
+export interface IDiscount {
+  type: CouponTypeEnum,
+  number: number,
+}
+

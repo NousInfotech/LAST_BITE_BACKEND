@@ -1,5 +1,9 @@
 export type CouponLimitType = number | "unlimited";
 export type CouponType = "PERCENTAGE" | "FIXED";
+export enum CouponTypeEnum {
+  PERCENTAGE = "PERCENTAGE",
+  FIXED = "FIXED",
+}
 
 export interface ICoupon {
   couponId?: string;

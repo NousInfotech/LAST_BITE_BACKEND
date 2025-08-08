@@ -14,7 +14,7 @@ export const OrderController = {
         const validated = validate(OrderCreateSchema, { ...req.body, userId }, res);
         if (!validated) return;
         return tryCatch(res, async () => {
-            const { userId, restaurantId, items, orderNotes, location, deliveryFee } = validated;
+            const { userId, restaurantId, items, orderNotes, location, deliveryFee,discount } = validated;
             const order = await OrderUseCase.createOnlineOrder({
                 userId,
                 restaurantId,
@@ -22,6 +22,7 @@ export const OrderController = {
                 orderNotes,
                 deliveryFee,
                 location,
+                discount
             });
             return sendResponse(res, HTTP.CREATED, "Razorpay Order created successfully", order);
         });
