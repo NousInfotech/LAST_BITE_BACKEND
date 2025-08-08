@@ -4,7 +4,7 @@ import { PidgeController } from "../controllers/pidge.controller.js";
 
 const pidgeRouter = Router();
 
-pidgeRouter.use(authMiddleware(["user"]))
+pidgeRouter.use(authMiddleware(["user", "martStoreAdmin", "restaurantAdmin"]))
 
 pidgeRouter.get("/quote", PidgeController.getPidgeQuote);
 pidgeRouter.get('/tracking/:orderId', PidgeController.getPidgeTracking);

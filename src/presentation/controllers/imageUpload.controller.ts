@@ -24,8 +24,8 @@ export class ImageUploadController {
         const folderValidation = validate(imageUploadSchema, req.body, res);
         if (!folderValidation) return;
 
-        // Validate image file
-        const fileValidation = validate(imageFileSchema, req, res);
+        // Validate image file - only pass the file object, not the entire request
+        const fileValidation = validate(imageFileSchema, { file: req.file }, res);
         if (!fileValidation) return;
 
         const { folderName } = folderValidation;
@@ -59,7 +59,7 @@ export class ImageUploadController {
 
     static async updateImage(req: FileUploadCustomRequest, res: Response) {
         // Validate update schema (folderName, oldImageUrl, file)
-        const validated = validate(imageUpdateSchema, req.body, res);
+        const validated = validate(imageUpdateSchema, { ...req.body, file: req.file }, res);
         if (!validated) return;
 
         const { folderName, oldImageUrl } = validated;

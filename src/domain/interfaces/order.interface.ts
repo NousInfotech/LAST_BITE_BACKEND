@@ -22,13 +22,29 @@ export interface IOrderPricing {
 
 export interface IOrderLocation {
   pickup: { lat: number; lng: number };
-  dropoff: Omit<IAddress, "tag">;
+  dropoff: {
+    lat?: number;
+    lng?: number;
+    latitude?: number;
+    longitude?: number;
+    no: string;
+    street: string;
+    area: string;
+    city: string;
+    state: string;
+    country: string;
+    pincode: string;
+    address: string;
+  };
   distance?: number;
 }
 
 export type IOrderStatus =
   | "PENDING"
   | "CONFIRMED"
+  | "PREPARING"
+  | "READY"
+  | "OUT_FOR_DELIVERY"
   | "ASSIGNED"
   | "IN_TRANSIT"
   | "DELIVERED"
@@ -43,6 +59,9 @@ export enum IPaymentType {
 export enum IOrderStatusEnum {
   PENDING = "PENDING",
   CONFIRMED = "CONFIRMED",
+  PREPARING = "PREPARING",
+  READY = "READY",
+  OUT_FOR_DELIVERY = "OUT_FOR_DELIVERY",
   ASSIGNED = "ASSIGNED",
   IN_TRANSIT = "IN_TRANSIT",
   DELIVERED = "DELIVERED",

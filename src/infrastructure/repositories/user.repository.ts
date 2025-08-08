@@ -10,8 +10,29 @@ export class UserRepository {
      * @param {IUser} userData - User data to create
      */
     async create(userData: IUser) {
-        const user = new UserModel(userData);
-        return await user.save();
+        // Extract only the fields we want to create, excluding cart to avoid unique index conflicts
+        const { cart, ...userDataWithoutCart } = userData;
+        
+        // Create user with empty cart to avoid unique index conflicts
+        const userDataWithEmptyCart = {
+            ...userDataWithoutCart,
+            cart: []
+        };
+        
+        try {
+            const user = new UserModel(userDataWithEmptyCart);
+            return await user.save();
+        } catch (error: any) {
+            // If there's a unique index error on cart.foodItemId, try to fix it
+            if (error.code === 11000 && error.message && error.message.includes('cart.foodItemId')) {
+                console.warn('Unique index conflict on cart.foodItemId detected. Attempting to fix...');
+                
+                // Try to create user without cart field at all
+                const userWithoutCart = new UserModel(userDataWithoutCart);
+                return await userWithoutCart.save();
+            }
+            throw error;
+        }
     }
 
     /**

@@ -29,4 +29,4 @@ addCustomIdHook(
 
 
 export const MartStoreAdminModel: Model<MartStoreAdminDoc> =
-  model<MartStoreAdminDoc>("MartStoreAdminAdmin", martStoreAdminSchema);
+  model<MartStoreAdminDoc>("MartStoreAdmin", martStoreAdminSchema, "martstoreadminadmins");

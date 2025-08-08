@@ -32,6 +32,20 @@ export class OrderRepository {
     return await OrderModel.findOne({ orderId }, { _id: 0, __v: 0 }).lean();
   }
 
+  async getOrdersByMartStoreId(martStoreId: string): Promise<OrderDoc[]> {
+    return await OrderModel.find(
+      { "refIds.restaurantId": martStoreId },
+      { _id: 0, __v: 0 }
+    ).lean();
+  }
+
+  async getOrdersByRestaurantId(restaurantId: string): Promise<OrderDoc[]> {
+    return await OrderModel.find(
+      { "refIds.restaurantId": restaurantId },
+      { _id: 0, __v: 0 }
+    ).lean();
+  }
+
   async updatePaymentId(orderId: string, paymentId: string) {
     return await OrderModel.findOneAndUpdate(
       { orderId },

@@ -65,8 +65,17 @@ export const authMiddleware = (allowedRoles: string[] = []) => {
                     if (exists) req.restaurantAdminId = roleBasedId;
                     break;
                 case "martStoreAdmin":
+                    console.log(`🔍 Auth Middleware: Looking for MartStoreAdmin with ID: ${roleBasedId}`);
+                    console.log(`🔍 Auth Middleware: Role: ${role}, RoleBasedId: ${roleBasedId}`);
                     exists = await MartStoreAdminUseCase.getAdminById(roleBasedId);
-                    if (exists) req.martStoreAdminId = roleBasedId;
+                    console.log(`🔍 Auth Middleware: MartStoreAdmin found:`, exists ? 'YES' : 'NO');
+                    console.log(`🔍 Auth Middleware: MartStoreAdmin data:`, exists);
+                    if (exists) {
+                        req.martStoreAdminId = roleBasedId;
+                        console.log(`✅ Auth Middleware: MartStoreAdmin authenticated successfully`);
+                    } else {
+                        console.log(`❌ Auth Middleware: MartStoreAdmin not found in database`);
+                    }
                     break;
                 case "rider":
                     exists = await RiderUseCase.getRiderById(roleBasedId);

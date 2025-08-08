@@ -42,8 +42,10 @@ export enum RoleEnum {
 export type Role = "user" | "restaurantAdmin" | "rider" | "superAdmin" | "martStoreAdmin";
 
 export interface IAddress {
-    latitude: number;
-    longitude: number;
+    lat?: number;
+    lng?: number;
+    latitude?: number;
+    longitude?: number;
     no: string;
     street: string;
     area: string;

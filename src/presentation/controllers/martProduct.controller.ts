@@ -72,10 +72,8 @@ export const MartProductController = {
         const filters = req.query;
         return tryCatch(res, async () => {
             const products = await MartProductUseCase.getAllMartProducts(filters);
-            if (!products || products.length === 0) {
-                return sendError(res, HTTP.NOT_FOUND, "No products found");
-            }
-            return sendResponse(res, HTTP.OK, "Products fetched successfully", products);
+            // Return empty array if no products found (this is normal)
+            return sendResponse(res, HTTP.OK, "Products fetched successfully", products || []);
         });
     },
 
@@ -102,7 +100,22 @@ export const MartProductController = {
 
         return tryCatch(res, async () => {
             const products = await MartProductUseCase.getByMartStoreId(martStoreId);
-            return sendResponse(res, HTTP.OK, "Products fetched successfully", products);
+            // Return empty array if no products found (this is normal for new stores)
+            return sendResponse(res, HTTP.OK, "Products fetched successfully", products || []);
+        });
+    },
+
+    async getHotDeals(req: Request, res: Response) {
+        const parsed = validate(martStoreIdSchema, req.params, res);
+        if (!parsed) return;
+
+        const { martStoreId } = parsed;
+        const limit = parseInt(req.query.limit as string) || 10;
+
+        return tryCatch(res, async () => {
+            const hotDeals = await MartProductUseCase.getHotDeals(martStoreId, limit);
+            // Return empty array if no hot deals found
+            return sendResponse(res, HTTP.OK, "Hot deals fetched successfully", hotDeals || []);
         });
     },
 };

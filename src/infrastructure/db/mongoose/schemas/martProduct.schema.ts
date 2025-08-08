@@ -25,7 +25,7 @@ const martProductSchema = new Schema<MartProductDoc>(
 );
 
 // Attach the pre-save hook for customId generation
-addCustomIdHook(martProductSchema, "customId", "mart", "MartProductModel");
+addCustomIdHook(martProductSchema, "martProductId", "mart", "MartProductModel");
 
 // Interface for the Mongoose document
 export interface MartProductDoc extends IMartProduct, Document { }

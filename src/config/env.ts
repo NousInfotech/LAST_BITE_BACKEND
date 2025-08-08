@@ -25,4 +25,11 @@ export const config = {
   pidgeUserName: process.env.PIDGE_USERNAME || '',
   pidgePassword: process.env.PIDGE_PASSWORD || '',
   pidgeBaseUrl: process.env.PIDGE_BASE_URL || '',
+  
+  // pidge time restrictions (for testing - can be disabled in production)
+  pidgeTimeRestriction: {
+    enabled: process.env.PIDGE_TIME_RESTRICTION_ENABLED === 'true',
+    startHour: parseInt(process.env.PIDGE_START_HOUR || '9'),
+    endHour: parseInt(process.env.PIDGE_END_HOUR || '18'),
+  },
 };

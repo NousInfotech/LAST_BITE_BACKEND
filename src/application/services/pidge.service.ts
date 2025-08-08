@@ -53,10 +53,18 @@ export const getPidgeQuote = async (
 
 export const getPidgeTracking = async (orderId: string): Promise<PidgeTrackingResponse> => {
     try {
+        console.log(`🔍 [PIDGE SERVICE] Fetching tracking for orderId: ${orderId}`);
+        console.log(`🔍 [PIDGE SERVICE] Making request to: /v1.0/store/channel/vendor/order/${orderId}/fulfillment/tracking`);
+        
         const res = await pidgeAxios.get(`/v1.0/store/channel/vendor/order/${orderId}/fulfillment/tracking`);
+        
+        console.log(`✅ [PIDGE SERVICE] Tracking response received:`, res.data);
         return res.data;
     } catch (error: any) {
-        console.error("Failed to fetch rider location:", error?.response?.data || error.message);
+        console.error(`❌ [PIDGE SERVICE] Failed to fetch rider location for orderId: ${orderId}`);
+        console.error(`❌ [PIDGE SERVICE] Error details:`, error?.response?.data || error.message);
+        console.error(`❌ [PIDGE SERVICE] Error status:`, error?.response?.status);
+        console.error(`❌ [PIDGE SERVICE] Error headers:`, error?.response?.headers);
         throw error;
     }
 };
@@ -97,17 +105,37 @@ export const getPidgePayload = (
 
     const totalBillAmount = foodItems.reduce((acc, item) => acc + (item.price || 0) * item.quantity, 0);
 
+    // Handle both lat/lng and latitude/longitude formats
+    const dropoffLat = (location.dropoff as any).lat || (location.dropoff as any).latitude;
+    const dropoffLng = (location.dropoff as any).lng || (location.dropoff as any).longitude;
+
+    if (!dropoffLat || !dropoffLng) {
+        throw new Error("Missing latitude/longitude in dropoff location");
+    }
+
+    // Ensure pickup coordinates are available
+    if (!pickup.lat || !pickup.lng) {
+        throw new Error("Missing pickup coordinates");
+    }
+
+    console.log('Creating Pidge payload with:', {
+        pickup: { lat: pickup.lat, lng: pickup.lng },
+        dropoff: { lat: dropoffLat, lng: dropoffLng },
+        packages: packages.length,
+        totalBillAmount
+    });
+
     return {
         channel: "custom-channel",
         sender_detail: {
             address: {
-                address_line_1: pickup.restaurantAddress.no,
-                address_line_2: pickup.restaurantAddress.street,
+                address_line_1: pickup.restaurantAddress.no || "N/A",
+                address_line_2: pickup.restaurantAddress.street || "N/A",
                 label: "none",
-                city: pickup.restaurantAddress.city,
-                state: pickup.restaurantAddress.state,
-                country: pickup.restaurantAddress.country,
-                pincode: pickup.restaurantAddress.pincode,
+                city: pickup.restaurantAddress.city || "N/A",
+                state: pickup.restaurantAddress.state || "N/A",
+                country: pickup.restaurantAddress.country || "India",
+                pincode: pickup.restaurantAddress.pincode || "600001",
                 latitude: pickup.lat,
                 longitude: pickup.lng,
                 instructions_to_reach: "",
@@ -119,22 +147,22 @@ export const getPidgePayload = (
         },
         poc_detail: {
             name: "iliyaas",
-            mobile: "",
-            email: "",
+            mobile: restaurantAdmin.phoneNumber as string,
+            email: restaurantAdmin.email as string,
         },
         trips: [
             {
                 receiver_detail: {
                     address: {
-                        address_line_1: location.dropoff.no,
-                        address_line_2: location.dropoff.street,
+                        address_line_1: location.dropoff.no || "N/A",
+                        address_line_2: location.dropoff.street || "N/A",
                         label: "none",
-                        city: location.dropoff.city,
-                        state: location.dropoff.state,
-                        country: location.dropoff.country,
-                        pincode: location.dropoff.pincode,
-                        latitude: location.dropoff.latitude,
-                        longitude: location.dropoff.longitude,
+                        city: location.dropoff.city || "N/A",
+                        state: location.dropoff.state || "N/A",
+                        country: location.dropoff.country || "India",
+                        pincode: location.dropoff.pincode || "600001",
+                        latitude: dropoffLat,
+                        longitude: dropoffLng,
                     },
                     name: user.name,
                     mobile: user.phoneNumber,
@@ -142,8 +170,8 @@ export const getPidgePayload = (
                     otp,
                 },
                 packages,
-                source_order_id: "",  // Fill this from order.id if available
-                reference_id: "",     // Optional: maybe order.paymentId or similar
+                source_order_id: `order_${Date.now()}`,  // Generate unique order ID
+                reference_id: `ref_${Date.now()}`,     // Generate unique reference ID
                 cod_amount: 0,
                 bill_amount: totalBillAmount,
             },

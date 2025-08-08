@@ -50,4 +50,8 @@ export const MartProductUseCase = {
   // Bulk fetch by IDs
   bulkGetByProductIds: (ids: string[]) =>
     martProductRepo.bulkGetByMartProductIds(ids),
+
+  // Get hot deals (high-rating products)
+  getHotDeals: (martStoreId: string, limit: number = 10) =>
+    martProductRepo.getHotDeals(martStoreId, limit),
 };

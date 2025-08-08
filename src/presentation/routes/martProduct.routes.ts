@@ -5,18 +5,19 @@ import { authMiddleware } from "../../middleware/authMiddleware.js";
 const martProductRouter = Router();
 
 // ------------------------------
-// Public Routes
+// Public Routes (accessible by all authenticated users)
 // ------------------------------
 martProductRouter.get("/", MartProductController.getAllMartProducts);
+martProductRouter.get("/martstore/:martStoreId", MartProductController.getMartProductsByStoreId);
+martProductRouter.get("/hotdeals/:martStoreId", MartProductController.getHotDeals);
 martProductRouter.get("/bulk", MartProductController.getMartProductById);
-martProductRouter.get("/martstore/:restaurantId", MartProductController.getMartProductsByStoreId);
 martProductRouter.get("/:martProductId", MartProductController.getMartProductById);
 
 
 // ------------------------------
-// Protected Routes (restaurantAdmin & superAdmin)
+// Protected Routes (restaurantAdmin, martStoreAdmin & superAdmin)
 // ------------------------------
-martProductRouter.use(authMiddleware(["restaurantAdmin", "superAdmin"]));
+martProductRouter.use(authMiddleware(["restaurantAdmin", "martStoreAdmin", "superAdmin"]));
 
 martProductRouter.post("/", MartProductController.createMartProduct);
 martProductRouter.put("/:martProductId", MartProductController.updateMartProduct);

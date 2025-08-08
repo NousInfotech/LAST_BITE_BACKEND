@@ -15,9 +15,19 @@ export const FoodItemUseCase = {
             throw new Error(`Restaurant with ID "${restaurantId}" does not exist.`);
         }
 
-        const isValidCategory = restaurant.availableCategories.includes(category?.trim().toLowerCase());
+        // More flexible category validation - check if category exists in availableCategories (case-insensitive)
+        const normalizedCategory = category?.trim().toLowerCase();
+        const isValidCategory = restaurant.availableCategories && restaurant.availableCategories.length > 0 
+            ? restaurant.availableCategories.some(availableCat => 
+                availableCat.toLowerCase() === normalizedCategory ||
+                availableCat.toLowerCase().replace(/\s+/g, '_') === normalizedCategory ||
+                availableCat.toLowerCase().replace(/_/g, ' ') === normalizedCategory
+              )
+            : true; // If no availableCategories defined, allow any category
+
         if (!isValidCategory) {
-            throw new Error(`Category "${category}" is not allowed for this restaurant.`);
+            const availableCategoriesList = restaurant.availableCategories?.join(', ') || 'none defined';
+            throw new Error(`Category "${category}" is not allowed for this restaurant. Available categories: ${availableCategoriesList}`);
         }
 
         // If valid, create food item

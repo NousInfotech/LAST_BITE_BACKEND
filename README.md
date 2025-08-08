@@ -25,6 +25,19 @@ Environment variables are managed via the `src/config/env.ts` file. This file pu
 PORT=your_custom_port
 MONGO_URI=your_mongodb_connection_uri
 JWT_SECRET=your_jwt_secret
+
+# Pidge Configuration
+PIDGE_USERNAME=your_pidge_username
+PIDGE_PASSWORD=your_pidge_password
+PIDGE_BASE_URL=your_pidge_base_url
+
+# Pidge Time Restriction (Optional - for testing)
+# Set to 'true' to enable time-based restrictions, 'false' to disable
+PIDGE_TIME_RESTRICTION_ENABLED=false
+# Start hour (24-hour format, default: 9 for 9 AM)
+PIDGE_START_HOUR=9
+# End hour (24-hour format, default: 18 for 6 PM)
+PIDGE_END_HOUR=18
 ```
 
 ---

@@ -26,16 +26,34 @@ export const PidgeController = {
     async getPidgeTracking(req: Request, res: Response) {
         return tryCatch(res, async () => {
             const { orderId } = req.params;
-            const tracking = await getPidgeTracking(orderId);
-            return sendResponse(res, HTTP.OK, "Tracking info retrieved", tracking);
+            console.log(`🔍 [PIDGE TRACKING] Request received for orderId: ${orderId}`);
+            console.log(`🔍 [PIDGE TRACKING] Request headers:`, req.headers);
+            console.log(`🔍 [PIDGE TRACKING] Request params:`, req.params);
+            
+            try {
+                const tracking = await getPidgeTracking(orderId);
+                console.log(`✅ [PIDGE TRACKING] Success for orderId: ${orderId}`, tracking);
+                return sendResponse(res, HTTP.OK, "Tracking info retrieved", tracking);
+            } catch (error: any) {
+                console.error(`❌ [PIDGE TRACKING] Error for orderId: ${orderId}:`, error);
+                return sendError(res, HTTP.INTERNAL_SERVER_ERROR, `Tracking failed: ${error.message}`);
+            }
         });
     },
 
     async getPidgeOrderStatus(req: Request, res: Response) {
         return tryCatch(res, async () => {
             const { orderId } = req.params;
-            const status = await getPidgeOrderStatus(orderId);
-            return sendResponse(res, HTTP.OK, "Order status retrieved", status);
+            console.log(`🔍 [PIDGE STATUS] Request received for orderId: ${orderId}`);
+            
+            try {
+                const status = await getPidgeOrderStatus(orderId);
+                console.log(`✅ [PIDGE STATUS] Success for orderId: ${orderId}`, status);
+                return sendResponse(res, HTTP.OK, "Order status retrieved", status);
+            } catch (error: any) {
+                console.error(`❌ [PIDGE STATUS] Error for orderId: ${orderId}:`, error);
+                return sendError(res, HTTP.INTERNAL_SERVER_ERROR, `Status check failed: ${error.message}`);
+            }
         });
     }
 };

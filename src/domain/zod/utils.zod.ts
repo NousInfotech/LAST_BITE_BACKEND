@@ -1,9 +1,10 @@
 import { z } from "zod";
 
-
 export const AddressSchema = z.object({
-    latitude: z.number(),
-    longitude: z.number(),
+    lat: z.number().optional(),
+    lng: z.number().optional(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
     no: z.string(),
     street: z.string(),
     area: z.string(),
@@ -13,4 +14,13 @@ export const AddressSchema = z.object({
     pincode: z.string(),
     address: z.string(), // Full written address
     tag: z.string(), // home, office, others
+});
+
+// Create a refined version for order validation
+export const OrderAddressSchema = AddressSchema.refine((data) => {
+    // Ensure we have either lat/lng or latitude/longitude
+    return (data.lat !== undefined && data.lng !== undefined) || 
+           (data.latitude !== undefined && data.longitude !== undefined);
+}, {
+    message: "Either lat/lng or latitude/longitude must be provided"
 });

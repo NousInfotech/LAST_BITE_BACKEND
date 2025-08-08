@@ -72,6 +72,26 @@ export const MartStoreController = {
         });
     },
 
+    async toggleMartStoreAvailability(req: CustomRequest, res: Response) {
+        const paramCheck = validate(martStoreIdSchema, req.params, res);
+        if (!paramCheck) return;
+
+        const { martStoreId } = paramCheck;
+        const { status } = req.body;
+
+        // Validate that status is a boolean
+        if (typeof status !== 'boolean') {
+            sendError(res, HTTP.BAD_REQUEST, "Status must be a boolean value");
+            return;
+        }
+
+        return tryCatch(res, async () => {
+            const updated = await MartStoreUseCase.updateMartStore(martStoreId, { isAvailable: status });
+            if (!updated) return sendError(res, HTTP.NOT_FOUND, "Mart store not found");
+            return sendResponse(res, HTTP.OK, "Mart store availability updated successfully", updated);
+        });
+    },
+
     async deleteMartStore(req: CustomRequest, res: Response) {
         const parsed = validate(martStoreIdSchema, req.params, res);
         if (!parsed) return;

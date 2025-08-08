@@ -27,7 +27,7 @@ const FavouritesSchema = new Schema<Favourites>(
 
 const CartSchema = new Schema<IUserCart>(
   {
-    foodItemId: { type: String, required: true, unique: true },
+    foodItemId: { type: String, required: true },
     quantity: { type: Number, required: true }
   },
   { _id: false, timestamps: true }
@@ -44,7 +44,11 @@ const userSchema = new Schema<UserDoc>(
     email: { type: String, unique: true },
     profileImage: { type: String },
     favourites: FavouritesSchema,
-    cart: [{ type: CartSchema, default: [] }],
+    cart: { 
+      type: [CartSchema], 
+      default: function() { return []; },
+      required: false
+    },
     hiddenRestaurants: [{ type: String }],
     addresses: [addressSchema],
   },
@@ -55,6 +59,39 @@ const userSchema = new Schema<UserDoc>(
 
 // Add auto-generated userId
 addCustomIdHook(userSchema, "userId", "usr", "User");
+
+// Ensure cart is always initialized as an empty array and handle the unique index issue
+userSchema.pre('save', function(next) {
+  // Initialize cart as empty array if not provided or invalid
+  if (!this.cart || !Array.isArray(this.cart)) {
+    this.cart = [];
+  } else {
+    // Filter out any invalid cart items that might cause unique index conflicts
+    this.cart = this.cart.filter(item => 
+      item && item.foodItemId && typeof item.foodItemId === 'string' && item.foodItemId.trim() !== ''
+    );
+  }
+  next();
+});
+
+// Also handle the cart field during document creation
+userSchema.pre('validate', function(next) {
+  if (!this.cart || !Array.isArray(this.cart)) {
+    this.cart = [];
+  }
+  next();
+});
+
+// Remove any existing unique indexes on cart.foodItemId if they exist
+// This is a safety measure to prevent the unique index conflict
+userSchema.on('index', function(error) {
+  if (error && error.message && error.message.includes('cart.foodItemId')) {
+    console.warn('Warning: Unique index on cart.foodItemId detected. This may cause issues with multiple users having empty carts.');
+  }
+});
+
+// Ensure no unique indexes are created on cart.foodItemId
+userSchema.index({ 'cart.foodItemId': 1 }, { unique: false, sparse: true });
 
 // -------------------------
 // User Model

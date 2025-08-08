@@ -19,6 +19,7 @@ martStoreRouter.post("/", MartStoreController.createMartStore);
 // ------------------------------
 
 martStoreRouter.patch("/status/:martStoreId", authMiddleware(["superAdmin"]), MartStoreController.updateMartStore);
+martStoreRouter.patch("/active/:martStoreId", authMiddleware(["martStoreAdmin", "superAdmin"]), MartStoreController.toggleMartStoreAvailability);
 martStoreRouter.use(authMiddleware(["martStoreAdmin", "superAdmin", "user", "rider"]));
 
 

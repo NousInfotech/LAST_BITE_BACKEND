@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { IOrderStatusEnum } from "../../domain/interfaces/order.interface.js";
-import { AddressSchema } from "../../domain/zod/utils.zod.js";
+import { OrderAddressSchema } from "../../domain/zod/utils.zod.js";
 
 export const OrderCreateSchema = z.object({
   items: z.array(z.object({
@@ -13,7 +13,7 @@ export const OrderCreateSchema = z.object({
   orderNotes: z.string().optional(),
   deliveryFee: z.number(),
   location: z.object({
-    dropoff: AddressSchema,
+    dropoff: OrderAddressSchema,
   }),
 });
 

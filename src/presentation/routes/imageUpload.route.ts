@@ -30,7 +30,7 @@ const imageUploadRouter = Router();
 // ------------------------------
 // Protected Routes (All Auth Roles)
 // ------------------------------
-imageUploadRouter.use(authMiddleware(["user", "restaurantAdmin", "rider", "superAdmin"]));
+imageUploadRouter.use(authMiddleware(["user", "restaurantAdmin", "rider", "superAdmin", "martStoreAdmin"]));
 
 /**
  * @route POST /api/image-upload

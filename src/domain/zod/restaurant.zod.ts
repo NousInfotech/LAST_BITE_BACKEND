@@ -37,7 +37,7 @@ export const documentSchema = z.object({
   cancelledChequeImage: z.string(),
   bankIFSC: z.string(),
   bankAccountNumber: z.string(),
-  partnershipAgreeement:z.string(),
+  partnershipAgreement: z.string().optional(),
 });
 
 export const timingSchema = z.object({
@@ -54,10 +54,10 @@ export const restaurantSchema = z.object({
   restaurantName: z.string(),
   address: addressSchema,
   documents: documentSchema,
-  timings: z.array(timingSchema),
+  timings: z.array(timingSchema).min(1), // Changed to require at least 1 day
   tags: z.array(z.string()),
   cuisines: z.array(z.string()).optional(),
-  typeOfFood: z.array(z.nativeEnum(FoodType)),
+  typeOfFood: z.array(z.string()), // Changed from z.nativeEnum(FoodType) to z.string() for flexibility
   profilePhoto: z.string().optional(),
   menuImages: z.array(z.string()),
   isActive: z.boolean().optional(),

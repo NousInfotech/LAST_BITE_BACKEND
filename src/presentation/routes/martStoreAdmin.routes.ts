@@ -22,4 +22,7 @@ martStoreAdminRouter.get("/:adminId", MartStoreAdminController.getAdminById);
 martStoreAdminRouter.put("/:adminId", MartStoreAdminController.updateAdmin);
 martStoreAdminRouter.delete("/:adminId", MartStoreAdminController.deleteAdmin);
 
+// Mart Store Admin Orders
+martStoreAdminRouter.get("/orders", MartStoreAdminController.getMartStoreOrders);
+
 export default martStoreAdminRouter;

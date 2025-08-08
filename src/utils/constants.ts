@@ -61,6 +61,7 @@ export const imageFolders = [
     "restaurants",
     "restaurant-documents",
     "foodItems",
+    "martstores",
     "martstore-documents",
     "martstore-products"
 ] as const;
@@ -81,8 +82,12 @@ export const allowedFoldersByRole: Record<Role, ImageFolder[]> = {
         "restaurants",
         "restaurant-documents",
         "foodItems",
+        "martstores",
+        "martstore-documents",
+        "martstore-products"
     ],
     martStoreAdmin: [
+        "martstores",
         "martstore-documents",
         'martstore-products'
     ]
