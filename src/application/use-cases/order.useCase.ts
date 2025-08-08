@@ -64,18 +64,39 @@ const calculateTotalPricing = async (
 
     const platformFee = 10;
     const tax = Math.round(itemsTotal * GST / 100);
+    const sgst = Math.round(itemsTotal * 0.025);
+    const cgst = Math.round(itemsTotal * 0.025);
 
     const finalPayable =
         itemsTotal + packagingFee + deliveryFee + platformFee + tax - discount;
+
+    // Revenue split logic:
+    // - Platform gets platformFee + 40% of itemsTotal
+    const platformShare = platformFee + Math.round(itemsTotal * 0.4);
+
+    // - Delivery partner gets the delivery fee
+    const deliveryPartnerShare = deliveryFee;
+
+    // - Restaurant gets 55% of itemsTotal + full packaging fee
+    const restaurantShare = Math.round(itemsTotal * 0.55) + packagingFee;
 
     return {
         itemsTotal,
         packagingFee,
         deliveryFee,
         platformFee,
-        tax,
+        tax: {
+            total: tax,
+            cgst,
+            sgst,
+        },
         discount: discount > 0 ? discount : undefined,
         finalPayable: Math.round(finalPayable),
+        distribution: {
+            platform: platformShare,
+            deliveryPartner: deliveryPartnerShare,
+            restaurant: restaurantShare,
+        },
     };
 };
 
@@ -203,6 +224,19 @@ export const OrderUseCase = {
                         total: Number(razorpayOrder.amount),
                         currency: "INR",
                     },
+                    breakdown: {
+                        foodItemTotal: pricing.itemsTotal,
+                        packagingFee: pricing.packagingFee,
+                        platformFee: pricing.platformFee,
+                        deliveryFee: deliveryFee,
+                        discount:pricing.discount,
+                        tax: {
+                            state: pricing.tax.sgst,
+                            central: pricing.tax.cgst,
+                            total: pricing.tax.total
+                        }
+                    },
+                    distribution: pricing.distribution,
                     timestamps: {
                         createdAt: new Date(),
                         paidAt: new Date(),
@@ -255,7 +289,7 @@ export const OrderUseCase = {
             type: "ORDER_RECEIVED",
             message: `New order from ${user.name} (${order.orderId})`,
         });
-        
+
         return { order, pidgeOrderId };
     },
 

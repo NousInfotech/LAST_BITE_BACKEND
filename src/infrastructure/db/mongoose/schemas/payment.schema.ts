@@ -2,7 +2,7 @@ import { Schema, Document, Model, model } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
 import { IPayment } from "../../../../domain/interfaces/payment.interface.js";
 
-export interface PaymentDoc extends IPayment, Document {}
+export interface PaymentDoc extends IPayment, Document { }
 
 const paymentSchema = new Schema<PaymentDoc>(
   {
@@ -11,16 +11,37 @@ const paymentSchema = new Schema<PaymentDoc>(
       orderId: { type: String, required: true },
       paymentId: { type: String, required: true },
     },
-    linkedOrderId: { type: String },
+    linkedOrderId: { type: String }, // foreign ref to the Order entity
     paymentStatus: {
       type: String,
       enum: ["PAID", "CANCELLED", "REFUND"],
       required: true,
     },
+
     amount: {
       total: { type: Number, required: true },
       currency: { type: String, default: "INR" },
     },
+
+    breakdown: {
+      foodItemTotal: { type: Number, required: true },
+      packagingFee: { type: Number, required: true },
+      deliveryFee: { type: Number, required: true },
+      platformFee: { type: Number, required: true },
+      discount: { type: Number },
+      tax: {
+        stateGST: { type: Number, required: true },
+        centralGST: { type: Number, required: true },
+        total: { type: Number, required: true },
+      },
+    },
+
+    distribution: {
+      restaurant: { type: Number, required: true },       // after platformFee deduction
+      platform: { type: Number, required: true },         // platform revenue
+      deliveryPartner: { type: Number, required: true },  // if you support payouts to them
+    },
+
     timestamps: {
       createdAt: { type: Date, default: Date.now },
       paidAt: { type: Date },
@@ -32,4 +53,7 @@ const paymentSchema = new Schema<PaymentDoc>(
 
 addCustomIdHook(paymentSchema, "paymentId", "pay", "Payment");
 
-export const PaymentModel: Model<PaymentDoc> = model<PaymentDoc>("Payment", paymentSchema); 
+export const PaymentModel: Model<PaymentDoc> = model<PaymentDoc>(
+  "Payment",
+  paymentSchema
+);

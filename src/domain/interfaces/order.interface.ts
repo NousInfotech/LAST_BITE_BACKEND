@@ -1,3 +1,4 @@
+import { IPayment } from "./payment.interface";
 import { IRestaurant } from "./restaurant.interface";
 import { IUser } from "./user.interface";
 import { IAddress } from "./utils.interface";
@@ -21,9 +22,14 @@ export interface IOrderPricing {
   packagingFee: number;
   deliveryFee: number;
   platformFee: number;
-  tax: number;
+  tax: {
+    total:number;
+    cgst:number;
+    sgst:number;
+  }
   discount?: number;
   finalPayable: number;
+  distribution:IPayment["distribution"]
 }
 
 export interface IOrderLocation {
