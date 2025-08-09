@@ -1,6 +1,6 @@
 import { Schema, Document, Model, model } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
-import { IOrder, IOrderFeedback, IOrderStatusEnum, IPaymentType, IPidgeOrder, IRefIds } from "../../../../domain/interfaces/order.interface.js";
+import { ICouponApplied, IOrder, IOrderFeedback, IOrderStatusEnum, IPaymentType, IPidgeOrder, IRefIds } from "../../../../domain/interfaces/order.interface.js";
 import { number } from "zod";
 
 // Subschemas
@@ -38,9 +38,18 @@ const PricingSchema = new Schema(
     packagingFee: { type: Number, required: true },
     deliveryFee: { type: Number, required: true },
     platformFee: { type: Number, required: true },
-    tax: { type: Number, required: true },
+    tax: {
+      total: { type: Number, required: true },
+      cgst: { type: Number, required: true },
+      sgst: { type: Number, required: true },
+    },
     discount: { type: Number, default: 0 },
     finalPayable: { type: Number, required: true },
+    distribution: {
+      platform: { type: Number, required: true },
+      deliveryPartner: { type: Number, required: true },
+      restaurant: { type: Number, required: true },
+    },
   },
   { _id: false }
 );
@@ -92,6 +101,16 @@ const RefIdSchema = new Schema<IRefIds>(
   { _id: false }
 )
 
+const CouponAppliedSchema = new Schema<ICouponApplied>(
+  {
+    couponId: { type: String, required: true },
+    code: { type: String, required: true },
+    discountValue: { type: Number, required: true },
+  },
+  { _id: false }
+);
+
+
 // Main order schema
 export interface OrderDoc extends IOrder, Document { }
 
@@ -120,6 +139,8 @@ const orderSchema = new Schema<OrderDoc>(
         required: true,
       },
     },
+
+    coupons: { type: [CouponAppliedSchema], default: [] },
 
     orderStatus: {
       type: String,

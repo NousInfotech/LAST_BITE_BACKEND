@@ -15,6 +15,7 @@ export interface IFoodItem {
   image?: string;
   isAvailable?: boolean;
   typeOfFood: FoodType[];
+  cuisines?: string[]; // cuisines that this item belongs to (e.g., ["punjabi", "north indian"]) 
   tags?: string[];
   category: string;
   rating?: number;

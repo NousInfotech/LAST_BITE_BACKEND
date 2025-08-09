@@ -1,6 +1,7 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
 import { IAddressGeo, IRestaurant } from "../../domain/interfaces/restaurant.interface.js";
 import { RestaurantDoc, RestaurantModel } from "../db/mongoose/schemas/restaurant.schema.js";
+import { FoodItemModel } from "../db/mongoose/schemas/foodItem.schema.js";
 import { extractQueryOptions } from "../db/helper/utils.helper.js";
 import { RestaurantStatusEnum } from "../../domain/interfaces/utils.interface.js";
 import { isValidStatusTransition } from "../db/helper/restaurant.helper.js";
@@ -203,5 +204,98 @@ export class RestaurantRepository {
    */
   async bulkGetByRestaurantIds(restaurantIds: string[]) {
     return await RestaurantModel.find({ restaurantId: { $in: restaurantIds } }, { _id: 0, __v: 0 }).lean();
+  }
+
+  /**
+   * Get verified restaurants with optional search and rating filter
+   * @param {Object} params - Search parameters
+   * @returns {Promise<RestaurantDoc[]>}
+   */
+  async getVerifiedRestaurants(params: {
+    search?: string;
+    rating?: number; // Optional minimum rating
+    limit?: number;
+    page?: number;
+  }) {
+    const { search, rating, limit = 10, page = 1 } = params;
+    
+    // Build filter for verified restaurants only
+    const filter: FilterQuery<IRestaurant> = {
+      "restaurantStatus.status": RestaurantStatusEnum.VERIFIED,
+      isActive: true,
+    };
+    if (typeof rating === 'number') {
+      (filter as any).rating = { $gte: rating };
+    }
+
+    // Add search filter if provided
+    if (search) {
+      filter.restaurantName = { $regex: search, $options: "i" };
+    }
+
+    const skip = (page - 1) * limit;
+
+    return await RestaurantModel.find(filter, { _id: 0, __v: 0 })
+      .sort({ rating: -1, restaurantName: 1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+  }
+
+  /**
+   * Get dishes from verified restaurants with optional search and rating filter
+   * @param {Object} params - Search parameters
+   * @returns {Promise<any[]>}
+   */
+  async getDishesFromVerifiedRestaurants(params: {
+    search?: string;
+    rating?: number;
+    limit?: number;
+    page?: number;
+  }) {
+    try {
+      const { search, rating, limit = 10, page = 1 } = params;
+      
+      // First, get verified restaurant IDs
+      const verifiedRestaurants = await RestaurantModel.find({
+        "restaurantStatus.status": RestaurantStatusEnum.VERIFIED,
+        isActive: true
+      }, { restaurantId: 1 }).lean();
+
+      const verifiedRestaurantIds = verifiedRestaurants.map(r => r.restaurantId);
+
+      if (verifiedRestaurantIds.length === 0) {
+        return [];
+      }
+
+      // Build filter for dishes from verified restaurants
+      const filter: any = {
+        restaurantId: { $in: verifiedRestaurantIds },
+        isAvailable: true,
+      };
+      if (typeof rating === 'number') {
+        filter.rating = { $gte: rating };
+      }
+
+      // Add search filter if provided
+      if (search) {
+        filter.$or = [
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+          { category: { $regex: search, $options: "i" } }
+        ];
+      }
+
+      const skip = (page - 1) * limit;
+
+      return await FoodItemModel.find(filter, { _id: 0, __v: 0 })
+        .sort({ rating: -1, name: 1 })
+        .skip(skip)
+        .limit(limit)
+        .lean();
+    } catch (error) {
+      console.error('Error in getDishesFromVerifiedRestaurants:', error);
+      throw error;
+    }
   }
 }

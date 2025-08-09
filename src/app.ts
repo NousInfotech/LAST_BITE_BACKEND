@@ -16,6 +16,12 @@ import pidgeRouter from './presentation/routes/pidge.routes.js';
 import martStoreRouter from './presentation/routes/martStore.routes.js';
 import martStoreAdminRouter from './presentation/routes/martStoreAdmin.routes.js';
 import martProductRouter from './presentation/routes/martProduct.routes.js';
+import issueRouter from './presentation/routes/issue.routes.js';
+import couponRouter from './presentation/routes/coupon.routes.js';
+import notificationRouter from './presentation/routes/notification.routes.js';
+import cuisinesRouter from './presentation/routes/cuisines.routes.js';
+import paymentRouter from './presentation/routes/payment.routes.js';
+import notificationRouter from './presentation/routes/notification.routes.js';
 
 const app: Application = express();
 
@@ -66,7 +72,12 @@ app.use('/image', imageUploadRouter);
 
 // order routes
 app.use('/order', orderRouter);
-app.use('/delivery', pidgeRouter)
+app.use('/delivery', pidgeRouter);
+app.use('/issue', issueRouter);
+app.use('/coupon', couponRouter);
+app.use('/payment', paymentRouter);
+app.use('/notification', notificationRouter);
+app.use('/notification', notificationRouter);
 
 
 export default app;

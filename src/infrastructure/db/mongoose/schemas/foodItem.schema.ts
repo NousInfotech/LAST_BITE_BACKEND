@@ -26,6 +26,7 @@ const foodItemSchema = new Schema<FoodItemDoc>(
             enum: Object.values(FoodType),
             required: true,
         },
+        cuisines: [{ type: String }],
         tags: [{ type: String }],
         category: { type: String, required: true },
         rating: { type: Number },

@@ -1,0 +1,12 @@
+{
+  "watch": ["src"],
+  "ext": "ts,tsx,json",
+  "exec": "tsx src/index.ts",
+  "signal": "SIGTERM",
+  "env": {
+    "NODE_ENV": "development"
+  }
+}
+
+
+

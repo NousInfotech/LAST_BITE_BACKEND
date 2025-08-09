@@ -2,6 +2,7 @@ import { MartStoreRepository } from "../../infrastructure/repositories/martStore
 import { IMartStore, IMartStoreStatus } from "../../domain/interfaces/martStore.interface.js";
 import { UpdateQuery, FilterQuery } from "mongoose";
 import { Role } from "../../domain/interfaces/utils.interface.js";
+import { sendRestaurantNotification } from "../../presentation/sockets/restaurantNotification.socket.js";
 
 const martStoreRepo = new MartStoreRepository();
 
@@ -37,8 +38,20 @@ export const MartStoreUseCase = {
     /**
      * Update store status by ID
      */
-    updateMartStoreStatus: (customId: string, status: IMartStoreStatus) => {
-        return martStoreRepo.updateMartStoreStatus(customId, status.status, status.message, status.days);
+    updateMartStoreStatus: async (customId: string, status: IMartStoreStatus) => {
+        const updated = await martStoreRepo.updateMartStoreStatus(customId, status.status, status.message, status.days);
+        try {
+            sendRestaurantNotification(customId, {
+                type: 'system',
+                targetRole: 'restaurantAdmin',
+                targetRoleId: customId,
+                message: `Store ${String(status.status).toLowerCase()}`,
+                emoji: '🛒',
+                theme: 'info',
+                metadata: { message: status.message, days: status.days }
+            } as any);
+        } catch {}
+        return updated;
     },
 
     /**

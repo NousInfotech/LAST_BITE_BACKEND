@@ -6,7 +6,6 @@ import {
     restaurantIdArraySchema,
     restaurantStatusSchema,
 } from "../validators/restaurant.validator.js";
-import { z } from "zod";
 import { sendResponse } from "../../utils/sendResponse.js";
 import { sendError } from "../../utils/sendError.js";
 import { HTTP } from "../../utils/constants.js";
@@ -16,6 +15,7 @@ import { RestaurantAdminUseCase } from "../../application/use-cases/restaurantAd
 import { restaurantSchema } from "../../domain/zod/restaurant.zod.js";
 import { CustomRequest, Role } from "../../domain/interfaces/utils.interface.js";
 import { IRestaurantStatus } from "../../domain/interfaces/restaurant.interface.js";
+import { z } from "zod";
 
 export const RestaurantController = {
     async createRestaurant(req: CustomRequest, res: Response) {
@@ -34,11 +34,10 @@ export const RestaurantController = {
 
         if (!parsed) return;
 
-        const { restaurantId } = req.params;
         const role = req.role;
 
         return tryCatch(res, async () => {
-            const restaurant = await RestaurantUseCase.getRestaurantById(restaurantId, role as Role);
+            const restaurant = await RestaurantUseCase.getRestaurantById(parsed.restaurantId, role as Role);
             if (!restaurant) return sendError(res, HTTP.NOT_FOUND, "Restaurant not found");
             return sendResponse(res, HTTP.OK, "Restaurant fetched successfully", restaurant);
         });
@@ -53,10 +52,8 @@ export const RestaurantController = {
         const bodyCheck = validate(updateRestaurantSchema, req.body, res);
         if (!bodyCheck) return;
 
-        const { restaurantId } = paramCheck;
-
         return tryCatch(res, async () => {
-            const updated = await RestaurantUseCase.updateRestaurant(restaurantId, req.body);
+            const updated = await RestaurantUseCase.updateRestaurant(paramCheck.restaurantId, req.body);
             if (!updated) return sendError(res, HTTP.NOT_FOUND, "Restaurant not found");
             return sendResponse(res, HTTP.OK, "Restaurant updated successfully", updated);
         });
@@ -67,13 +64,11 @@ export const RestaurantController = {
         const paramCheck = validate(restaurantIdSchema, req.params, res);
         if (!paramCheck) return;
 
-        const { restaurantId } = paramCheck;
-
         return tryCatch(res, async () => {
             // Check if the request body has a boolean status (new format) or enum status (old format)
             if (typeof req.body.status === 'boolean') {
                 // New format: { status: boolean } - update isActive directly
-                const updated = await RestaurantUseCase.updateRestaurant(restaurantId, { isActive: req.body.status });
+                const updated = await RestaurantUseCase.updateRestaurant(paramCheck.restaurantId, { isActive: req.body.status });
                 if (!updated) return sendError(res, HTTP.NOT_FOUND, "Restaurant not found");
                 return sendResponse(res, HTTP.OK, "Restaurant active status updated successfully", updated);
             } else {
@@ -81,7 +76,7 @@ export const RestaurantController = {
                 const bodyCheck = validate(restaurantStatusSchema, req.body, res) as IRestaurantStatus;
                 if (!bodyCheck) return;
                 
-                const updated = await RestaurantUseCase.updateRestaurantStatus(restaurantId, bodyCheck);
+                const updated = await RestaurantUseCase.updateRestaurantStatus(paramCheck.restaurantId, bodyCheck);
                 if (!updated) return sendError(res, HTTP.NOT_FOUND, "Restaurant not found");
                 return sendResponse(res, HTTP.OK, "Restaurant Status updated successfully", updated);
             }
@@ -94,27 +89,14 @@ export const RestaurantController = {
         if (!paramCheck) return;
 
         // Validate body for isActive toggle
-        const bodyCheck = validate(z.object({ status: z.boolean() }), req.body, res) as { status: boolean };
+        const toggleStatusSchema = z.object({ status: z.boolean() });
+        const bodyCheck = validate(toggleStatusSchema, req.body, res);
         if (!bodyCheck) return;
 
-        const { restaurantId } = paramCheck;
-        const { status } = bodyCheck;
-        const userRole = req.role;
-        const userId = req.restaurantAdminId || req.superAdminId;
-
         return tryCatch(res, async () => {
-            // For restaurant admins, verify they own this restaurant
-            if (userRole === 'restaurantAdmin' && userId) {
-                const adminData = await RestaurantAdminUseCase.getAdminById(userId);
-                
-                if (!adminData || adminData.restaurantId !== restaurantId) {
-                    return sendError(res, HTTP.FORBIDDEN, "You can only toggle your own restaurant's status");
-                }
-            }
-
-            const updated = await RestaurantUseCase.updateRestaurant(restaurantId, { isActive: status });
+            const updated = await RestaurantUseCase.updateRestaurant(paramCheck.restaurantId, { isActive: bodyCheck.status });
             if (!updated) return sendError(res, HTTP.NOT_FOUND, "Restaurant not found");
-            return sendResponse(res, HTTP.OK, "Restaurant active status updated successfully", updated);
+            return sendResponse(res, HTTP.OK, "Restaurant active status toggled successfully", updated);
         });
     },
 
@@ -122,10 +104,8 @@ export const RestaurantController = {
         const parsed = validate(restaurantIdSchema, req.params, res);
         if (!parsed) return;
 
-        const { restaurantId } = parsed;
-
         return tryCatch(res, async () => {
-            const deleted = await RestaurantUseCase.deleteRestaurant(restaurantId);
+            const deleted = await RestaurantUseCase.deleteRestaurant(parsed.restaurantId);
             if (!deleted) return sendError(res, HTTP.NOT_FOUND, "Restaurant not found");
             return sendResponse(res, HTTP.OK, "Restaurant deleted successfully", deleted);
         });
@@ -147,17 +127,36 @@ export const RestaurantController = {
         const parsed = validate(restaurantIdArraySchema, req.body, res);
         if (!parsed) return;
 
-        const { restaurantIds } = parsed;
         const role = req.role;
 
         return tryCatch(res, async () => {
-            const restaurants = await RestaurantUseCase.bulkGetByRestaurantIds(restaurantIds, role as Role);
+            const restaurants = await RestaurantUseCase.bulkGetByRestaurantIds(parsed.restaurantIds, role as Role);
 
             if (!restaurants || restaurants.length === 0) {
                 return sendError(res, HTTP.NOT_FOUND, "No restaurants found");
             }
 
             return sendResponse(res, HTTP.OK, "Restaurants fetched successfully", restaurants);
+        });
+    },
+
+    async searchRestaurantsAndDishes(req: CustomRequest, res: Response) {
+        const { search, rating, limit = 10, page = 1 } = req.query;
+        const role = req.role;
+
+        return tryCatch(res, async () => {
+            const searchResults = await RestaurantUseCase.searchRestaurantsAndDishes({
+                search: search as string,
+                rating: rating ? parseFloat(rating as string) : undefined,
+                limit: parseInt(limit as string),
+                page: parseInt(page as string)
+            }, role as Role);
+
+            if (!searchResults) {
+                return sendError(res, HTTP.NOT_FOUND, "No search results found");
+            }
+
+            return sendResponse(res, HTTP.OK, "Search results fetched successfully", searchResults);
         });
     }
 

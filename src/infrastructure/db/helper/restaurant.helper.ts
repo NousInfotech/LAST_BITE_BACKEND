@@ -1,4 +1,4 @@
-import { RestaurantDoc } from "../mongoose/schemas/restaurant.schema";
+import { RestaurantDoc } from "../mongoose/schemas/restaurant.schema.js";
 import { RestaurantStatusEnum, Role } from "../../../domain/interfaces/utils.interface.js";
 
 type SanitizedRestaurant = Partial<RestaurantDoc>;
@@ -59,7 +59,16 @@ export function sanitizeRestaurantByRole(
       return restaurant; // Full access, no filtering
 
     default:
-      return {}; // Or throw an error if needed
+      // Treat unknown/unauthenticated roles as regular users to allow public search/listing
+      return {
+        ...baseFields,
+        tags: restaurant.tags,
+        cuisines: restaurant.cuisines,
+        typeOfFood: restaurant.typeOfFood,
+        availableCategories: restaurant.availableCategories,
+        rating: restaurant.rating,
+        menuImages: restaurant.menuImages,
+      };
   }
 }
 

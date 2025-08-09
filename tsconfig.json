@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node",
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "outDir": "./dist",
@@ -11,7 +11,6 @@
     "skipLibCheck": true,
     "strict": true
   },
-  "ts-node": {
-    "esm": true
-  }
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

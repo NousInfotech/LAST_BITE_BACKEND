@@ -12,10 +12,14 @@ import { createPidgeOrder, CreatePidgeOrderPayload, getPidgeOrderStatus, getPidg
 import { UserRepository } from "../../infrastructure/repositories/user.repository.js";
 import { RestaurantAdminRepository } from "../../infrastructure/repositories/restaurantAdmin.repository.js";
 import { IUser } from "../../domain/interfaces/user.interface.js";
+import { NotificationRepository } from "../../infrastructure/repositories/notification.repository.js";
+import { IDiscount } from "../../domain/interfaces/payment.interface.js";
 import { IMartStoreAdmin } from "../../domain/interfaces/martStoreAdmin.interface.js";
-import { generateOtpForDelivery } from "../../utils/generateOtpForDelivery.js";
 import { PidgePackage } from "../../domain/interfaces/pidge.interface.js";
-import { config } from "../../config/env.js";
+import { generateOtpForDelivery } from "../../utils/generateOtpForDelivery.js";
+import { startOfWeek, format } from "date-fns";
+import { sendUserNotification } from "../../presentation/sockets/userNotification.socket.js";
+import { sendRestaurantNotification } from "../../presentation/sockets/restaurantNotification.socket.js";
 
 const orderRepo = new OrderRepository();
 const restaurantRepo = new RestaurantRepository();
@@ -26,6 +30,7 @@ const martStoreAdminRepo = new MartStoreAdminRepository();
 const paymentRepo = new PaymentRepository();
 const userRepo = new UserRepository();
 const restaurantAdminRepo = new RestaurantAdminRepository();
+const notificationRepo = new NotificationRepository();
 
 type IItem = Omit<IOrderFoodItem, "name" | "price" | "additionals">;
 
@@ -35,6 +40,7 @@ interface CreateOrderParams {
     orderNotes?: string;
     location: Omit<IOrderLocation, "distance" | "pickup">;
     deliveryFee: number;
+    discount?: IDiscount;
     items: IItem[];
 }
 
@@ -119,33 +125,65 @@ const calculateMartItemsTotal = async (
 const calculateTotalPricing = async (
     itemsTotal: number,
     deliveryFee: number,
-    discount: number = 0,
+    discount: IDiscount | null,
     restaurantId: string
 ): Promise<IOrderPricing> => {
     let packagingFee = await restaurantRepo.getPackagingChargesByRestaurantId(restaurantId);
     packagingFee = packagingFee ?? 0;
 
     const platformFee = 10;
-    const tax = Math.round(itemsTotal * GST / 100);
+    const tax = Math.round(itemsTotal * GST / 100); // Assuming GST = 5
+    const sgst = Math.round(itemsTotal * 0.025);
+    const cgst = Math.round(itemsTotal * 0.025);
 
-    const finalPayable =
-        itemsTotal + packagingFee + deliveryFee + platformFee + tax - discount;
+    // 🔢 Calculate discount amount
+    let discountAmount = 0;
+    if (discount) {
+        if (discount.type === 'FIXED') {
+            discountAmount = discount.number;
+        } else if (discount.type === 'PERCENTAGE') {
+            discountAmount = Math.round(itemsTotal * (discount.number / 100));
+        }
+    }
+
+    const finalPayable = Math.max(0, Math.round(
+        itemsTotal + packagingFee + deliveryFee + platformFee + tax - discountAmount
+    ));
+
+    // 💸 Revenue split logic:
+    // - Platform gets platformFee + 40% of itemsTotal
+    const platformShare = platformFee + Math.round(itemsTotal * 0.4);
+
+    // - Delivery partner gets deliveryFee
+    const deliveryPartnerShare = deliveryFee;
+
+    // - Restaurant gets 55% of itemsTotal + packaging fee
+    const restaurantShare = Math.round(itemsTotal * 0.55) + packagingFee;
 
     return {
         itemsTotal,
         packagingFee,
         deliveryFee,
         platformFee,
-        tax,
-        discount: discount > 0 ? discount : undefined,
-        finalPayable: Math.round(finalPayable),
+        tax: {
+            total: tax,
+            cgst,
+            sgst,
+        },
+        discount: discountAmount > 0 ? discountAmount : undefined,
+        finalPayable,
+        distribution: {
+            platform: platformShare,
+            deliveryPartner: deliveryPartnerShare,
+            restaurant: restaurantShare,
+        },
     };
 };
 
 const calculateMartTotalPricing = async (
     itemsTotal: number,
     deliveryFee: number,
-    discount: number = 0,
+    discount: IDiscount | null = null,
     martStoreId: string
 ): Promise<IOrderPricing> => {
     // For mart stores, we don't have packaging charges, so we'll use 0
@@ -153,18 +191,40 @@ const calculateMartTotalPricing = async (
 
     const platformFee = 10;
     const tax = Math.round(itemsTotal * GST / 100);
+    const sgst = Math.round(itemsTotal * 0.025);
+    const cgst = Math.round(itemsTotal * 0.025);
 
-    const finalPayable =
-        itemsTotal + packagingFee + deliveryFee + platformFee + tax - discount;
+    // Calculate discount amount
+    let discountAmount = 0;
+    if (discount) {
+        if (discount.type === 'FIXED') {
+            discountAmount = discount.number;
+        } else if (discount.type === 'PERCENTAGE') {
+            discountAmount = Math.round(itemsTotal * (discount.number / 100));
+        }
+    }
+
+    const finalPayable = Math.max(0, Math.round(
+        itemsTotal + packagingFee + deliveryFee + platformFee + tax - discountAmount
+    ));
 
     return {
         itemsTotal,
         packagingFee,
         deliveryFee,
         platformFee,
-        tax,
-        discount: discount > 0 ? discount : undefined,
-        finalPayable: Math.round(finalPayable),
+        tax: {
+            total: tax,
+            cgst,
+            sgst,
+        },
+        discount: discountAmount > 0 ? discountAmount : undefined,
+        finalPayable,
+        distribution: {
+            platform: platformFee + Math.round(itemsTotal * 0.4),
+            deliveryPartner: deliveryFee,
+            restaurant: Math.round(itemsTotal * 0.55) + packagingFee,
+        },
     };
 };
 
@@ -337,56 +397,29 @@ export const OrderUseCase = {
     // Step 1: Frontend hits this to get Razorpay order
     createOnlineOrder: async (data: CreateOrderParams) => {
         const { userId, restaurantId, orderNotes, items, location, deliveryFee } = data;
-        
-        console.log('Creating online order with data:', {
-            userId,
-            restaurantId,
-            itemsCount: items.length,
-            deliveryFee,
-            orderNotes
-        });
 
-        // Check if this is a mart store order by trying to find a mart store first
-        let isMartStoreOrder = false;
-        try {
-            const martStore = await martStoreRepo.findByMartStoreId(restaurantId);
-            if (martStore) {
-                isMartStoreOrder = true;
-                console.log('Mart store found:', martStore.martStoreName);
-            }
-        } catch (error) {
-            console.log('Not a mart store, proceeding as restaurant order');
-            // Not a mart store, proceed as restaurant order
-            isMartStoreOrder = false;
-        }
+        // Determine if this is a mart store order based on restaurantId format
+        const isMartStoreOrder = restaurantId.startsWith('mart_');
 
         let itemsTotal: number;
         let enrichedItems: IOrderFoodItem[];
 
         if (isMartStoreOrder) {
-            console.log('Processing mart store order...');
             // Handle mart store order
             const result = await calculateMartItemsTotal(items);
             itemsTotal = result.itemsTotal;
             enrichedItems = result.enrichedItems;
-            console.log('Mart store order processed successfully');
         } else {
-            console.log('Processing restaurant order...');
             // Handle restaurant order
             const result = await calculateFoodItemsTotal(items);
             itemsTotal = result.itemsTotal;
             enrichedItems = result.enrichedItems;
-            console.log('Restaurant order processed successfully');
         }
 
-        console.log('Calculating pricing...');
-        let pricing: IOrderPricing;
-        if (isMartStoreOrder) {
-            pricing = await calculateMartTotalPricing(itemsTotal, data.deliveryFee, 0, restaurantId);
-        } else {
-            pricing = await calculateTotalPricing(itemsTotal, data.deliveryFee, 0, restaurantId);
-        }
-        console.log('Pricing calculated:', pricing);
+        // Calculate pricing based on order type
+        const pricing = isMartStoreOrder 
+            ? await calculateMartTotalPricing(itemsTotal, data.deliveryFee, data.discount || null, restaurantId)
+            : await calculateTotalPricing(itemsTotal, data.deliveryFee, data.discount || null, restaurantId);
 
         // FIX: Stringify objects/arrays in notes
         const notes = {
@@ -396,7 +429,8 @@ export const OrderUseCase = {
             location: JSON.stringify(location),
             orderNotes: orderNotes || "",
             deliveryCharges: deliveryFee,
-            orderType: isMartStoreOrder ? "mart_store" : "restaurant"
+            discount: data.discount ? JSON.stringify(data.discount) : null,
+            isMartStoreOrder: isMartStoreOrder,
         };
 
         const razorpayOrder = await createRazorpayOrderService({
@@ -429,202 +463,149 @@ export const OrderUseCase = {
         const notes = razorpayOrder.notes;
         if (!notes) throw new Error("Missing order notes from Razorpay");
 
-        const items = typeof notes.items === "string" ? JSON.parse(notes.items) : [];
-        const location = typeof notes.location === "string" ? JSON.parse(notes.location) : null;
+        // Normalize notes fields coming back from Razorpay (may be strings or objects)
+        const items = Array.isArray(notes.items)
+            ? (notes.items as any)
+            : (typeof notes.items === "string" ? JSON.parse(notes.items) : []);
+        const location = typeof notes.location === "string"
+            ? JSON.parse(notes.location)
+            : (notes.location ?? null);
         const userId = notes.userId?.toString();
         const restaurantId = notes.restaurantId?.toString();
         const orderNotes = typeof notes.orderNotes === "string" ? notes.orderNotes : "";
-        const deliveryFee = notes.deliveryCharges as number;
-        const orderType = notes.orderType as string || "restaurant";
+        const deliveryFeeRaw = notes.deliveryCharges;
+        const deliveryFee = typeof deliveryFeeRaw === 'string' ? Number(deliveryFeeRaw) : Number(deliveryFeeRaw ?? 0);
+        const discount = notes.discount
+            ? (typeof notes.discount === "string" ? JSON.parse(notes.discount) : notes.discount)
+            : null;
+        const isMartStoreOrder = (
+            (notes.isMartStoreOrder as any) === true ||
+            (notes.isMartStoreOrder as any) === 'true'
+        ) || (restaurantId && restaurantId.startsWith('mart_'));
 
-        if (!userId || !restaurantId || !location || !deliveryFee) {
+        if (!userId || !restaurantId || !location || deliveryFee === undefined || deliveryFee === null || Number.isNaN(deliveryFee)) {
             throw new Error("Essential order info missing in Razorpay notes.");
         }
 
         // Normalize location format
         const normalizedLocation = normalizeLocation(location);
 
-        // Check if this is a mart store order
-        const isMartStoreOrder = orderType === "mart_store";
-
-        // Step 1: Calculate Items Total First
+        // Calculate items total based on order type
         let itemsTotal: number;
         let enrichedItems: IOrderFoodItem[];
-        
+
         if (isMartStoreOrder) {
+            // Handle mart store order
             const result = await calculateMartItemsTotal(items);
             itemsTotal = result.itemsTotal;
             enrichedItems = result.enrichedItems;
         } else {
+            // Handle restaurant order
             const result = await calculateFoodItemsTotal(items);
             itemsTotal = result.itemsTotal;
             enrichedItems = result.enrichedItems;
         }
 
-        // Step 2: Calculate Pricing
-        let pricing: IOrderPricing;
+        // Calculate pricing based on order type
+        const pricing = isMartStoreOrder 
+            ? await calculateMartTotalPricing(itemsTotal, deliveryFee, discount, restaurantId)
+            : await calculateTotalPricing(itemsTotal, deliveryFee, discount, restaurantId);
+
+        // Get pickup location and admin based on order type
+        let pickup: any;
+        let admin: any;
+
         if (isMartStoreOrder) {
-            pricing = await calculateMartTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
+            [pickup, admin] = await Promise.all([
+                getMartPickupLocation(restaurantId),
+                martStoreAdminRepo.findByMartStoreAdminByMartStoreId(restaurantId),
+            ]);
         } else {
-            pricing = await calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
+            [pickup, admin] = await Promise.all([
+                getPickupLocation(restaurantId),
+                restaurantAdminRepo.findByRestaurantAdminByRestaurantId(restaurantId),
+            ]);
         }
 
-        // Step 3: Get Pickup Location
-        let pickup: { lat: number; lng: number };
-        if (isMartStoreOrder) {
-            const martPickup = await getMartPickupLocation(restaurantId);
-            pickup = { lat: martPickup.lat, lng: martPickup.lng };
-        } else {
-            const restaurantPickup = await getPickupLocation(restaurantId);
-            pickup = { lat: restaurantPickup.lat, lng: restaurantPickup.lng };
-        }
-
-        // Step 4: Get User and Restaurant/Mart Store Admin
         const user = await userRepo.findByUserId(userId);
-        let restaurantAdmin;
-        let martStoreAdmin;
-        
-        if (isMartStoreOrder) {
-            // For mart stores, find the mart store admin
-            martStoreAdmin = await martStoreAdminRepo.findByMartStoreAdminByMartStoreId(restaurantId);
-            restaurantAdmin = null;
-        } else {
-            // For restaurants, find the restaurant admin
-            restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(restaurantId);
-            martStoreAdmin = null;
-        }
 
-        if (!user) throw new Error("User not found");
+        if (!admin || !user) throw new Error("User or Admin not found");
 
-        // Step 5: Create Pidge Order (for both restaurant and mart store orders)
-        let pidgeResponse = null;
-        let pidgeGetOrder = null;
-        
-        console.log('🔍 [PIDGE DEBUG] Checking if should create pidge order:', {
-            isMartStoreOrder,
-            hasRestaurantAdmin: !!restaurantAdmin,
-            hasMartStoreAdmin: !!martStoreAdmin,
-            restaurantId,
-            userId
-        });
-        
-        // Check if current time is within Pidge test account hours (configurable)
-        let isWithinPidgeHours = true;
-        if (config.pidgeTimeRestriction.enabled) {
-            const currentHour = new Date().getHours();
-            isWithinPidgeHours = currentHour >= config.pidgeTimeRestriction.startHour && currentHour < config.pidgeTimeRestriction.endHour;
-            
-            if (!isWithinPidgeHours) {
-                console.log(`⚠️ [PIDGE DEBUG] Skipping Pidge order creation - outside test account hours (${config.pidgeTimeRestriction.startHour} AM - ${config.pidgeTimeRestriction.endHour} PM)`);
-            }
-        } else {
-            console.log('🔍 [PIDGE DEBUG] Pidge time restriction disabled - proceeding with order creation');
-        }
-        
-        if (!isWithinPidgeHours) {
-            console.log('⚠️ [PIDGE DEBUG] Skipping Pidge order creation - outside test account hours');
-        } else if (isMartStoreOrder && martStoreAdmin) {
-            // Create Pidge order for mart store
-            try {
-                console.log('🔍 [PIDGE DEBUG] Getting mart store pickup location...');
-                const martPickup = await getMartPickupLocation(restaurantId);
-                console.log('🔍 [PIDGE DEBUG] Mart store pickup location:', martPickup);
-                
-                console.log('🔍 [PIDGE DEBUG] Creating mart store pidge payload...');
-                const pidgePayload = getMartStorePidgePayload(martPickup, martStoreAdmin, normalizedLocation, user as IUser, enrichedItems);
-                console.log('🔍 [PIDGE DEBUG] Mart store pidge payload created:', JSON.stringify(pidgePayload, null, 2));
-                
-                console.log('🔍 [PIDGE DEBUG] Attempting to create Mart Store Pidge order...');
-                pidgeResponse = await createPidgeOrder(pidgePayload);
-                const { pidgeOrderId, sourceOrderId } = pidgeResponse;
-                console.log('✅ [PIDGE DEBUG] Mart Store Pidge order created successfully:', { pidgeOrderId, sourceOrderId });
-                
-                console.log('🔍 [PIDGE DEBUG] Getting mart store pidge order status...');
-                pidgeGetOrder = await getPidgeOrderStatus(pidgeOrderId);
-                console.log('✅ [PIDGE DEBUG] Mart Store Pidge order status:', pidgeGetOrder);
-            } catch (pidgeError: any) {
-                console.error('❌ [PIDGE DEBUG] Mart Store Pidge order creation failed:', pidgeError);
-                console.error('❌ [PIDGE DEBUG] Error details:', {
-                    message: pidgeError.message,
-                    stack: pidgeError.stack,
-                    response: pidgeError.response?.data
-                });
-                // Continue without Pidge - order will still be created
-                pidgeResponse = null;
-                pidgeGetOrder = null;
-            }
-        } else if (!isMartStoreOrder && restaurantAdmin) {
-            // Create Pidge order for restaurant
-            try {
-                console.log('🔍 [PIDGE DEBUG] Getting restaurant pickup location...');
-                const restaurantPickup = await getPickupLocation(restaurantId);
-                console.log('🔍 [PIDGE DEBUG] Restaurant pickup location:', restaurantPickup);
-                
-                console.log('🔍 [PIDGE DEBUG] Creating restaurant pidge payload...');
-                const pidgePayload = getPidgePayload(restaurantPickup, restaurantAdmin, normalizedLocation, user as IUser, enrichedItems);
-                console.log('🔍 [PIDGE DEBUG] Restaurant pidge payload created:', JSON.stringify(pidgePayload, null, 2));
-                
-                console.log('🔍 [PIDGE DEBUG] Attempting to create Restaurant Pidge order...');
-                pidgeResponse = await createPidgeOrder(pidgePayload);
-                const { pidgeOrderId, sourceOrderId } = pidgeResponse;
-                console.log('✅ [PIDGE DEBUG] Restaurant Pidge order created successfully:', { pidgeOrderId, sourceOrderId });
-                
-                console.log('🔍 [PIDGE DEBUG] Getting restaurant pidge order status...');
-                pidgeGetOrder = await getPidgeOrderStatus(pidgeOrderId);
-                console.log('✅ [PIDGE DEBUG] Restaurant Pidge order status:', pidgeGetOrder);
-            } catch (pidgeError: any) {
-                console.error('❌ [PIDGE DEBUG] Restaurant Pidge order creation failed:', pidgeError);
-                console.error('❌ [PIDGE DEBUG] Error details:', {
-                    message: pidgeError.message,
-                    stack: pidgeError.stack,
-                    response: pidgeError.response?.data
-                });
-                // Continue without Pidge - order will still be created
-                pidgeResponse = null;
-                pidgeGetOrder = null;
-            }
-        } else {
-            console.log('🔍 [PIDGE DEBUG] Skipping pidge order creation:', {
-                reason: isMartStoreOrder ? 'No mart store admin found' : 'No restaurant admin found',
-                isMartStoreOrder,
-                hasRestaurantAdmin: !!restaurantAdmin,
-                hasMartStoreAdmin: !!martStoreAdmin
+        // Step 4: Create Pidge Order (with error handling)
+        let pidgeOrderId: string | null = null;
+        let sourceOrderId: string | null = null;
+        let pidgeStatus: "cancelled" | "pending" | "fulfilled" | "completed" = "pending";
+
+        try {
+            console.log('🔍 [ORDER USE CASE] Starting Pidge order creation...');
+            console.log('🔍 [ORDER USE CASE] Order type:', isMartStoreOrder ? 'Mart Store' : 'Restaurant');
+            console.log('🔍 [ORDER USE CASE] Pickup location:', pickup);
+            console.log('🔍 [ORDER USE CASE] Admin details:', { 
+                id: admin?.restaurantAdminId || admin?.martStoreAdminId,
+                email: admin?.email,
+                phone: admin?.phoneNumber 
             });
+            console.log('🔍 [ORDER USE CASE] User details:', { 
+                id: user?.userId,
+                name: user?.name,
+                phone: user?.phoneNumber 
+            });
+            console.log('🔍 [ORDER USE CASE] Location:', location);
+            console.log('🔍 [ORDER USE CASE] Food items count:', enrichedItems.length);
+
+            const pidgePayload = isMartStoreOrder 
+                ? getMartStorePidgePayload(pickup, admin, location, user as IUser, enrichedItems)
+                : getPidgePayload(pickup, admin, location, user as IUser, enrichedItems);
+            
+            console.log('🔍 [ORDER USE CASE] Pidge payload created:', JSON.stringify(pidgePayload, null, 2));
+            
+            const pidgeResponse = await createPidgeOrder(pidgePayload);
+            pidgeOrderId = pidgeResponse.pidgeOrderId;
+            sourceOrderId = pidgeResponse.sourceOrderId;
+            
+            console.log('✅ [ORDER USE CASE] Pidge order created successfully:', { pidgeOrderId, sourceOrderId });
+            
+            // Get Pidge order status
+            try {
+                const pidgeGetOrder = await getPidgeOrderStatus(pidgeOrderId);
+                const statusFromPidge = pidgeGetOrder?.status;
+                if (statusFromPidge && ["cancelled", "pending", "fulfilled", "completed"].includes(statusFromPidge)) {
+                    pidgeStatus = statusFromPidge as "cancelled" | "pending" | "fulfilled" | "completed";
+                } else {
+                    pidgeStatus = "pending";
+                }
+                console.log('✅ [ORDER USE CASE] Pidge order status retrieved:', pidgeStatus);
+            } catch (statusError) {
+                console.error("❌ [ORDER USE CASE] Failed to get Pidge order status:", statusError);
+                pidgeStatus = "pending";
+            }
+            
+            console.log('✅ [ORDER USE CASE] Pidge integration completed successfully:', { pidgeOrderId, sourceOrderId, pidgeStatus });
+        } catch (pidgeError: any) {
+            console.error("❌ [ORDER USE CASE] Failed to create Pidge order:", pidgeError);
+            console.error("❌ [ORDER USE CASE] Pidge error details:", {
+                message: pidgeError?.message || 'Unknown error',
+                response: pidgeError?.response?.data || 'No response data',
+                status: pidgeError?.response?.status || 'No status'
+            });
+            // Continue with order creation even if Pidge fails
+            // The order will be created without Pidge integration
+            console.log("⚠️ [ORDER USE CASE] Continuing with order creation without Pidge integration");
         }
 
-        // Step 6: Create Local Order
-        const pidgeData = pidgeResponse ? {
-            pidgeId: pidgeResponse.pidgeOrderId,
-            orderId: pidgeResponse.sourceOrderId,
-            billAmount: pidgeGetOrder?.bill_amount || 0,
-            status: pidgeGetOrder?.status || "pending",
-        } : undefined;
-        
-        console.log('🔍 [ORDER DEBUG] Creating order with data:', {
-            refIds: { userId, restaurantId },
-            foodItems: enrichedItems.length,
-            pricing,
-            delivery: {
-                location: { pickup, dropoff: normalizedLocation.dropoff },
-                pidge: pidgeData,
-            },
-            payment: {
-                paymentType: IPaymentType.ONLINE,
-                paymentId,
-            },
-            orderStatus: IOrderStatusEnum.CONFIRMED,
-            notes: orderNotes,
-        });
-        
-        console.log('🔍 [ORDER DEBUG] Pidge data being saved:', pidgeData);
-
+        // Step 5: Create Local Order
         const order = await orderRepo.createOrder({
             refIds: { userId, restaurantId },
             foodItems: enrichedItems,
             pricing,
             delivery: {
                 location: { pickup, dropoff: normalizedLocation.dropoff },
-                pidge: pidgeData,
+                pidge: pidgeOrderId ? {
+                    pidgeId: pidgeOrderId,
+                    orderId: sourceOrderId || "",
+                    billAmount: pricing.finalPayable,
+                    status: pidgeStatus
+                } : undefined,
             },
             payment: {
                 paymentType: IPaymentType.ONLINE,
@@ -636,29 +617,78 @@ export const OrderUseCase = {
             updatedAt: new Date(),
         });
 
-        console.log('✅ [ORDER DEBUG] Order created successfully:', {
-            orderId: order.orderId,
-            orderStatus: order.orderStatus,
-            userId: order.refIds.userId,
-            restaurantId: order.refIds.restaurantId,
-            hasPidgeData: !!order.delivery?.pidge,
-            pidgeData: order.delivery?.pidge
-        });
+        // Step 6 & 7: Record Payment and Link to Order (async)
+        void (async () => {
+            try {
+                await paymentRepo.createPayment({
+                    razorpay: { orderId, paymentId },
+                    linkedOrderId: order.orderId!,
+                    paymentStatus: "PAID",
+                    amount: {
+                        total: Number(razorpayOrder.amount),
+                        currency: "INR",
+                    },
+                    breakdown: {
+                        foodItemTotal: pricing.itemsTotal,
+                        packagingFee: pricing.packagingFee,
+                        platformFee: pricing.platformFee,
+                        deliveryFee: pricing.deliveryFee,
+                        discount: pricing.discount,
+                        tax: {
+                            stateGST: pricing.tax.sgst,
+                            centralGST: pricing.tax.cgst,
+                            total: pricing.tax.total,
+                        },
+                    },
+                    distribution: pricing.distribution,
+                    timestamps: {
+                        createdAt: new Date(),
+                        paidAt: new Date(),
+                    },
+                    ref: {
+                        restaurantId,
+                        userId,
+                    },
+                    settlement: {
+                        weekKey: format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-'W'II"),
+                        status: 'PENDING',
+                    },
+                });
+            } catch (err) {
+                console.error("Failed to create payment record:", err);
+            }
 
-        // Step 7: Record Payment and Link to Order (async)
-        void paymentRepo.createPayment({
-            razorpay: { orderId, paymentId },
-            linkedOrderId: order.orderId,
-            paymentStatus: "PAID",
-            amount: {
-                total: pricing.finalPayable,
-                currency: "INR"
-            },
-            timestamps: {
-                createdAt: new Date(),
-                paidAt: new Date(),
-            },
-        });
+            try {
+                await orderRepo.updatePaymentId(order.orderId!, paymentId);
+            } catch (err) {
+                console.error("Failed to update paymentId in order:", err);
+            }
+        })();
+
+        // Fire-and-forget notifications
+        try {
+            sendUserNotification(userId, {
+                type: 'order',
+                targetRole: 'user',
+                targetRoleId: userId,
+                message: `Order placed successfully`,
+                emoji: '🧾',
+                theme: 'success',
+                metadata: { orderId: order.orderId, restaurantId }
+            } as any);
+        } catch {}
+
+        try {
+            sendRestaurantNotification(restaurantId, {
+                type: 'order',
+                targetRole: 'restaurantAdmin',
+                targetRoleId: restaurantId,
+                message: `New order received`,
+                emoji: '🛎️',
+                theme: 'info',
+                metadata: { orderId: order.orderId, userId }
+            } as any);
+        } catch {}
 
         return order;
     },
@@ -667,7 +697,7 @@ export const OrderUseCase = {
 
     // COD order flow — no Razorpay
     createCODOrder: async (data: CreateOrderParams) => {
-        const { userId, restaurantId, items, location, orderNotes } = data;
+        const { userId, restaurantId, items, location, orderNotes, discount } = data;
         const { itemsTotal, enrichedItems } = await calculateFoodItemsTotal(items);
 
         // Set distance and delivery fee to 0
@@ -675,7 +705,7 @@ export const OrderUseCase = {
         const distance = 0; // Set distance to 0
         const deliveryFee = 0; // Set delivery fee to 0
 
-        const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, 0, restaurantId);
+        const pricing = await calculateTotalPricing(itemsTotal, deliveryFee, discount || null, restaurantId);
 
         const order = await orderRepo.createOrder({
             refIds: { userId, restaurantId },
@@ -696,6 +726,29 @@ export const OrderUseCase = {
     updateOrderStatus: async (orderId: string, status: IOrder["orderStatus"]) => {
         const updatedOrder = await orderRepo.updateOrderStatus(orderId, status);
         if (!updatedOrder) throw new Error("Order not found or status not updated");
+        // Notify both parties about status updates
+        try {
+            const userId = updatedOrder.refIds.userId;
+            const restaurantId = updatedOrder.refIds.restaurantId;
+            sendUserNotification(userId, {
+                type: 'order',
+                targetRole: 'user',
+                targetRoleId: userId,
+                message: `Order ${status.toLowerCase()}`,
+                emoji: '🔔',
+                theme: 'info',
+                metadata: { orderId: updatedOrder.orderId, status }
+            } as any);
+            sendRestaurantNotification(restaurantId, {
+                type: 'order',
+                targetRole: 'restaurantAdmin',
+                targetRoleId: restaurantId,
+                message: `Order ${status.toLowerCase()}`,
+                emoji: '🔔',
+                theme: 'info',
+                metadata: { orderId: updatedOrder.orderId, status }
+            } as any);
+        } catch {}
         return updatedOrder;
     },
 

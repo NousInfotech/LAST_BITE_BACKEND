@@ -11,6 +11,7 @@ export const foodItemZodSchema = z.object({
   image: z.string().optional(),
   isAvailable: z.boolean().optional(),
   typeOfFood: z.array(z.nativeEnum(FoodType)),
+  cuisines: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
   category: z.string(),
   rating: z.number().optional(),

@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { IOrderStatusEnum } from "../../domain/interfaces/order.interface.js";
 import { OrderAddressSchema } from "../../domain/zod/utils.zod.js";
+import { AddressSchema } from "../../domain/zod/utils.zod.js";
+import { CouponTypeEnum } from "../../domain/interfaces/coupon.interface.js";
 
 export const OrderCreateSchema = z.object({
   items: z.array(z.object({
@@ -12,6 +14,10 @@ export const OrderCreateSchema = z.object({
   restaurantId: z.string().min(1),
   orderNotes: z.string().optional(),
   deliveryFee: z.number(),
+  discount: z.object({
+    type: z.nativeEnum(CouponTypeEnum),
+    number: z.number(),
+  }),
   location: z.object({
     dropoff: OrderAddressSchema,
   }),

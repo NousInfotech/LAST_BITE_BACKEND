@@ -4,6 +4,7 @@ import { IRestaurantStatus, IRestaurant } from "../../domain/interfaces/restaura
 import { UpdateQuery, FilterQuery } from "mongoose";
 import { Role } from "../../domain/interfaces/utils.interface.js";
 import { RestaurantDoc } from "../../infrastructure/db/mongoose/schemas/restaurant.schema.js";
+import { sendRestaurantNotification } from "../../presentation/sockets/restaurantNotification.socket.js";
 
 const restaurantRepo = new RestaurantRepository();
 
@@ -50,8 +51,20 @@ export const RestaurantUseCase = {
     /**
       * Update a restaurant status by id
       */
-    updateRestaurantStatus: (restaurantId: string, state: IRestaurantStatus) => {
-        return restaurantRepo.updateRestaurantStatus(restaurantId, state.status, state.message, state.days);
+    updateRestaurantStatus: async (restaurantId: string, state: IRestaurantStatus) => {
+        const updated = await restaurantRepo.updateRestaurantStatus(restaurantId, state.status, state.message, state.days);
+        try {
+            sendRestaurantNotification(restaurantId, {
+                type: 'system',
+                targetRole: 'restaurantAdmin',
+                targetRoleId: restaurantId,
+                message: `Store ${state.status.toLowerCase()}`,
+                emoji: '🏪',
+                theme: state.status === 'OPEN' ? 'success' : 'warning',
+                metadata: { message: state.message, days: state.days }
+            } as any);
+        } catch {}
+        return updated;
     },
 
 
@@ -75,5 +88,45 @@ export const RestaurantUseCase = {
     bulkGetByRestaurantIds: async (restaurantIds: string[], role: Role) => {
         const restaurants = await restaurantRepo.bulkGetByRestaurantIds(restaurantIds);
         return restaurants.map((r: RestaurantDoc) => sanitizeRestaurantByRole(r, role));
+    },
+
+    /**
+     * Search restaurants and dishes with verified status
+     */
+    searchRestaurantsAndDishes: async (searchParams: {
+        search?: string;
+        rating?: number; // optional; if omitted, do not enforce min rating
+        limit?: number;
+        page?: number;
+    }, role: Role) => {
+        try {
+            const { search, rating, limit = 10, page = 1 } = searchParams;
+            
+            // Get verified restaurants only
+            const verifiedRestaurants = await restaurantRepo.getVerifiedRestaurants({
+                search,
+                rating,
+                limit,
+                page
+            });
+
+            // Get dishes from verified restaurants
+            const dishes = await restaurantRepo.getDishesFromVerifiedRestaurants({
+                search,
+                rating,
+                limit,
+                page
+            });
+
+            return {
+                restaurants: verifiedRestaurants.map((r: RestaurantDoc) => sanitizeRestaurantByRole(r, role)),
+                dishes,
+                totalRestaurants: verifiedRestaurants.length,
+                totalDishes: dishes.length
+            };
+        } catch (error) {
+            console.error('Error in searchRestaurantsAndDishes:', error);
+            throw error;
+        }
     },
 };
