@@ -21,8 +21,22 @@ export const config = {
   // razorpay
   razorpayKeyId: process.env.TEST_RAZORPAY_KEY_ID || '',
   razorpayKeySecret: process.env.TEST_RAZORPAY_KEY_SECRET || '',
-
+  
+  // pidge
   pidgeUserName: process.env.PIDGE_USERNAME || '',
   pidgePassword: process.env.PIDGE_PASSWORD || '',
   pidgeBaseUrl: process.env.PIDGE_BASE_URL || '',
+
+    // firebase 
+  fb_type: process.env.FIREBASE_TYPE,
+  fb_project_id: process.env.FIREBASE_PROJECT_ID?.replace(/['"]/g, ''), // Remove quotes
+  fb_private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+  fb_private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+  fb_client_email: process.env.FIREBASE_CLIENT_EMAIL,
+  fb_client_id: process.env.FIREBASE_CLIENT_ID,
+  fb_auth_uri: process.env.FIREBASE_AUTH_URI,
+  fb_token_uri: process.env.FIREBASE_TOKEN_URI,
+  fb_auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+  fb_client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+  fb_universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
 };

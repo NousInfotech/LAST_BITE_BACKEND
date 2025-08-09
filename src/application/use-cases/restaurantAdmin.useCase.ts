@@ -13,4 +13,6 @@ export const RestaurantAdminUseCase = {
     getAllAdmins: (filter?: Partial<IRestaurantAdmin>) => adminRepo.getAllAdmins(filter),
     bulkCreateAdmins: (admins: IRestaurantAdmin[]) => adminRepo.bulkCreate(admins),
     bulkGetAdminsByIds: (adminIds: string[]) => adminRepo.bulkGetByAdminIds(adminIds),
+    updateFCMToken: (restaurantAdminId: string, deviceName: string, fcmToken: string) => adminRepo.updateFCMToken(restaurantAdminId, { deviceName, token: fcmToken })
+
 };

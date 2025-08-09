@@ -14,3 +14,9 @@ export const AddressSchema = z.object({
     address: z.string(), // Full written address
     tag: z.string(), // home, office, others
 });
+
+
+export const fcmToken = z.object({
+  token: z.string().min(1, "FCM token is required"),
+  deviceName: z.string().min(1, "Device name is required"),
+});

@@ -3,6 +3,7 @@ import { Favourites, IUser, IUserCart, IUserCollection } from "../../domain/inte
 import { IAddress } from "../../domain/interfaces/utils.interface.js";
 import { UserCollectionModel, UserDoc, UserModel } from "../db/mongoose/schemas/user.schema.js";
 import { extractQueryOptions } from "../db/helper/utils.helper.js";
+import { IFCM } from "../../domain/interfaces/notification.interface.js";
 
 export class UserRepository {
     /**
@@ -289,39 +290,68 @@ export class UserRepository {
     * DELETE: Remove a specific foodItem from a collection using custom collectionId
     */
 
-   async patchCartItems(userId: string, items: IUserCart[]) {
-    const user = await UserModel.findOne({ userId });
-    if (!user || !user.cart) throw new Error("User not found");
+    async patchCartItems(userId: string, items: IUserCart[]) {
+        const user = await UserModel.findOne({ userId });
+        if (!user || !user.cart) throw new Error("User not found");
 
-    // 1. Deduplicate existing cart (if any duplicates somehow got in earlier)
-    const uniqueCartMap = new Map<string, IUserCart>();
-    for (const item of user.cart) {
-        uniqueCartMap.set(item.foodItemId, item); // latest one wins
-    }
-    user.cart = Array.from(uniqueCartMap.values());
+        // 1. Deduplicate existing cart (if any duplicates somehow got in earlier)
+        const uniqueCartMap = new Map<string, IUserCart>();
+        for (const item of user.cart) {
+            uniqueCartMap.set(item.foodItemId, item); // latest one wins
+        }
+        user.cart = Array.from(uniqueCartMap.values());
 
-    // 2. Apply patch logic
-    for (const payload of items) {
-        const index = user.cart.findIndex((c) => c.foodItemId === payload.foodItemId);
+        // 2. Apply patch logic
+        for (const payload of items) {
+            const index = user.cart.findIndex((c) => c.foodItemId === payload.foodItemId);
 
-        if (payload.quantity <= 0) {
-            if (index !== -1) {
-                user.cart.splice(index, 1); // remove
-            }
-        } else {
-            if (index !== -1) {
-                user.cart[index].quantity = payload.quantity; // update
+            if (payload.quantity <= 0) {
+                if (index !== -1) {
+                    user.cart.splice(index, 1); // remove
+                }
             } else {
-                user.cart.push({
-                    foodItemId: payload.foodItemId,
-                    quantity: payload.quantity
-                });
+                if (index !== -1) {
+                    user.cart[index].quantity = payload.quantity; // update
+                } else {
+                    user.cart.push({
+                        foodItemId: payload.foodItemId,
+                        quantity: payload.quantity
+                    });
+                }
             }
         }
+
+        await user.save();
+        return user.cart;
     }
 
-    await user.save();
-    return user.cart;
-}
+    async updateFCMToken(userId: string, fcmToken: IFCM) {
+        const user = await UserModel.findOne({ userId });
+        if (!user) throw new Error("User not found");
+
+        if (!user.fcmTokens) {
+            user.fcmTokens = [];
+        }
+
+        // 1. Check if device already exists
+        const existingIndex = user.fcmTokens.findIndex(
+            (token) => token.deviceName === fcmToken.deviceName
+        );
+
+        if (existingIndex !== -1) {
+            // Update existing token + lastUpdatedAt
+            user.fcmTokens[existingIndex].token = fcmToken.token;
+            user.fcmTokens[existingIndex].lastUpdated = new Date();
+        } else {
+            // Push new device token
+            user.fcmTokens.push({
+                ...fcmToken,
+                lastUpdated: new Date()
+            });
+        }
+
+        await user.save();
+        return user.fcmTokens;
+    }
 
 }

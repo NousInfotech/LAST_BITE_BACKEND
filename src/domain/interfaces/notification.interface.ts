@@ -15,3 +15,10 @@ export interface INotification {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface IFCM {
+  deviceName: string;      // e.g., "iPhone 14 Pro", "Pixel 7"
+  token: string;           // FCM device token
+  lastUpdated?: Date;      // Last time the token was refreshed
+}
+

@@ -1,3 +1,4 @@
+import { IFCM } from "./notification.interface.js";
 import { IAddress } from "./utils.interface.js";
 
 export interface Favourites {
@@ -18,6 +19,7 @@ export interface IUser {
     favourites?: Favourites;
     hiddenRestaurants?: string[];
     profileImage?: string;
+    fcmTokens: IFCM[];
     addresses?: IAddress[];
     cart: IUserCart[];
     createdAt?: Date;

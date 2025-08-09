@@ -15,6 +15,7 @@ import { RoleEnum } from "../../domain/interfaces/utils.interface.js";
 import { sendRestaurantNotification } from "../../presentation/sockets/restaurantNotification.socket.js";
 import { IDiscount } from "../../domain/interfaces/payment.interface.js";
 import { disconnect } from "process";
+import { sendFCMNotification } from "../services/fcm.service.js";
 
 const orderRepo = new OrderRepository();
 const restaurantRepo = new RestaurantRepository();
@@ -287,7 +288,8 @@ export const OrderUseCase = {
             message: `Your order ${order.orderId} has been placed successfully.`,
         });
 
-        // Step 9: Notify Restaurant
+
+        // Step 9: Notify Restaurant 
         await notificationRepo.createNotification({
             targetRole: RoleEnum.restaurantAdmin,
             targetRoleId: restaurantId,
@@ -305,6 +307,33 @@ export const OrderUseCase = {
             type: "ORDER_RECEIVED",
             message: `New order from ${user.name} (${order.orderId})`,
         });
+
+        // Notify User
+        if (user.fcmTokens && user.fcmTokens.length > 0) {
+            await sendFCMNotification({
+                tokens: user.fcmTokens.map((token) => token.token),
+                title: "Order Placed Successfully",
+                body: `Your order ${order.orderId} has been placed successfully.`,
+                data: {
+                    orderId: order.orderId!,
+                    type: "order",
+                },
+            });
+        }
+
+        // Notify Restaurant Admin
+        if (restaurantAdmin.fcmTokens && restaurantAdmin.fcmTokens.length > 0) {
+            await sendFCMNotification({
+                tokens: restaurantAdmin.fcmTokens.map((token) => token.token),
+                title: "New Order Received",
+                body: `A new order ${order.orderId} has been placed.`,
+                data: {
+                    orderId: order.orderId!,
+                    type: "order",
+                },
+            });
+        }
+
 
         return { order, pidgeOrderId };
     },

@@ -7,6 +7,8 @@ import { HTTP } from "../../utils/constants.js";
 import { RestaurantAdminUseCase } from "../../application/use-cases/restaurantAdmin.useCase.js";
 import { adminSchema, updateAdminSchema, adminIdParamsSchema } from "../validators/restaurantAdmin.validator.js";
 import { generateToken } from "../../config/jwt.config.js";
+import { CustomRequest } from "../../domain/interfaces/utils.interface.js";
+import { fcmToken } from "../../domain/zod/utils.zod.js";
 
 export const RestaurantAdminController = {
   async createAdmin(req: Request, res: Response) {
@@ -69,4 +71,19 @@ export const RestaurantAdminController = {
       return sendResponse(res, HTTP.OK, "Admin deleted successfully", deleted);
     });
   },
+    async patchRestaurantAdminFCMToken(req: CustomRequest, res: Response) {
+          const validated = validate(fcmToken, req.body, res);
+          if (!validated) return;
+          const { deviceName, token } = validated;
+          return tryCatch(res, async () => {
+              const data = await RestaurantAdminUseCase.updateFCMToken(
+                  req.restaurantAdminId as string,
+                  deviceName,
+                  token
+              );
+              if (!data) return sendResponse(res, HTTP.NOT_IMPLEMENTED, "FCM token updating Failed");
+              return sendResponse(res, HTTP.OK, "FCM Token Updated Successfully Successfully", { data });
+          })
+      }
+  
 };

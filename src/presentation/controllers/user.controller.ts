@@ -17,6 +17,7 @@ import { UserUseCase } from "../../application/use-cases/user.useCase.js";
 import { userCollectionSchema, userSchema } from "../../domain/zod/user.zod.js";
 import { CustomRequest } from "../../domain/interfaces/utils.interface.js";
 import { generateToken } from "../../config/jwt.config.js";
+import { fcmToken } from "../../domain/zod/utils.zod.js";
 
 
 export const UserController = {
@@ -242,7 +243,21 @@ export const UserController = {
             if (!userCart) return sendResponse(res, HTTP.NOT_FOUND, "Cart is Empty");
             return sendResponse(res, HTTP.OK, "Cart Fetched Successfully", { userCart });
         })
-    }
+    },
 
+    async patchUserFCMToken(req: CustomRequest, res: Response) {
+        const validated = validate(fcmToken, req.body, res);
+        if (!validated) return;
+        const { deviceName, token } = validated;
+        return tryCatch(res, async () => {
+            const data = await UserUseCase.updateFCMToken(
+                req.userId as string,
+                deviceName,
+                token
+            );
+            if (!data) return sendResponse(res, HTTP.NOT_IMPLEMENTED, "FCM token updating Failed");
+            return sendResponse(res, HTTP.OK, "FCM Token Updated Successfully", { data });
+        })
+    }
 
 };
