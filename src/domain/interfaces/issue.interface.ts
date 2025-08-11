@@ -1,4 +1,4 @@
-import { RoleEnum } from "./utils.interface";
+import { RoleEnum } from "./utils.interface.js";
 
 
 export enum IssueStatus {

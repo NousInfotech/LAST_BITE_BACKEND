@@ -65,3 +65,6 @@ fixCartIndex()
         console.error('❌ Cart index fix failed:', error);
         process.exit(1);
     });
+
+
+

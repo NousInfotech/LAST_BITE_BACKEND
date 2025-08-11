@@ -1,6 +1,7 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
 import { RestaurantAdminModel } from "../db/mongoose/schemas/restaurantAdmin.schema.js";
 import { IRestaurantAdmin } from "../../domain/interfaces/restaurantAdmin.interface.js";
+import { IFCM } from "../../domain/interfaces/notification.interface.js";
 
 export class RestaurantAdminRepository {
     /** Create a new restaurant admin */
@@ -47,4 +48,31 @@ export class RestaurantAdminRepository {
     async bulkGetByAdminIds(adminIds: string[]) {
         return await RestaurantAdminModel.find({ restaurantAdminId: { $in: adminIds } }, { _id: 0, __v: 0 }).lean();
     }
+    async updateFCMToken(adminId: string, fcmToken: IFCM) {
+        const admin = await RestaurantAdminModel.findOne({ adminId });
+        if (!admin) throw new Error("Restaurant admin not found");
+
+        if (!admin.fcmTokens) {
+            admin.fcmTokens = [];
+        }
+
+        const existingIndex = admin.fcmTokens.findIndex(
+            (token) => token.deviceName === fcmToken.deviceName
+        );
+
+        if (existingIndex !== -1) {
+            admin.fcmTokens[existingIndex].token = fcmToken.token;
+            admin.fcmTokens[existingIndex].lastUpdated = new Date();
+        } else {
+            admin.fcmTokens.push({
+                ...fcmToken,
+                lastUpdated: new Date()
+            });
+        }
+
+        await admin.save();
+        return admin.fcmTokens;
+    }
+
+
 }

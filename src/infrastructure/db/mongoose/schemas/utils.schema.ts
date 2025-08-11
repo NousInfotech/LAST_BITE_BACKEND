@@ -48,3 +48,10 @@ export const addressSchemaGeo = new Schema(
   { _id: false, timestamps: true }
 );
 addressSchemaGeo.index({ location: "2dsphere" });
+
+
+export const fcmSchema = {
+  deviceName: { type: String, required: true },
+  token: { type: String, required: true },
+  lastUpdated: { type: Date, default: Date.now }
+};

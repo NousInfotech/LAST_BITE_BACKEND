@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model, Types } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
-import { addressSchema } from "./utils.schema.js";
+import { addressSchema, fcmSchema } from "./utils.schema.js";
 import { IAddress } from "../../../../domain/interfaces/utils.interface.js";
 import { Favourites, IUser, IUserCart, IUserCollection } from "../../../../domain/interfaces/user.interface.js";
 
@@ -40,6 +40,7 @@ const userSchema = new Schema<UserDoc>(
   {
     userId: { type: String, unique: true },
     name: { type: String, required: true },
+    fcmTokens: [fcmSchema],
     phoneNumber: { type: String, required: true },
     email: { type: String, unique: true },
     profileImage: { type: String },

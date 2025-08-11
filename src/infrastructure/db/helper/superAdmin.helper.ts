@@ -1,4 +1,4 @@
-import { ISuperAdmin } from "../../../domain/interfaces/superAdmin.interface";
+import { ISuperAdmin } from "../../../domain/interfaces/superAdmin.interface.js";
 
 export function sanitizeSuperAdmin(admin: ISuperAdmin | any) {
     if (!admin) return null;

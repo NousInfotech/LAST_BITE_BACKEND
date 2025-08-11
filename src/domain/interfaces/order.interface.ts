@@ -1,7 +1,7 @@
-import { IPayment } from "./payment.interface";
-import { IRestaurant } from "./restaurant.interface";
-import { IUser } from "./user.interface";
-import { IAddress } from "./utils.interface";
+import { IPayment } from "./payment.interface.js";
+import { IRestaurant } from "./restaurant.interface.js";
+import { IUser } from "./user.interface.js";
+import { IAddress } from "./utils.interface.js";
 
 export interface IOrderFoodItem {
   foodItemId: string;

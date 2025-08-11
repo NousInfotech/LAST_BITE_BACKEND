@@ -1,4 +1,4 @@
-import { RestaurantStatusEnum, Days, FoodType } from "./utils.interface";
+import { RestaurantStatusEnum, Days, FoodType } from "./utils.interface.js";
 
 export interface IAddressGeo {
   location: {

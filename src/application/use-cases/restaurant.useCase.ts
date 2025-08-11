@@ -5,6 +5,7 @@ import { UpdateQuery, FilterQuery } from "mongoose";
 import { Role } from "../../domain/interfaces/utils.interface.js";
 import { RestaurantDoc } from "../../infrastructure/db/mongoose/schemas/restaurant.schema.js";
 import { sendRestaurantNotification } from "../../presentation/sockets/restaurantNotification.socket.js";
+import { RestaurantStatusEnum } from "../../domain/interfaces/utils.interface.js";
 
 const restaurantRepo = new RestaurantRepository();
 
@@ -60,7 +61,7 @@ export const RestaurantUseCase = {
                 targetRoleId: restaurantId,
                 message: `Store ${state.status.toLowerCase()}`,
                 emoji: '🏪',
-                theme: state.status === 'OPEN' ? 'success' : 'warning',
+                theme: state.status === RestaurantStatusEnum.VERIFIED ? 'success' : 'warning',
                 metadata: { message: state.message, days: state.days }
             } as any);
         } catch {}

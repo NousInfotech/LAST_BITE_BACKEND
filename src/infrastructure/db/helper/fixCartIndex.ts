@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { config } from '../../../../config/env.js';
+import { config } from '../../../config/env.js';
 
 /**
  * Script to fix the cart.foodItemId unique index issue
@@ -13,6 +13,10 @@ export async function fixCartIndex() {
 
         // Get the users collection
         const db = mongoose.connection.db;
+        if (!db) {
+            throw new Error('Database connection not available');
+        }
+        
         const usersCollection = db.collection('users');
 
         // Check if the problematic index exists
@@ -29,8 +33,10 @@ export async function fixCartIndex() {
                 console.log('⚠️  Found unique index on cart.foodItemId - removing it...');
                 
                 // Drop the problematic index
-                await usersCollection.dropIndex(cartFoodItemIdIndex.name);
-                console.log('✅ Successfully removed unique index on cart.foodItemId');
+                if (cartFoodItemIdIndex.name) {
+                    await usersCollection.dropIndex(cartFoodItemIdIndex.name);
+                    console.log('✅ Successfully removed unique index on cart.foodItemId');
+                }
             } else {
                 console.log('ℹ️  Found non-unique index on cart.foodItemId - keeping it');
             }

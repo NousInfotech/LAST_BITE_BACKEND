@@ -43,7 +43,7 @@ export const documentsSchema = new Schema<IRiderDocument>(
   { _id: false }
 );
 
-interface RiderDoc extends IRider, Document { }
+export interface RiderDoc extends IRider, Document { }
 const riderSchema = new Schema<RiderDoc>(
   {
     riderId: { type: String, unique: true },

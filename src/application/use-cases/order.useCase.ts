@@ -20,6 +20,7 @@ import { generateOtpForDelivery } from "../../utils/generateOtpForDelivery.js";
 import { startOfWeek, format } from "date-fns";
 import { sendUserNotification } from "../../presentation/sockets/userNotification.socket.js";
 import { sendRestaurantNotification } from "../../presentation/sockets/restaurantNotification.socket.js";
+import { RoleEnum } from "../../domain/interfaces/utils.interface.js";
 
 const orderRepo = new OrderRepository();
 const restaurantRepo = new RestaurantRepository();
@@ -665,32 +666,44 @@ export const OrderUseCase = {
             }
         })();
 
-        // Fire-and-forget notifications
-        try {
-            sendUserNotification(userId, {
-                type: 'order',
-                targetRole: 'user',
-                targetRoleId: userId,
-                message: `Order placed successfully`,
-                emoji: '🧾',
-                theme: 'success',
-                metadata: { orderId: order.orderId, restaurantId }
-            } as any);
-        } catch {}
+        // Step 8: Notify User
+        await notificationRepo.createNotification({
+            targetRole: RoleEnum.user,
+            targetRoleId: userId,
+            type: "order",
+            theme: "success",
+            message: `Order ${order.orderId} placed successfully.`,
+            metadata: {
+                orderId
+            },
+            createdAt: new Date(),
+        });
 
-        try {
-            sendRestaurantNotification(restaurantId, {
-                type: 'order',
-                targetRole: 'restaurantAdmin',
-                targetRoleId: restaurantId,
-                message: `New order received`,
-                emoji: '🛎️',
-                theme: 'info',
-                metadata: { orderId: order.orderId, userId }
-            } as any);
-        } catch {}
+        sendUserNotification(userId, {
+            type: "order",
+            message: `Your order ${order.orderId} has been placed successfully.`,
+        });
 
-        return order;
+        // Step 9: Notify Restaurant
+        await notificationRepo.createNotification({
+            targetRole: RoleEnum.restaurantAdmin,
+            targetRoleId: restaurantId,
+            type: "order",
+            message: `You have a new order ${order.orderId} from ${user.name}`,
+            theme: "success",
+            tags: ["order"],
+            metadata: {
+                orderId,
+            },
+            createdAt: new Date(),
+        });
+
+        sendRestaurantNotification(restaurantId, {
+            type: "ORDER_RECEIVED",
+            message: `New order from ${user.name} (${order.orderId})`,
+        });
+
+        return { order, pidgeOrderId };
     },
 
 
@@ -730,24 +743,30 @@ export const OrderUseCase = {
         try {
             const userId = updatedOrder.refIds.userId;
             const restaurantId = updatedOrder.refIds.restaurantId;
-            sendUserNotification(userId, {
-                type: 'order',
-                targetRole: 'user',
-                targetRoleId: userId,
-                message: `Order ${status.toLowerCase()}`,
-                emoji: '🔔',
-                theme: 'info',
-                metadata: { orderId: updatedOrder.orderId, status }
-            } as any);
-            sendRestaurantNotification(restaurantId, {
-                type: 'order',
-                targetRole: 'restaurantAdmin',
-                targetRoleId: restaurantId,
-                message: `Order ${status.toLowerCase()}`,
-                emoji: '🔔',
-                theme: 'info',
-                metadata: { orderId: updatedOrder.orderId, status }
-            } as any);
+            
+            if (userId) {
+                sendUserNotification(userId, {
+                    type: 'order',
+                    targetRole: 'user',
+                    targetRoleId: userId,
+                    message: `Order ${status.toLowerCase()}`,
+                    emoji: '🔔',
+                    theme: 'info',
+                    metadata: { orderId: updatedOrder.orderId, status }
+                } as any);
+            }
+            
+            if (restaurantId) {
+                sendRestaurantNotification(restaurantId, {
+                    type: 'order',
+                    targetRole: 'restaurantAdmin',
+                    targetRoleId: restaurantId,
+                    message: `Order ${status.toLowerCase()}`,
+                    emoji: '🔔',
+                    theme: 'info',
+                    metadata: { orderId: updatedOrder.orderId, status }
+                } as any);
+            }
         } catch {}
         return updatedOrder;
     },
@@ -787,6 +806,13 @@ export const OrderUseCase = {
             restaurantId: o.refIds?.restaurantId
         })));
         return orders;
+    },
+
+    // Get order by ID
+    getOrderById: async (orderId: string) => {
+        const order = await orderRepo.getOrderById(orderId);
+        if (!order) throw new Error("Order not found");
+        return order;
     },
 
     // feedback 

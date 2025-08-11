@@ -3,7 +3,7 @@ import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
 import { IMartStoreAdmin } from "../../../../domain/interfaces/martStoreAdmin.interface.js";
 
 
-interface MartStoreAdminDoc extends IMartStoreAdmin, Document { }
+export interface MartStoreAdminDoc extends IMartStoreAdmin, Document { }
 
 
 const martStoreAdminSchema = new Schema<MartStoreAdminDoc>(

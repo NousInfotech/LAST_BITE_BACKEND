@@ -24,3 +24,8 @@ export const OrderAddressSchema = AddressSchema.refine((data) => {
 }, {
     message: "Either lat/lng or latitude/longitude must be provided"
 });
+
+export const fcmToken = z.object({
+  token: z.string().min(1, "FCM token is required"),
+  deviceName: z.string().min(1, "Device name is required"),
+});

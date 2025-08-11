@@ -37,6 +37,12 @@ export const PaymentUseCase = {
     // @ts-ignore
     return { matched: res.matchedCount ?? 0, modified: res.modifiedCount ?? 0 } as any;
   },
+
+  async getPaymentDetails(paymentId: string) {
+    const payment = await paymentRepo.getPaymentById(paymentId);
+    if (!payment) throw new Error("Payment not found");
+    return payment;
+  },
 };
 
 

@@ -4,12 +4,14 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
-    "moduleDetection": "force",
     "outDir": "./dist",
     "rootDir": "./src",
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "declaration": true,
+    "sourceMap": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

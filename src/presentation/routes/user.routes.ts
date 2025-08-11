@@ -23,7 +23,8 @@ userRouter.get("/me", UserController.getUserByUserId);
 userRouter.put("/me", UserController.updateUser);
 userRouter.delete("/me", UserController.deleteUser);
 userRouter.patch("/favorites", UserController.updateUserFavourites);
-userRouter.patch("/block-restaurant", UserController.blockRestaurant)
+userRouter.patch("/block-restaurant", UserController.blockRestaurant);
+userRouter.patch("/fcm-token",UserController.patchUserFCMToken);
 
 // ------------------------------
 // Address Routes (nested under userId)
@@ -49,5 +50,8 @@ userRouter.delete("/wishlist/:collectionId", UserController.deleteCollection);
 
 userRouter.get("/cart", UserController.getUserCart);
 userRouter.patch("/cart", UserController.updateCart);
+
+
+
 
 export default userRouter;

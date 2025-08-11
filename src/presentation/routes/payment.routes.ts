@@ -9,6 +9,8 @@ paymentRouter.use(authMiddleware(["superAdmin", "restaurantAdmin", "martStoreAdm
 
 paymentRouter.get("/weekly", (req: Request, res: Response) => { void PaymentController.listWeekly(req, res); });
 paymentRouter.patch("/settlement", (req: Request, res: Response) => { void PaymentController.updateSettlementStatus(req, res); });
+paymentRouter.get("/details/:paymentId", (req: Request, res: Response) => { void PaymentController.getPaymentDetails(req, res); });
+paymentRouter.get("/order/:orderId", (req: Request, res: Response) => { void PaymentController.getOrderDetails(req, res); });
 
 export default paymentRouter;
 

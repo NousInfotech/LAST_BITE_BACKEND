@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
 import { ISuperAdmin } from "../../../../domain/interfaces/superAdmin.interface.js";
 
-interface SuperAdminDoc extends ISuperAdmin, Document { }
+export interface SuperAdminDoc extends ISuperAdmin, Document { }
 
 
 const superAdminSchema = new Schema<SuperAdminDoc>(
