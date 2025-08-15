@@ -241,6 +241,87 @@ export const OrderController = {
             return sendResponse(res, HTTP.OK, "Past orders fetched successfully", { orders });
         });
     },
+
+    async getUserReviews(req: CustomRequest, res: Response) {
+        return tryCatch(res, async () => {
+            const userId = req.userId;
+            const martStoreAdminId = req.martStoreAdminId;
+            const restaurantAdminId = req.restaurantAdminId;
+            const role = req.role;
+
+            let reviews = [];
+
+            if (role === 'martStoreAdmin' && martStoreAdminId) {
+                // For mart store admins, get reviews for their store
+                const { MartStoreAdminUseCase } = await import("../../application/use-cases/martStoreAdmin.useCase.js");
+                const admin = await MartStoreAdminUseCase.getAdminById(martStoreAdminId);
+                
+                if (!admin?.martStoreId) {
+                    return sendError(res, HTTP.NOT_FOUND, "No mart store associated with this admin");
+                }
+
+                const allOrders = await OrderUseCase.getRestaurantOrders(admin.martStoreId);
+                reviews = allOrders
+                    .filter((order: any) => order.orderStatus === 'DELIVERED' && order.feedback)
+                    .map((order: any) => ({
+                        orderId: order.orderId,
+                        customerName: order.customerName || 'Customer',
+                        foodItems: order.foodItems?.map((item: any) => item.name || item.foodItemId) || [],
+                        orderTotal: order.pricing?.finalPayable || 0,
+                        orderRating: order.feedback?.orderRating || 0,
+                        riderRating: order.feedback?.riderRating || 0,
+                        review: order.feedback?.review || '',
+                        orderDate: order.createdAt,
+                        createdAt: order.feedback?.createdAt || order.updatedAt
+                    }));
+            } else if (role === 'restaurantAdmin' && restaurantAdminId) {
+                // For restaurant admins, get reviews for their restaurant
+                const { RestaurantAdminUseCase } = await import("../../application/use-cases/restaurantAdmin.useCase.js");
+                const admin = await RestaurantAdminUseCase.getAdminById(restaurantAdminId);
+                
+                if (!admin?.restaurantId) {
+                    return sendError(res, HTTP.NOT_FOUND, "No restaurant associated with this admin");
+                }
+
+                const allOrders = await OrderUseCase.getRestaurantOrders(admin.restaurantId);
+                reviews = allOrders
+                    .filter((order: any) => order.orderStatus === 'DELIVERED' && order.feedback)
+                    .map((order: any) => ({
+                        orderId: order.orderId,
+                        customerName: order.customerName || 'Customer',
+                        foodItems: order.foodItems?.map((item: any) => item.name || item.foodItemId) || [],
+                        orderTotal: order.pricing?.finalPayable || 0,
+                        orderRating: order.feedback?.orderRating || 0,
+                        riderRating: order.feedback?.riderRating || 0,
+                        review: order.feedback?.review || '',
+                        orderDate: order.createdAt,
+                        createdAt: order.feedback?.createdAt || order.updatedAt
+                    }));
+            } else if (userId) {
+                // For regular users, get their own reviews
+                const orders = await OrderUseCase.getUserPastOrders(userId);
+                reviews = orders
+                    .filter((order: any) => order.orderStatus === 'DELIVERED')
+                    .map((order: any) => ({
+                        orderId: order.orderId,
+                        restaurantName: order.foodItems?.[0]?.name || 'Restaurant',
+                        foodItems: order.foodItems?.map((item: any) => item.name || item.foodItemId) || [],
+                        orderTotal: order.pricing?.finalPayable || 0,
+                        orderRating: order.feedback?.orderRating || 0,
+                        riderRating: order.feedback?.riderRating || 0,
+                        review: order.feedback?.review || '',
+                        orderDate: order.createdAt,
+                        createdAt: order.feedback?.createdAt || order.updatedAt,
+                        hasFeedback: !!(order.feedback && order.feedback.orderRating)
+                    }));
+            } else {
+                return sendError(res, HTTP.UNAUTHORIZED, "Invalid user or admin ID");
+            }
+
+            return sendResponse(res, HTTP.OK, "Reviews fetched successfully", { reviews });
+        });
+    },
+
     async orderFeeback(req: CustomRequest, res: Response) {
         const { orderId } = req.params;
         const validated = validate(OrderFeedbackSchema, req.body, res);
