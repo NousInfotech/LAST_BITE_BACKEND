@@ -249,7 +249,7 @@ export const OrderController = {
             const restaurantAdminId = req.restaurantAdminId;
             const role = req.role;
 
-            let reviews = [];
+            let reviews: any[] = [];
 
             if (role === 'martStoreAdmin' && martStoreAdminId) {
                 // For mart store admins, get reviews for their store
@@ -317,6 +317,20 @@ export const OrderController = {
             } else {
                 return sendError(res, HTTP.UNAUTHORIZED, "Invalid user or admin ID");
             }
+
+            // Ensure reviews is always an array
+            if (!Array.isArray(reviews)) {
+                reviews = [];
+            }
+
+            console.log('🔍 [ORDER CONTROLLER] getUserReviews - Final reviews array:', {
+                role,
+                userId,
+                martStoreAdminId,
+                restaurantAdminId,
+                reviewsCount: reviews.length,
+                reviews: reviews
+            });
 
             return sendResponse(res, HTTP.OK, "Reviews fetched successfully", { reviews });
         });
