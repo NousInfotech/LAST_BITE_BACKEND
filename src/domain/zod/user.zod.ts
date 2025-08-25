@@ -20,8 +20,8 @@ export const userCollectionSchema = z.object({
 
 export const userCartSchema = z.object({
   foodItemId: z.string().min(1, "Food ItemId is needed"),
-  quantity: z.number().min(0, "Quantity must be 0 or more")
-
+  quantity: z.number().min(0, "Quantity must be 0 or more"),
+  restaurantId: z.string().min(1, "Restaurant ID is required") // Add restaurantId validation
 });
 
 

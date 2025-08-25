@@ -28,7 +28,8 @@ const FavouritesSchema = new Schema<Favourites>(
 const CartSchema = new Schema<IUserCart>(
   {
     foodItemId: { type: String, required: true },
-    quantity: { type: Number, required: true }
+    quantity: { type: Number, required: true },
+    restaurantId: { type: String, required: true } // Add restaurantId field
   },
   { _id: false, timestamps: true }
 )

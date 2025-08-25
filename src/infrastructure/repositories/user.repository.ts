@@ -195,7 +195,7 @@ export class UserRepository {
      * @param {string} userId - User ID to get addresses for
      */
     async getAddresses(userId: string) {
-        const user = await UserModel.findOne({ userId }, { "addresses._id": 0 }).lean();
+        const user = await UserModel.findOne({ userId }).lean();
         return user?.addresses || [];
     }
 
@@ -333,10 +333,12 @@ export class UserRepository {
             } else {
                 if (index !== -1) {
                     user.cart[index].quantity = payload.quantity; // update
+                    user.cart[index].restaurantId = payload.restaurantId; // update restaurantId too
                 } else {
                     user.cart.push({
                         foodItemId: payload.foodItemId,
-                        quantity: payload.quantity
+                        quantity: payload.quantity,
+                        restaurantId: payload.restaurantId // Include restaurantId
                     });
                 }
             }

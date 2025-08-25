@@ -3,6 +3,7 @@ import { validate } from "../../utils/validation.js";
 import {
     addressSchema,
     userIdSchema,
+    addressIdSchema,
     updateAddressSchema,
     updateUserSchema,
     favoriteValidator,
@@ -103,10 +104,10 @@ export const UserController = {
     },
 
     async updateAddress(req: CustomRequest, res: Response) {
-        const paramCheck = validate(userIdSchema, req, res);
+        const paramCheck = validate(addressIdSchema, req, res);
         if (!paramCheck) return;
 
-        const { userId, addressId } = req.params;
+        const { userId, addressId } = paramCheck;
 
         const bodyCheck = validate(updateAddressSchema, req.body, res);
         if (!bodyCheck) return;
@@ -121,10 +122,10 @@ export const UserController = {
 
 
     async deleteAddress(req: CustomRequest, res: Response) {
-        const parsed = validate(userIdSchema, req, res);
+        const parsed = validate(addressIdSchema, req, res);
         if (!parsed) return;
 
-        const { userId, addressId } = req.params;
+        const { userId, addressId } = parsed;
 
         return tryCatch(res, async () => {
             const addresses = await UserUseCase.deleteAddress(userId, addressId);

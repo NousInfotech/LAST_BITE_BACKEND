@@ -11,7 +11,7 @@ export const addressSchema = new Schema(
     state: { type: String },
     country: { type: String },
     pincode: { type: String },
-    fullAddress: { type: String },
+    address: { type: String }, // Full written address
     tag: {
       type: String,
       enum: ["home", "office", "friends", "others"],

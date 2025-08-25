@@ -53,7 +53,7 @@ export interface IAddress {
     state: string;
     country: string;
     pincode: string;
-    fullAddress?: string;
+    address?: string; // Changed from fullAddress to address to match domain schema
     tag?: "home" | "office" | "friends" | "others";
 }
 export enum FoodType {

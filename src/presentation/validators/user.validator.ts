@@ -20,6 +20,11 @@ export const userIdSchema = z.object({
     userId: z.string().min(1, "userId is required")
 });
 
+export const addressIdSchema = z.object({
+    userId: z.string().min(1, "userId is required"),
+    addressId: z.string().min(1, "addressId is required")
+});
+
 export const favoriteValidator = z.object({
     favourites: z.object({
         restaurants: z.array(z.string()).optional(), // allow array or undefined

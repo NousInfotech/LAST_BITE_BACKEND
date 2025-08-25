@@ -9,6 +9,7 @@ export interface Favourites {
 export interface IUserCart {
     foodItemId: string;
     quantity: number;
+    restaurantId: string; // Add restaurantId field
 }
 
 export interface IUser {
