@@ -22,6 +22,7 @@ export const UserUseCase = {
     updateAddress: (userId: string, addressId: string, data: Partial<IAddress>) =>
         userRepo.updateAddress(userId, addressId, data),
     deleteAddress: (userId: string, addressId: string) => userRepo.deleteAddress(userId, addressId),
+    fixAddressesWithoutIds: (userId: string) => userRepo.fixAddressesWithoutIds(userId),
 
     // Favourites
     updateFavourites: (userId: string, favourites: Favourites, action: FavoritesActions) => {

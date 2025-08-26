@@ -1,4 +1,5 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
+import mongoose from "mongoose";
 import { Favourites, IUser, IUserCart, IUserCollection } from "../../domain/interfaces/user.interface.js";
 import { IAddress } from "../../domain/interfaces/utils.interface.js";
 import { UserCollectionModel, UserDoc, UserModel } from "../db/mongoose/schemas/user.schema.js";
@@ -191,12 +192,57 @@ export class UserRepository {
     }
 
     /**
+     * Fix addresses without _id fields by adding them permanently to the database
+     * This is a one-time fix for existing addresses
+     * @param {string} userId - User ID to fix addresses for
+     */
+    async fixAddressesWithoutIds(userId: string) {
+        const user = await UserModel.findOne({ userId });
+        if (!user?.addresses) return null;
+        
+        let hasChanges = false;
+        
+        // Check each address and add _id if missing
+        user.addresses.forEach((addr, index) => {
+            if (!addr._id) {
+                addr._id = new mongoose.Types.ObjectId();
+                hasChanges = true;
+                console.log(`🔧 [UserRepository] Permanently fixed address ${index} for user ${userId}`);
+            }
+        });
+        
+        // Save changes if any addresses were fixed
+        if (hasChanges) {
+            await user.save();
+            console.log(`🔧 [UserRepository] Saved fixed addresses for user ${userId}`);
+        }
+        
+        return user.addresses;
+    }
+
+    /**
      * Get all addresses of the user
      * @param {string} userId - User ID to get addresses for
      */
     async getAddresses(userId: string) {
         const user = await UserModel.findOne({ userId }).lean();
-        return user?.addresses || [];
+        if (!user?.addresses) return [];
+        
+        // Check if any addresses are missing _id fields
+        const hasAddressesWithoutIds = user.addresses.some(addr => !addr._id);
+        
+        if (hasAddressesWithoutIds) {
+            // If addresses are missing _id, fix them permanently in the database
+            console.log(`🔧 [UserRepository] Found addresses without _id for user ${userId}, fixing them...`);
+            await this.fixAddressesWithoutIds(userId);
+            
+            // Fetch the fixed addresses
+            const fixedUser = await UserModel.findOne({ userId }).lean();
+            return fixedUser?.addresses || [];
+        }
+        
+        // All addresses already have _id fields
+        return user.addresses;
     }
 
     /**

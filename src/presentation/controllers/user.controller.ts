@@ -105,6 +105,20 @@ export const UserController = {
         });
     },
 
+    async fixAddressesWithoutIds(req: CustomRequest, res: Response) {
+        const userId = req.userId;
+        
+        if (!userId) {
+            return sendError(res, HTTP.UNAUTHORIZED, "User not authenticated");
+        }
+
+        return tryCatch(res, async () => {
+            const addresses = await UserUseCase.fixAddressesWithoutIds(userId);
+            if (!addresses) return sendError(res, HTTP.NOT_FOUND, "User not found");
+            return sendResponse(res, HTTP.OK, "Addresses fixed successfully", addresses);
+        });
+    },
+
     async updateAddress(req: CustomRequest, res: Response) {
         // Get addressId from URL params and userId from authenticated request
         const { addressId } = req.params;

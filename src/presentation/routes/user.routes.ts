@@ -33,6 +33,7 @@ userRouter.post("/me/addresses", UserController.addAddress);
 userRouter.get("/me/addresses", UserController.getAddresses);
 userRouter.put("/me/addresses/:addressId", UserController.updateAddress);
 userRouter.delete("/me/addresses/:addressId", UserController.deleteAddress);
+userRouter.post("/me/addresses/fix", UserController.fixAddressesWithoutIds);
 
 // ------------------------------
 // Collection Routes (nested under userId)
