@@ -76,13 +76,14 @@ export const UserController = {
     },
 
     async addAddress(req: CustomRequest, res: Response) {
-        const paramCheck = validate(userIdSchema, req, res);
-        if (!paramCheck) return;
+        const userId = req.userId;
+        
+        if (!userId) {
+            return sendError(res, HTTP.UNAUTHORIZED, "User not authenticated");
+        }
 
         const bodyCheck = validate(addressSchema, req.body, res);
         if (!bodyCheck) return;
-
-        const { userId } = paramCheck;
 
         return tryCatch(res, async () => {
             const addresses = await UserUseCase.addAddress(userId, req.body);
@@ -92,10 +93,11 @@ export const UserController = {
     },
 
     async getAddresses(req: CustomRequest, res: Response) {
-        const parsed = validate(userIdSchema, req, res);
-        if (!parsed) return;
-
-        const { userId } = parsed;
+        const userId = req.userId;
+        
+        if (!userId) {
+            return sendError(res, HTTP.UNAUTHORIZED, "User not authenticated");
+        }
 
         return tryCatch(res, async () => {
             const addresses = await UserUseCase.getAddresses(userId);
@@ -104,10 +106,17 @@ export const UserController = {
     },
 
     async updateAddress(req: CustomRequest, res: Response) {
-        const paramCheck = validate(addressIdSchema, req, res);
-        if (!paramCheck) return;
+        // Get addressId from URL params and userId from authenticated request
+        const { addressId } = req.params;
+        const userId = req.userId;
 
-        const { userId, addressId } = paramCheck;
+        if (!addressId) {
+            return sendError(res, HTTP.BAD_REQUEST, "Address ID is required");
+        }
+
+        if (!userId) {
+            return sendError(res, HTTP.UNAUTHORIZED, "User not authenticated");
+        }
 
         const bodyCheck = validate(updateAddressSchema, req.body, res);
         if (!bodyCheck) return;
@@ -122,10 +131,17 @@ export const UserController = {
 
 
     async deleteAddress(req: CustomRequest, res: Response) {
-        const parsed = validate(addressIdSchema, req, res);
-        if (!parsed) return;
+        // Get addressId from URL params and userId from authenticated request
+        const { addressId } = req.params;
+        const userId = req.userId;
 
-        const { userId, addressId } = parsed;
+        if (!addressId) {
+            return sendError(res, HTTP.BAD_REQUEST, "Address ID is required");
+        }
+
+        if (!userId) {
+            return sendError(res, HTTP.UNAUTHORIZED, "User not authenticated");
+        }
 
         return tryCatch(res, async () => {
             const addresses = await UserUseCase.deleteAddress(userId, addressId);
@@ -175,7 +191,13 @@ export const UserController = {
     },
 
     async createCollection(req: CustomRequest, res: Response) {
-        const body = { ...req.body, userId: req.userId }
+        const userId = req.userId;
+        
+        if (!userId) {
+            return sendError(res, HTTP.UNAUTHORIZED, "User not authenticated");
+        }
+        
+        const body = { ...req.body, userId }
         const validation = validate(userCollectionSchema, body, res);
         if (!validation) return;
 
@@ -187,8 +209,14 @@ export const UserController = {
     },
 
     async getCollections(req: CustomRequest, res: Response) {
+        const userId = req.userId;
+        
+        if (!userId) {
+            return sendError(res, HTTP.UNAUTHORIZED, "User not authenticated");
+        }
+        
         return tryCatch(res, async () => {
-            const filter = { ...req.query, userId: req.userId }; // Assuming user info from auth middleware
+            const filter = { ...req.query, userId }; // Assuming user info from auth middleware
             const collections = await UserUseCase.getCollections(filter);
             return sendResponse(res, HTTP.OK, "Collections fetched successfully", { collections });
         });
@@ -228,31 +256,49 @@ export const UserController = {
     },
 
     async updateCart(req: CustomRequest, res: Response) {
+        const userId = req.userId;
+        
+        if (!userId) {
+            return sendError(res, HTTP.UNAUTHORIZED, "User not authenticated");
+        }
+        
         const { cart } = req.body;
         const validation = validate(cartValidator, cart, res);
         if (!validation) return;
         return tryCatch(res, async () => {
-            const userCart = await UserUseCase.updateUserCart(req.userId as string, cart);
+            const userCart = await UserUseCase.updateUserCart(userId, cart);
             if (!userCart) return sendResponse(res, HTTP.NOT_FOUND, "Cart is Empty");
             return sendResponse(res, HTTP.OK, "Cart updated succesfully", { userCart });
         })
     },
 
     async getUserCart(req: CustomRequest, res: Response) {
+        const userId = req.userId;
+        
+        if (!userId) {
+            return sendError(res, HTTP.UNAUTHORIZED, "User not authenticated");
+        }
+        
         return tryCatch(res, async () => {
-            const userCart = await UserUseCase.getUserCart(req.userId as string);
+            const userCart = await UserUseCase.getUserCart(userId);
             if (!userCart) return sendResponse(res, HTTP.NOT_FOUND, "Cart is Empty");
             return sendResponse(res, HTTP.OK, "Cart Fetched Successfully", { userCart });
         })
     },
 
     async patchUserFCMToken(req: CustomRequest, res: Response) {
+        const userId = req.userId;
+        
+        if (!userId) {
+            return sendError(res, HTTP.UNAUTHORIZED, "User not authenticated");
+        }
+        
         const validated = validate(fcmToken, req.body, res);
         if (!validated) return;
         const { deviceName, token } = validated;
         return tryCatch(res, async () => {
             const data = await UserUseCase.updateFCMToken(
-                req.userId as string,
+                userId,
                 deviceName,
                 token
             );
