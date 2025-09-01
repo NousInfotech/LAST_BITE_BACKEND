@@ -2,6 +2,7 @@ import { Server as HttpServer } from "http";
 import { Server as SocketIOServer, Socket } from "socket.io";
 import { handleUserSocket } from "./presentation/sockets/userNotification.socket.js";
 import { handleRestaurantSocket } from "./presentation/sockets/restaurantNotification.socket.js";
+import { handleMartStoreSocket } from "./presentation/sockets/martStoreNotification.socket.js";
 
 let io: SocketIOServer;
 
@@ -20,6 +21,7 @@ export const initSocketServer = (server: HttpServer) => {
     // Register notification rooms
     handleUserSocket(socket);
     handleRestaurantSocket(socket);
+    handleMartStoreSocket(socket);
 
     socket.on("disconnect", () => {
       console.log("🔴 Client disconnected:", socket.id);

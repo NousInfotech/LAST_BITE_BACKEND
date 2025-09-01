@@ -20,6 +20,7 @@ import { generateOtpForDelivery } from "../../utils/generateOtpForDelivery.js";
 import { startOfWeek, format } from "date-fns";
 import { sendUserNotification } from "../../presentation/sockets/userNotification.socket.js";
 import { sendRestaurantNotification } from "../../presentation/sockets/restaurantNotification.socket.js";
+import { sendMartStoreNotification } from "../../presentation/sockets/martStoreNotification.socket.js";
 import { RoleEnum } from "../../domain/interfaces/utils.interface.js";
 
 const orderRepo = new OrderRepository();
@@ -676,26 +677,106 @@ export const OrderUseCase = {
         sendUserNotification(userId, {
             type: "order",
             message: `Your order ${order.orderId} has been placed successfully.`,
-        });
-
-        // Step 9: Notify Restaurant
-        await notificationRepo.createNotification({
-            targetRole: RoleEnum.restaurantAdmin,
-            targetRoleId: restaurantId,
-            type: "order",
-            message: `You have a new order ${order.orderId} from ${user.name}`,
-            theme: "success",
-            tags: ["order"],
+            subMessage: `Order #${order.orderId} from ${restaurantId.startsWith('mart_') ? 'Instamart' : 'Restaurant'} - ₹${order.pricing.finalPayable.toFixed(2)}`,
+            theme: "success" as any,
+            emoji: "📦",
+            priority: "high",
+            category: "orders",
             metadata: {
-                orderId,
+                orderId: order.orderId,
+                restaurantName: restaurantId.startsWith('mart_') ? 'Instamart' : 'Restaurant',
+                totalAmount: order.pricing.finalPayable,
+                userId,
+                userRole: "user"
             },
-            createdAt: new Date(),
+            userId,
+            userRole: "user",
+            orderId: order.orderId,
+            restaurantId
         });
 
-        sendRestaurantNotification(restaurantId, {
-            type: "ORDER_RECEIVED",
-            message: `New order from ${user.name} (${order.orderId})`,
-        });
+        // Step 9: Notify Restaurant/Mart Store
+        const isMartStore = restaurantId.startsWith('mart_'); // Assuming mart store IDs start with 'mart_'
+        
+        if (isMartStore) {
+            // Notify Mart Store
+            await notificationRepo.createNotification({
+                targetRole: RoleEnum.martStoreAdmin as any,
+                targetRoleId: restaurantId,
+                type: "order",
+                message: `New Instamart Order! 🛒`,
+                theme: "success" as any,
+                tags: ["order", "instamart"],
+                metadata: {
+                    orderId,
+                    customerName: user.name,
+                    totalAmount: order.pricing.finalPayable,
+                    foodItems: order.foodItems.map(item => item.name).slice(0, 3)
+                },
+                createdAt: new Date(),
+            });
+
+            sendMartStoreNotification(restaurantId, {
+                type: "order",
+                message: "New Instamart Order! 🛒",
+                subMessage: `Order #${order.orderId} from ${user.name} - ₹${order.pricing.finalPayable.toFixed(2)}`,
+                theme: "success" as any,
+                emoji: "🛒",
+                priority: "high",
+                category: "orders",
+                metadata: {
+                    orderId: order.orderId,
+                    customerName: user.name,
+                    totalAmount: order.pricing.finalPayable,
+                    foodItems: order.foodItems.map(item => item.name).slice(0, 3),
+                    restaurantId,
+                    userRole: "martStoreAdmin"
+                },
+                restaurantId,
+                userRole: "martStoreAdmin",
+                orderId: order.orderId,
+                userId
+            });
+        } else {
+            // Notify Restaurant
+            await notificationRepo.createNotification({
+                targetRole: RoleEnum.restaurantAdmin,
+                targetRoleId: restaurantId,
+                type: "order",
+                message: `New Order Received! 📦`,
+                theme: "success" as any,
+                tags: ["order"],
+                metadata: {
+                    orderId,
+                    customerName: user.name,
+                    totalAmount: order.pricing.finalPayable,
+                    foodItems: order.foodItems.map(item => item.name).slice(0, 3)
+                },
+                createdAt: new Date(),
+            });
+
+            sendRestaurantNotification(restaurantId, {
+                type: "order",
+                message: "New Order Received! 📦",
+                subMessage: `Order #${order.orderId} from ${user.name} - ₹${order.pricing.finalPayable.toFixed(2)}`,
+                theme: "success" as any,
+                emoji: "📦",
+                priority: "high",
+                category: "orders",
+                metadata: {
+                    orderId: order.orderId,
+                    customerName: user.name,
+                    totalAmount: order.pricing.finalPayable,
+                    foodItems: order.foodItems.map(item => item.name).slice(0, 3),
+                    restaurantId,
+                    userRole: "restaurantAdmin"
+                },
+                restaurantId,
+                userRole: "restaurantAdmin",
+                orderId: order.orderId,
+                userId
+            });
+        }
 
         return { order, pidgeOrderId };
     },
@@ -733,35 +814,281 @@ export const OrderUseCase = {
     updateOrderStatus: async (orderId: string, status: IOrder["orderStatus"]) => {
         const updatedOrder = await orderRepo.updateOrderStatus(orderId, status);
         if (!updatedOrder) throw new Error("Order not found or status not updated");
-        // Notify both parties about status updates
+        
+        // Get user and restaurant details for notifications
+        const userId = updatedOrder.refIds.userId;
+        const restaurantId = updatedOrder.refIds.restaurantId;
+        
         try {
-            const userId = updatedOrder.refIds.userId;
-            const restaurantId = updatedOrder.refIds.restaurantId;
+            // Get user details
+            const user = userId ? await userRepo.findByUserId(userId) : null;
+            const restaurant = restaurantId ? await restaurantRepo.getRestaurantLocationById(restaurantId) : null;
             
+            // Get restaurant name from a different source or use a fallback
+            const restaurantName = restaurantId ? `Restaurant ${restaurantId.slice(-4)}` : 'Restaurant';
+            
+            // Get food items for notification
+            const foodItems = updatedOrder.foodItems || [];
+            const foodNames = foodItems.map(item => item.name || item.foodItemId).slice(0, 3);
+            const foodSummary = foodNames.length > 3 
+                ? `${foodNames.join(', ')} +${foodItems.length - 3} more`
+                : foodNames.join(', ');
+            
+            // Create status-specific notification messages
+            const getNotificationData = (status: IOrder["orderStatus"]) => {
+                const baseData = {
+                    orderId: updatedOrder.orderId,
+                    status,
+                    foodSummary,
+                    totalAmount: updatedOrder.pricing?.finalPayable || 0
+                };
+                
+                switch (status) {
+                    case IOrderStatusEnum.CONFIRMED:
+                        return {
+                            user: {
+                                message: "Order Confirmed! ✅",
+                                subMessage: `${restaurantName} confirmed your order. Estimated delivery time: 30-45 minutes.`,
+                                theme: "success",
+                                emoji: "✅",
+                                priority: "high"
+                            },
+                            restaurant: {
+                                message: "Order Confirmed Successfully! ✅",
+                                subMessage: `Order #${updatedOrder.orderId} confirmed. Customer: ${user?.name || 'Customer'}`,
+                                theme: "success",
+                                emoji: "✅",
+                                priority: "normal"
+                            }
+                        };
+                    
+                    case IOrderStatusEnum.PREPARING:
+                        return {
+                            user: {
+                                message: "Order Being Prepared! 👨‍🍳",
+                                subMessage: `${restaurantName} is preparing your order.`,
+                                theme: "info",
+                                emoji: "👨‍🍳",
+                                priority: "normal"
+                            },
+                            restaurant: {
+                                message: "Order Preparation Started! 👨‍🍳",
+                                subMessage: `Started preparing order #${updatedOrder.orderId} for ${user?.name || 'Customer'}`,
+                                theme: "info",
+                                emoji: "👨‍🍳",
+                                priority: "normal"
+                            }
+                        };
+                    
+                    case IOrderStatusEnum.READY:
+                        return {
+                            user: {
+                                message: "Order Ready! 📦",
+                                subMessage: `${restaurantName} has prepared your order and it's ready for pickup.`,
+                                theme: "success",
+                                emoji: "📦",
+                                priority: "high"
+                            },
+                            restaurant: {
+                                message: "Order Ready for Pickup! 📦",
+                                subMessage: `Order #${updatedOrder.orderId} is ready for delivery partner pickup.`,
+                                theme: "success",
+                                emoji: "📦",
+                                priority: "normal"
+                            }
+                        };
+                    
+                    case IOrderStatusEnum.OUT_FOR_DELIVERY:
+                        return {
+                            user: {
+                                message: "Order Picked Up! 🚀",
+                                subMessage: `Your order has been picked up and is on the way to you.`,
+                                theme: "info" as const,
+                                emoji: "🚀",
+                                priority: "high"
+                            },
+                            restaurant: {
+                                message: "Order Picked Up! 🚚",
+                                subMessage: `Delivery partner picked up order #${updatedOrder.orderId}.`,
+                                theme: "info" as const,
+                                emoji: "🚚",
+                                priority: "normal"
+                            }
+                        };
+                    
+                    case IOrderStatusEnum.IN_TRANSIT:
+                        return {
+                            user: {
+                                message: "Order In Transit! 🚚",
+                                subMessage: `Your order is on the way. You can track its progress.`,
+                                theme: "info",
+                                emoji: "🚚",
+                                priority: "normal"
+                            },
+                            restaurant: {
+                                message: "Order In Transit! 🚚",
+                                subMessage: `Order #${updatedOrder.orderId} is being delivered to ${user?.name || 'Customer'}.`,
+                                theme: "info",
+                                emoji: "🚚",
+                                priority: "normal"
+                            }
+                        };
+                    
+                    case IOrderStatusEnum.DELIVERED:
+                        return {
+                            user: {
+                                message: "Order Delivered! 🎊",
+                                subMessage: `Your order has been delivered successfully. Enjoy your meal!`,
+                                theme: "success",
+                                emoji: "🎊",
+                                priority: "high"
+                            },
+                            restaurant: {
+                                message: "Order Delivered! 🎊",
+                                subMessage: `Order #${updatedOrder.orderId} delivered successfully to ${user?.name || 'Customer'}.`,
+                                theme: "success",
+                                emoji: "🎊",
+                                priority: "normal"
+                            }
+                        };
+                    
+                    case IOrderStatusEnum.CANCELLED:
+                        return {
+                            user: {
+                                message: "Order Cancelled ❌",
+                                subMessage: `Your order has been cancelled. Refund will be processed shortly.`,
+                                theme: "warning",
+                                emoji: "❌",
+                                priority: "high"
+                            },
+                            restaurant: {
+                                message: "Order Cancelled ❌",
+                                subMessage: `Order #${updatedOrder.orderId} has been cancelled.`,
+                                theme: "warning",
+                                emoji: "❌",
+                                priority: "normal"
+                            }
+                        };
+                    
+                    default:
+                        return {
+                            user: {
+                                message: `Order Status Updated`,
+                                subMessage: `Your order status has been updated to ${status.toLowerCase()}.`,
+                                theme: "info",
+                                emoji: "🔔",
+                                priority: "normal"
+                            },
+                            restaurant: {
+                                message: `Order Status Updated`,
+                                subMessage: `Order #${updatedOrder.orderId} status updated to ${status.toLowerCase()}.`,
+                                theme: "info",
+                                emoji: "🔔",
+                                priority: "normal"
+                            }
+                        };
+                }
+            };
+            
+            const notificationData = getNotificationData(status);
+            
+            // Send notification to user
             if (userId) {
-                sendUserNotification(userId, {
-                    type: 'order',
-                    targetRole: 'user',
+                const userNotification = {
+                    type: "order",
+                    message: notificationData.user.message,
+                    subMessage: notificationData.user.subMessage,
+                    theme: notificationData.user.theme as any,
+                    emoji: notificationData.user.emoji,
+                    priority: notificationData.user.priority,
+                    category: "orders",
+                    metadata: {
+                        orderId: updatedOrder.orderId,
+                        status,
+                        foodSummary,
+                        totalAmount: updatedOrder.pricing?.finalPayable || 0,
+                        restaurantName: restaurantName,
+                        userId,
+                        userRole: "user"
+                    },
+                    userId,
+                    userRole: "user",
+                    orderId: updatedOrder.orderId,
+                    restaurantId
+                };
+                
+                sendUserNotification(userId, userNotification);
+                
+                // Also create notification in database
+                await notificationRepo.createNotification({
+                    targetRole: RoleEnum.user,
                     targetRoleId: userId,
-                    message: `Order ${status.toLowerCase()}`,
-                    emoji: '🔔',
-                    theme: 'info',
-                    metadata: { orderId: updatedOrder.orderId, status }
-                } as any);
+                    type: "order",
+                    message: notificationData.user.message,
+                    theme: notificationData.user.theme as any,
+                    tags: ["order", status.toLowerCase()],
+                    metadata: {
+                        orderId: updatedOrder.orderId,
+                        status,
+                        foodSummary,
+                        totalAmount: updatedOrder.pricing?.finalPayable || 0
+                    },
+                    createdAt: new Date(),
+                });
             }
             
+            // Send notification to restaurant
             if (restaurantId) {
-                sendRestaurantNotification(restaurantId, {
-                    type: 'order',
-                    targetRole: 'restaurantAdmin',
+                const restaurantNotification = {
+                    type: "order",
+                    message: notificationData.restaurant.message,
+                    subMessage: notificationData.restaurant.subMessage,
+                    theme: notificationData.restaurant.theme as any,
+                    emoji: notificationData.restaurant.emoji,
+                    priority: notificationData.restaurant.priority,
+                    category: "orders",
+                    metadata: {
+                        orderId: updatedOrder.orderId,
+                        status,
+                        foodSummary,
+                        totalAmount: updatedOrder.pricing?.finalPayable || 0,
+                        customerName: user?.name,
+                        restaurantId,
+                        userRole: "restaurantAdmin"
+                    },
+                    restaurantId,
+                    userRole: "restaurantAdmin",
+                    orderId: updatedOrder.orderId,
+                    userId
+                };
+                
+                sendRestaurantNotification(restaurantId, restaurantNotification);
+                
+                // Also create notification in database
+                await notificationRepo.createNotification({
+                    targetRole: RoleEnum.restaurantAdmin,
                     targetRoleId: restaurantId,
-                    message: `Order ${status.toLowerCase()}`,
-                    emoji: '🔔',
-                    theme: 'info',
-                    metadata: { orderId: updatedOrder.orderId, status }
-                } as any);
+                    type: "order",
+                    message: notificationData.restaurant.message,
+                    theme: notificationData.restaurant.theme as any,
+                    tags: ["order", status.toLowerCase()],
+                    metadata: {
+                        orderId: updatedOrder.orderId,
+                        status,
+                        foodSummary,
+                        totalAmount: updatedOrder.pricing?.finalPayable || 0
+                    },
+                    createdAt: new Date(),
+                });
             }
-        } catch {}
+            
+            console.log(`✅ Order status updated to ${status} for order ${orderId}. Notifications sent to user and restaurant.`);
+            
+        } catch (error) {
+            console.error(`❌ Error sending notifications for order ${orderId}:`, error);
+            // Don't throw error, just log it so the order status update still succeeds
+        }
+        
         return updatedOrder;
     },
 
