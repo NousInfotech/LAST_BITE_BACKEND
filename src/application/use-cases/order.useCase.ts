@@ -6,7 +6,7 @@ import { MartProductRepository } from "../../infrastructure/repositories/martPro
 import { MartStoreRepository } from "../../infrastructure/repositories/martStore.repository.js";
 import { MartStoreAdminRepository } from "../../infrastructure/repositories/martStoreAdmin.repository.js";
 import { createRazorpayOrderService, getRazorpayOrderById, verifyOrderService } from "../services/razorpay.service.js";
-import { GST } from "../../utils/constants.js";
+import { GST, platformFee, packagingFee } from "../../utils/constants.js";
 import { PaymentRepository } from "../../infrastructure/repositories/payment.repository.js";
 import { createPidgeOrder, CreatePidgeOrderPayload, getPidgeOrderStatus, getPidgePayload } from "../services/pidge.service.js";
 import { UserRepository } from "../../infrastructure/repositories/user.repository.js";
@@ -129,10 +129,7 @@ const calculateTotalPricing = async (
     discount: IDiscount | null,
     restaurantId: string
 ): Promise<IOrderPricing> => {
-    let packagingFee = await restaurantRepo.getPackagingChargesByRestaurantId(restaurantId);
-    packagingFee = packagingFee ?? 0;
-
-    const platformFee = 10;
+    // Use fixed fees from constants - no longer restaurant-specific
     const tax = Math.round(itemsTotal * GST / 100); // Assuming GST = 5
     const sgst = Math.round(itemsTotal * 0.025);
     const cgst = Math.round(itemsTotal * 0.025);
@@ -158,8 +155,8 @@ const calculateTotalPricing = async (
     // - Delivery partner gets deliveryFee
     const deliveryPartnerShare = deliveryFee;
 
-    // - Restaurant gets 55% of itemsTotal + packaging fee
-    const restaurantShare = Math.round(itemsTotal * 0.55) + packagingFee;
+    // - Restaurant gets 55% of itemsTotal (no packaging fee for restaurant)
+    const restaurantShare = Math.round(itemsTotal * 0.55);
 
     return {
         itemsTotal,
@@ -187,10 +184,7 @@ const calculateMartTotalPricing = async (
     discount: IDiscount | null = null,
     martStoreId: string
 ): Promise<IOrderPricing> => {
-    // For mart stores, we don't have packaging charges, so we'll use 0
-    const packagingFee = 0;
-
-    const platformFee = 10;
+    // For mart stores, use fixed fees from constants
     const tax = Math.round(itemsTotal * GST / 100);
     const sgst = Math.round(itemsTotal * 0.025);
     const cgst = Math.round(itemsTotal * 0.025);
@@ -224,7 +218,7 @@ const calculateMartTotalPricing = async (
         distribution: {
             platform: platformFee + Math.round(itemsTotal * 0.4),
             deliveryPartner: deliveryFee,
-            restaurant: Math.round(itemsTotal * 0.55) + packagingFee,
+            restaurant: Math.round(itemsTotal * 0.55), // No packaging fee for mart store
         },
     };
 };

@@ -98,7 +98,8 @@ export const allowedFoldersByRole: Record<Role, ImageFolder[]> = {
 // order constants 
 export const CURRENCY: string = "INR";
 export const GST: number = 5;
-export const platformFee: number = 10;
+export const platformFee: number = 15; // Updated to 15
+export const packagingFee: number = 10; // Added packaging fee
 
 
 
