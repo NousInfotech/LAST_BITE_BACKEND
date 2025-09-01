@@ -1037,52 +1037,101 @@ export const OrderUseCase = {
                 });
             }
             
-            // Send notification to restaurant
+            // Send notification to restaurant or mart store
+            let isMartStore = false;
             if (restaurantId) {
-                const restaurantNotification = {
-                    type: "order",
-                    message: notificationData.restaurant.message,
-                    subMessage: notificationData.restaurant.subMessage,
-                    theme: notificationData.restaurant.theme as any,
-                    emoji: notificationData.restaurant.emoji,
-                    priority: notificationData.restaurant.priority,
-                    category: "orders",
-                    metadata: {
-                        orderId: updatedOrder.orderId,
-                        status,
-                        foodSummary,
-                        totalAmount: updatedOrder.pricing?.finalPayable || 0,
-                        customerName: user?.name,
+                isMartStore = restaurantId.startsWith('mart_');
+                
+                if (isMartStore) {
+                    // Send notification to mart store
+                    const martStoreNotification = {
+                        type: "order",
+                        message: notificationData.restaurant.message,
+                        subMessage: notificationData.restaurant.subMessage,
+                        theme: notificationData.restaurant.theme as any,
+                        emoji: notificationData.restaurant.emoji,
+                        priority: notificationData.restaurant.priority,
+                        category: "orders",
+                        metadata: {
+                            orderId: updatedOrder.orderId,
+                            status,
+                            foodSummary,
+                            totalAmount: updatedOrder.pricing?.finalPayable || 0,
+                            customerName: user?.name,
+                            restaurantId,
+                            userRole: "martStoreAdmin"
+                        },
                         restaurantId,
-                        userRole: "restaurantAdmin"
-                    },
-                    restaurantId,
-                    userRole: "restaurantAdmin",
-                    orderId: updatedOrder.orderId,
-                    userId
-                };
-                
-                sendRestaurantNotification(restaurantId, restaurantNotification);
-                
-                // Also create notification in database
-                await notificationRepo.createNotification({
-                    targetRole: RoleEnum.restaurantAdmin,
-                    targetRoleId: restaurantId,
-                    type: "order",
-                    message: notificationData.restaurant.message,
-                    theme: notificationData.restaurant.theme as any,
-                    tags: ["order", status.toLowerCase()],
-                    metadata: {
+                        userRole: "martStoreAdmin",
                         orderId: updatedOrder.orderId,
-                        status,
-                        foodSummary,
-                        totalAmount: updatedOrder.pricing?.finalPayable || 0
-                    },
-                    createdAt: new Date(),
-                });
+                        userId
+                    };
+                    
+                    sendMartStoreNotification(restaurantId, martStoreNotification);
+                    
+                    // Also create notification in database
+                    await notificationRepo.createNotification({
+                        targetRole: RoleEnum.martStoreAdmin as any,
+                        targetRoleId: restaurantId,
+                        type: "order",
+                        message: notificationData.restaurant.message,
+                        theme: notificationData.restaurant.theme as any,
+                        tags: ["order", status.toLowerCase()],
+                        metadata: {
+                            orderId: updatedOrder.orderId,
+                            status,
+                            foodSummary,
+                            totalAmount: updatedOrder.pricing?.finalPayable || 0
+                        },
+                        createdAt: new Date(),
+                    });
+                } else {
+                    // Send notification to restaurant
+                    const restaurantNotification = {
+                        type: "order",
+                        message: notificationData.restaurant.message,
+                        subMessage: notificationData.restaurant.subMessage,
+                        theme: notificationData.restaurant.theme as any,
+                        emoji: notificationData.restaurant.emoji,
+                        priority: notificationData.restaurant.priority,
+                        category: "orders",
+                        metadata: {
+                            orderId: updatedOrder.orderId,
+                            status,
+                            foodSummary,
+                            totalAmount: updatedOrder.pricing?.finalPayable || 0,
+                            customerName: user?.name,
+                            restaurantId,
+                            userRole: "restaurantAdmin"
+                        },
+                        restaurantId,
+                        userRole: "restaurantAdmin",
+                        orderId: updatedOrder.orderId,
+                        userId
+                    };
+                    
+                    sendRestaurantNotification(restaurantId, restaurantNotification);
+                    
+                    // Also create notification in database
+                    await notificationRepo.createNotification({
+                        targetRole: RoleEnum.restaurantAdmin,
+                        targetRoleId: restaurantId,
+                        type: "order",
+                        message: notificationData.restaurant.message,
+                        theme: notificationData.restaurant.theme as any,
+                        tags: ["order", status.toLowerCase()],
+                        metadata: {
+                            orderId: updatedOrder.orderId,
+                            status,
+                            foodSummary,
+                            totalAmount: updatedOrder.pricing?.finalPayable || 0
+                        },
+                        createdAt: new Date(),
+                    });
+                }
             }
             
-            console.log(`✅ Order status updated to ${status} for order ${orderId}. Notifications sent to user and restaurant.`);
+            console.log(`✅ Order status updated to ${status} for order ${orderId}. Notifications sent to user and ${isMartStore ? 'mart store' : 'restaurant'}.`);
             
         } catch (error) {
             console.error(`❌ Error sending notifications for order ${orderId}:`, error);
