@@ -811,23 +811,25 @@ export const OrderUseCase = {
     },
 
     // Update status (used by pidge or admin)
-    updateOrderStatus: async (orderId: string, status: IOrder["orderStatus"]) => {
+    updateOrderStatus: async (orderId: string, status: IOrderStatusEnum) => {
+        console.log(`🔄 Updating order ${orderId} status to ${status}`);
+        
         const updatedOrder = await orderRepo.updateOrderStatus(orderId, status);
         if (!updatedOrder) throw new Error("Order not found or status not updated");
         
-        // Get user and restaurant details for notifications
         const userId = updatedOrder.refIds.userId;
         const restaurantId = updatedOrder.refIds.restaurantId;
         
+        // Prevent duplicate notifications by checking if status actually changed
+        if (updatedOrder.orderStatus === status) {
+            console.log(`✅ Order status updated to ${status} for order ${orderId}. Skipping notifications (no change).`);
+            return updatedOrder;
+        }
+        
         try {
-            // Get user details
             const user = userId ? await userRepo.findByUserId(userId) : null;
             const restaurant = restaurantId ? await restaurantRepo.getRestaurantLocationById(restaurantId) : null;
-            
-            // Get restaurant name from a different source or use a fallback
             const restaurantName = restaurantId ? `Restaurant ${restaurantId.slice(-4)}` : 'Restaurant';
-            
-            // Get food items for notification
             const foodItems = updatedOrder.foodItems || [];
             const foodNames = foodItems.map(item => item.name || item.foodItemId).slice(0, 3);
             const foodSummary = foodNames.length > 3 
