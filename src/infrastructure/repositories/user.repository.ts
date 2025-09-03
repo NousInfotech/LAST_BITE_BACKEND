@@ -394,6 +394,15 @@ export class UserRepository {
         return user.cart;
     }
 
+    async clearCartItems(userId: string): Promise<IUserCart[]> {
+        const user = await UserModel.findOne({ userId });
+        if (!user) throw new Error("User not found");
+        
+        user.cart = [];
+        await user.save();
+        return user.cart;
+    }
+
     async updateFCMToken(userId: string, fcmToken: IFCM) {
         const user = await UserModel.findOne({ userId });
         if (!user) throw new Error("User not found");

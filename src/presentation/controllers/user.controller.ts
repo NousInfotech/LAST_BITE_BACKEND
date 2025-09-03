@@ -300,6 +300,19 @@ export const UserController = {
         })
     },
 
+    async clearUserCart(req: CustomRequest, res: Response) {
+        const userId = req.userId;
+        
+        if (!userId) {
+            return sendError(res, HTTP.UNAUTHORIZED, "User not authenticated");
+        }
+        
+        return tryCatch(res, async () => {
+            const userCart = await UserUseCase.clearUserCart(userId);
+            return sendResponse(res, HTTP.OK, "Cart cleared successfully", { userCart });
+        });
+    },
+
     async patchUserFCMToken(req: CustomRequest, res: Response) {
         const userId = req.userId;
         

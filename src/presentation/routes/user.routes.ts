@@ -51,6 +51,7 @@ userRouter.delete("/wishlist/:collectionId", UserController.deleteCollection);
 
 userRouter.get("/cart", UserController.getUserCart);
 userRouter.patch("/cart", UserController.updateCart);
+userRouter.delete("/cart", UserController.clearUserCart);
 
 
 

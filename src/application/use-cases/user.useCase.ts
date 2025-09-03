@@ -83,6 +83,7 @@ export const UserUseCase = {
     // can perform crud (except foodItemId) on the cart items in multiple
     getUserCart: (userId: string) => userRepo.getCartItems(userId),
     updateUserCart: (userId: string, cart: IUserCart[]) => userRepo.patchCartItems(userId, cart),
+    clearUserCart: (userId: string) => userRepo.clearCartItems(userId),
 
     // fcmToken
     updateFCMToken: (userId: string, deviceName: string, fcmToken: string) => userRepo.updateFCMToken(userId, { deviceName, token: fcmToken })
