@@ -129,6 +129,7 @@ last_bite_backend/
 ## 👨‍💻 Maintainers
 
 - [Akram-00](https://github.com/Akram-00)
+- [Rasmi142](https://github.com/Rasmi142)
 
 ---
 
