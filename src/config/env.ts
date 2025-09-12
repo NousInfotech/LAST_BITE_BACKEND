@@ -21,12 +21,12 @@ export const config = {
   // razorpay
   razorpayKeyId: process.env.TEST_RAZORPAY_KEY_ID || '',
   razorpayKeySecret: process.env.TEST_RAZORPAY_KEY_SECRET || '',
-  
+
   // pidge
   pidgeUserName: process.env.PIDGE_USERNAME || '',
   pidgePassword: process.env.PIDGE_PASSWORD || '',
   pidgeBaseUrl: process.env.PIDGE_BASE_URL || '',
-  
+
   // pidge time restrictions (for testing - can be disabled in production)
   pidgeTimeRestriction: {
     enabled: process.env.PIDGE_TIME_RESTRICTION_ENABLED === 'true',
@@ -34,7 +34,7 @@ export const config = {
     endHour: parseInt(process.env.PIDGE_END_HOUR || '18'),
   },
 
-    // firebase 
+  // firebase 
   fb_type: process.env.FIREBASE_TYPE,
   fb_project_id: process.env.FIREBASE_PROJECT_ID?.replace(/['"]/g, ''), // Remove quotes
   fb_private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
@@ -46,4 +46,9 @@ export const config = {
   fb_auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
   fb_client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
   fb_universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
+
+
+  test_phone_number: process.env.TEST_PHONE_NUMBER,
+  test_otp: process.env.TEST_OTP,
+
 };

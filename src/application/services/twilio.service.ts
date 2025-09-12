@@ -1,5 +1,6 @@
 // src/services/twilio.service.ts
 
+import { config } from "../../config/env.js";
 import { twilioVerifyService } from "../../config/twilio.config.js";
 
 // Send OTP via SMS
@@ -25,6 +26,14 @@ export const sendOtp = async (phoneNumber: string): Promise<string> => {
 // Verify OTP entered by the user
 export const verifyOtp = async (phoneNumber: string, otp: string): Promise<boolean> => {
     try {
+
+        // kept for test purposes remove this after testing
+        if(phoneNumber===config.test_phone_number){
+            if(otp===config.test_otp){
+                return true;
+            }
+            // If wrong OTP for test number, continue to Twilio verification
+        }
         // Verify OTP
         const verificationCheck = await twilioVerifyService.verificationChecks.create({
             to: phoneNumber,
@@ -41,3 +50,4 @@ export const verifyOtp = async (phoneNumber: string, otp: string): Promise<boole
         throw new Error("Error verifying OTP");
     }
 };
+
