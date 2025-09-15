@@ -32,7 +32,7 @@ export const PidgeController = {
             console.log(`🔍 [PIDGE TRACKING] Request received for orderId: ${orderId}`);
             console.log(`🔍 [PIDGE TRACKING] Request headers:`, req.headers);
             console.log(`🔍 [PIDGE TRACKING] Request params:`, req.params);
-            
+
             try {
                 const tracking = await getPidgeTracking(orderId);
                 console.log(`✅ [PIDGE TRACKING] Success for orderId: ${orderId}`, tracking);
@@ -48,7 +48,7 @@ export const PidgeController = {
         return tryCatch(res, async () => {
             const { orderId } = req.params;
             console.log(`🔍 [PIDGE STATUS] Request received for orderId: ${orderId}`);
-            
+
             try {
                 const status = await getPidgeOrderStatus(orderId);
                 console.log(`✅ [PIDGE STATUS] Success for orderId: ${orderId}`, status);
@@ -62,8 +62,11 @@ export const PidgeController = {
 
     async webHookRoute(req: Request, res: Response) {
         return tryCatch(res, async () => {
-            const { status, id: pidgeId } = req.body;
-            const order = await OrderUseCase.updateOrderStatusByWebHook(pidgeId,status) as IOrder
+            const { fulfillment, id: pidgeId } = req.body;
+            const order = await OrderUseCase.updateOrderStatusByWebHook(
+                pidgeId,
+                fulfillment?.status || status
+            ) as IOrder;
             console.log(`🔍 [PIDGE WEBHOOK] Request received for orderId: ${order.orderId}`, order.orderStatus);
         });
     }
