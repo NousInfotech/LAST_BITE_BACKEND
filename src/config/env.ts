@@ -26,6 +26,7 @@ export const config = {
   pidgeUserName: process.env.PIDGE_USERNAME || '',
   pidgePassword: process.env.PIDGE_PASSWORD || '',
   pidgeBaseUrl: process.env.PIDGE_BASE_URL || '',
+  pidgeWebhookToken : process.env.PIDGE_WEBHOOK_TOKEN || '',
 
   // pidge time restrictions (for testing - can be disabled in production)
   pidgeTimeRestriction: {

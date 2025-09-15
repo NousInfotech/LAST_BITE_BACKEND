@@ -28,6 +28,10 @@ export class OrderRepository {
     return await OrderModel.find(filter, { _id: 0, __v: 0 }).lean();
   }
 
+  async getOrderByPidgeId(pidgeId: string): Promise<OrderDoc | null> {
+    return await OrderModel.findOne({ "delivery.pidge.pidgeId": pidgeId }, { _id: 0, __v: 0 }).lean();
+  }
+
   async getOrderById(orderId: string): Promise<OrderDoc | null> {
     return await OrderModel.findOne({ orderId }, { _id: 0, __v: 0 }).lean();
   }

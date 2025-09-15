@@ -6,6 +6,9 @@ import { tryCatch } from "../../utils/tryCatch.js";
 import { getPidgeQuote, getPidgeOrderStatus, getPidgeTracking } from "../../application/services/pidge.service.js";
 import { validate } from "../../utils/validation.js";
 import { GetPidgeQuoteSchema } from "../validators/pidge.validator.js";
+import { OrderUseCase } from "../../application/use-cases/order.useCase.js";
+import { IOrder } from "../../domain/interfaces/order.interface.js";
+
 
 export const PidgeController = {
     // Existing createOrder method...
@@ -54,6 +57,14 @@ export const PidgeController = {
                 console.error(`❌ [PIDGE STATUS] Error for orderId: ${orderId}:`, error);
                 return sendError(res, HTTP.INTERNAL_SERVER_ERROR, `Status check failed: ${error.message}`);
             }
+        });
+    },
+
+    async webHookRoute(req: Request, res: Response) {
+        return tryCatch(res, async () => {
+            const { status, id: pidgeId } = req.body;
+            const order = await OrderUseCase.updateOrderStatusByWebHook(pidgeId,status) as IOrder
+            console.log(`🔍 [PIDGE WEBHOOK] Request received for orderId: ${order.orderId}`, order.orderStatus);
         });
     }
 };

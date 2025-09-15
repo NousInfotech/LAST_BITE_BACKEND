@@ -22,6 +22,7 @@ import { sendUserNotification } from "../../presentation/sockets/userNotificatio
 import { sendRestaurantNotification } from "../../presentation/sockets/restaurantNotification.socket.js";
 import { sendMartStoreNotification } from "../../presentation/sockets/martStoreNotification.socket.js";
 import { RoleEnum } from "../../domain/interfaces/utils.interface.js";
+import { pidgeOrderStatusMap } from "../../utils/pidgeOrderStatus.js";
 
 const orderRepo = new OrderRepository();
 const restaurantRepo = new RestaurantRepository();
@@ -79,46 +80,46 @@ const calculateMartItemsTotal = async (
     items: IItem[]
 ): Promise<{ itemsTotal: number; enrichedItems: IOrderFoodItem[] }> => {
     console.log('Calculating mart items total for items:', items);
-    
+
     const martProductIds = items.map((i) => i.foodItemId);
     console.log('Mart product IDs to fetch:', martProductIds);
-    
+
     const baseItems = await martProductRepo.getMartProductsForOrder(martProductIds);
     console.log('Base items found:', baseItems.length);
 
     const enrichedItems: IOrderFoodItem[] = items.map((cartItem) => {
         console.log('Processing cart item:', cartItem);
-        
+
         // Try to find by martProductId first, then by _id if martProductId is not set
-        const match = baseItems.find((item) => 
-            item.martProductId === cartItem.foodItemId || 
+        const match = baseItems.find((item) =>
+            item.martProductId === cartItem.foodItemId ||
             item._id?.toString() === cartItem.foodItemId
         );
-        
+
         if (!match) {
-            console.error(`Mart Product ${cartItem.foodItemId} not found in baseItems:`, baseItems.map(item => ({ 
-                martProductId: item.martProductId, 
+            console.error(`Mart Product ${cartItem.foodItemId} not found in baseItems:`, baseItems.map(item => ({
+                martProductId: item.martProductId,
                 _id: item._id,
-                productName: item.productName 
+                productName: item.productName
             })));
             throw new Error(`Mart Product ${cartItem.foodItemId} not found`);
         }
-        
+
         console.log('Found matching product:', {
             martProductId: match.martProductId,
             _id: match._id,
             productName: match.productName,
             price: match.price
         });
-        
-        const enrichedItem = { 
+
+        const enrichedItem = {
             foodItemId: match.martProductId || match._id?.toString() || cartItem.foodItemId,
             name: match.productName,
             price: match.price,
-            quantity: cartItem.quantity, 
-            additionals: [] 
+            quantity: cartItem.quantity,
+            additionals: []
         };
-        
+
         console.log('Created enriched item:', enrichedItem);
         return enrichedItem;
     });
@@ -127,7 +128,7 @@ const calculateMartItemsTotal = async (
         (acc, item) => acc + item.price * item.quantity,
         0
     );
-    
+
     console.log('Calculated items total:', itemsTotal);
 
     return { itemsTotal, enrichedItems };
@@ -246,13 +247,13 @@ const getMartPickupLocation = async (
 ) => {
     const martStore = await martStoreRepo.findByMartStoreId(martStoreId);
     if (!martStore) throw new Error(`Mart store ${martStoreId} not found`);
-    
+
     // For now, return a default location for mart stores
     // You can update this when mart stores have location data
-    return { 
-        lat: 13.0281, 
-        lng: 80.2248, 
-        martStoreAddress: martStore 
+    return {
+        lat: 13.0281,
+        lng: 80.2248,
+        martStoreAddress: martStore
     }
 }
 
@@ -272,9 +273,9 @@ const normalizeLocation = (location: any) => {
         tag: location.dropoff.tag || "home",
     };
 
-    return { 
+    return {
         pickup: { lat: 0, lng: 0 }, // Will be set later
-        dropoff 
+        dropoff
     };
 };
 
@@ -331,7 +332,7 @@ const getMartStorePidgePayload = (
         totalBillAmount,
         martStoreAdmin: martStoreAdmin.name
     });
-    
+
     console.log('🔍 [MART STORE DEBUG] Mart store address data:', {
         martStoreAddress: pickup.martStoreAddress,
         no: pickup.martStoreAddress.address?.no || pickup.martStoreAddress.no,
@@ -422,7 +423,7 @@ export const OrderUseCase = {
         }
 
         // Calculate pricing based on order type
-        const pricing = isMartStoreOrder 
+        const pricing = isMartStoreOrder
             ? await calculateMartTotalPricing(itemsTotal, data.deliveryFee, data.discount || null, restaurantId)
             : await calculateTotalPricing(itemsTotal, data.deliveryFee, data.discount || null, restaurantId);
 
@@ -512,7 +513,7 @@ export const OrderUseCase = {
         }
 
         // Calculate pricing based on order type
-        const pricing = isMartStoreOrder 
+        const pricing = isMartStoreOrder
             ? await calculateMartTotalPricing(itemsTotal, deliveryFee, discount, restaurantId)
             : await calculateTotalPricing(itemsTotal, deliveryFee, discount, restaurantId);
 
@@ -545,31 +546,31 @@ export const OrderUseCase = {
             console.log('🔍 [ORDER USE CASE] Starting Pidge order creation...');
             console.log('🔍 [ORDER USE CASE] Order type:', isMartStoreOrder ? 'Mart Store' : 'Restaurant');
             console.log('🔍 [ORDER USE CASE] Pickup location:', pickup);
-            console.log('🔍 [ORDER USE CASE] Admin details:', { 
+            console.log('🔍 [ORDER USE CASE] Admin details:', {
                 id: admin?.restaurantAdminId || admin?.martStoreAdminId,
                 email: admin?.email,
-                phone: admin?.phoneNumber 
+                phone: admin?.phoneNumber
             });
-            console.log('🔍 [ORDER USE CASE] User details:', { 
+            console.log('🔍 [ORDER USE CASE] User details:', {
                 id: user?.userId,
                 name: user?.name,
-                phone: user?.phoneNumber 
+                phone: user?.phoneNumber
             });
             console.log('🔍 [ORDER USE CASE] Location:', location);
             console.log('🔍 [ORDER USE CASE] Food items count:', enrichedItems.length);
 
-            const pidgePayload = isMartStoreOrder 
+            const pidgePayload = isMartStoreOrder
                 ? getMartStorePidgePayload(pickup, admin, location, user as IUser, enrichedItems)
                 : getPidgePayload(pickup, admin, location, user as IUser, enrichedItems);
-            
+
             console.log('🔍 [ORDER USE CASE] Pidge payload created:', JSON.stringify(pidgePayload, null, 2));
-            
+
             const pidgeResponse = await createPidgeOrder(pidgePayload);
             pidgeOrderId = pidgeResponse.pidgeOrderId;
             sourceOrderId = pidgeResponse.sourceOrderId;
-            
+
             console.log('✅ [ORDER USE CASE] Pidge order created successfully:', { pidgeOrderId, sourceOrderId });
-            
+
             // Get Pidge order status
             try {
                 const pidgeGetOrder = await getPidgeOrderStatus(pidgeOrderId);
@@ -584,7 +585,7 @@ export const OrderUseCase = {
                 console.error("❌ [ORDER USE CASE] Failed to get Pidge order status:", statusError);
                 pidgeStatus = "pending";
             }
-            
+
             console.log('✅ [ORDER USE CASE] Pidge integration completed successfully:', { pidgeOrderId, sourceOrderId, pidgeStatus });
         } catch (pidgeError: any) {
             console.error("❌ [ORDER USE CASE] Failed to create Pidge order:", pidgeError);
@@ -674,7 +675,7 @@ export const OrderUseCase = {
         const userNotificationKey = `user_${userId}_${order.orderId}_placed`;
         if (!recentOrderNotifications.has(userNotificationKey)) {
             recentOrderNotifications.add(userNotificationKey);
-            
+
             await notificationRepo.createNotification({
                 targetRole: RoleEnum.user,
                 targetRoleId: userId,
@@ -711,13 +712,13 @@ export const OrderUseCase = {
 
         // Step 9: Notify Restaurant/Mart Store
         const isMartStore = restaurantId.startsWith('mart_'); // Assuming mart store IDs start with 'mart_'
-        
+
         if (isMartStore) {
             // Notify Mart Store
             const martStoreNotificationKey = `martstore_${restaurantId}_${order.orderId}_placed`;
             if (!recentOrderNotifications.has(martStoreNotificationKey)) {
                 recentOrderNotifications.add(martStoreNotificationKey);
-                
+
                 await notificationRepo.createNotification({
                     targetRole: RoleEnum.martStoreAdmin as any,
                     targetRoleId: restaurantId,
@@ -761,7 +762,7 @@ export const OrderUseCase = {
             const restaurantNotificationKey = `restaurant_${restaurantId}_${order.orderId}_placed`;
             if (!recentOrderNotifications.has(restaurantNotificationKey)) {
                 recentOrderNotifications.add(restaurantNotificationKey);
-                
+
                 await notificationRepo.createNotification({
                     targetRole: RoleEnum.restaurantAdmin,
                     targetRoleId: restaurantId,
@@ -837,29 +838,29 @@ export const OrderUseCase = {
     // Update status (used by pidge or admin)
     updateOrderStatus: async (orderId: string, status: IOrderStatusEnum) => {
         console.log(`🔄 Updating order ${orderId} status to ${status}`);
-        
+
         const updatedOrder = await orderRepo.updateOrderStatus(orderId, status);
         if (!updatedOrder) throw new Error("Order not found or status not updated");
-        
+
         const userId = updatedOrder.refIds.userId;
         const restaurantId = updatedOrder.refIds.restaurantId;
-        
+
         // Prevent duplicate notifications by checking if status actually changed
         if (updatedOrder.orderStatus === status) {
             console.log(`✅ Order status updated to ${status} for order ${orderId}. Skipping notifications (no change).`);
             return updatedOrder;
         }
-        
+
         try {
             const user = userId ? await userRepo.findByUserId(userId) : null;
             const restaurant = restaurantId ? await restaurantRepo.getRestaurantLocationById(restaurantId) : null;
             const restaurantName = restaurantId ? `Restaurant ${restaurantId.slice(-4)}` : 'Restaurant';
             const foodItems = updatedOrder.foodItems || [];
             const foodNames = foodItems.map(item => item.name || item.foodItemId).slice(0, 3);
-            const foodSummary = foodNames.length > 3 
+            const foodSummary = foodNames.length > 3
                 ? `${foodNames.join(', ')} +${foodItems.length - 3} more`
                 : foodNames.join(', ');
-            
+
             // Create status-specific notification messages
             const getNotificationData = (status: IOrder["orderStatus"]) => {
                 const baseData = {
@@ -868,7 +869,7 @@ export const OrderUseCase = {
                     foodSummary,
                     totalAmount: updatedOrder.pricing?.finalPayable || 0
                 };
-                
+
                 switch (status) {
                     case IOrderStatusEnum.CONFIRMED:
                         return {
@@ -887,7 +888,7 @@ export const OrderUseCase = {
                                 priority: "normal"
                             }
                         };
-                    
+
                     case IOrderStatusEnum.PREPARING:
                         return {
                             user: {
@@ -905,7 +906,7 @@ export const OrderUseCase = {
                                 priority: "normal"
                             }
                         };
-                    
+
                     case IOrderStatusEnum.READY:
                         return {
                             user: {
@@ -923,7 +924,7 @@ export const OrderUseCase = {
                                 priority: "normal"
                             }
                         };
-                    
+
                     case IOrderStatusEnum.OUT_FOR_DELIVERY:
                         return {
                             user: {
@@ -941,7 +942,7 @@ export const OrderUseCase = {
                                 priority: "normal"
                             }
                         };
-                    
+
                     case IOrderStatusEnum.IN_TRANSIT:
                         return {
                             user: {
@@ -959,7 +960,7 @@ export const OrderUseCase = {
                                 priority: "normal"
                             }
                         };
-                    
+
                     case IOrderStatusEnum.DELIVERED:
                         return {
                             user: {
@@ -977,7 +978,7 @@ export const OrderUseCase = {
                                 priority: "normal"
                             }
                         };
-                    
+
                     case IOrderStatusEnum.CANCELLED:
                         return {
                             user: {
@@ -995,7 +996,7 @@ export const OrderUseCase = {
                                 priority: "normal"
                             }
                         };
-                    
+
                     default:
                         return {
                             user: {
@@ -1015,15 +1016,15 @@ export const OrderUseCase = {
                         };
                 }
             };
-            
+
             const notificationData = getNotificationData(status);
-            
+
             // Send notification to user
             if (userId) {
                 const userStatusNotificationKey = `user_${userId}_${orderId}_${status}`;
                 if (!recentOrderNotifications.has(userStatusNotificationKey)) {
                     recentOrderNotifications.add(userStatusNotificationKey);
-                    
+
                     const userNotification = {
                         type: "order",
                         message: notificationData.user.message,
@@ -1046,9 +1047,9 @@ export const OrderUseCase = {
                         orderId: updatedOrder.orderId,
                         restaurantId
                     };
-                    
+
                     sendUserNotification(userId, userNotification);
-                    
+
                     // Also create notification in database
                     await notificationRepo.createNotification({
                         targetRole: RoleEnum.user,
@@ -1067,18 +1068,18 @@ export const OrderUseCase = {
                     });
                 }
             }
-            
+
             // Send notification to restaurant or mart store
             let isMartStore = false; // Moved declaration to higher scope
             if (restaurantId) {
                 isMartStore = restaurantId.startsWith('mart_'); // Assigned value
-                
+
                 if (isMartStore) {
                     // Send notification to mart store
                     const martStoreStatusNotificationKey = `martstore_${restaurantId}_${orderId}_${status}`;
                     if (!recentOrderNotifications.has(martStoreStatusNotificationKey)) {
                         recentOrderNotifications.add(martStoreStatusNotificationKey);
-                        
+
                         const martStoreNotification = {
                             type: "order",
                             message: notificationData.restaurant.message,
@@ -1101,9 +1102,9 @@ export const OrderUseCase = {
                             orderId: updatedOrder.orderId,
                             userId
                         };
-                        
+
                         sendMartStoreNotification(restaurantId, martStoreNotification);
-                        
+
                         // Also create notification in database
                         await notificationRepo.createNotification({
                             targetRole: RoleEnum.martStoreAdmin as any,
@@ -1126,7 +1127,7 @@ export const OrderUseCase = {
                     const restaurantStatusNotificationKey = `restaurant_${restaurantId}_${orderId}_${status}`;
                     if (!recentOrderNotifications.has(restaurantStatusNotificationKey)) {
                         recentOrderNotifications.add(restaurantStatusNotificationKey);
-                        
+
                         const restaurantNotification = {
                             type: "order",
                             message: notificationData.restaurant.message,
@@ -1149,9 +1150,9 @@ export const OrderUseCase = {
                             orderId: updatedOrder.orderId,
                             userId
                         };
-                        
+
                         sendRestaurantNotification(restaurantId, restaurantNotification);
-                        
+
                         // Also create notification in database
                         await notificationRepo.createNotification({
                             targetRole: RoleEnum.restaurantAdmin,
@@ -1170,67 +1171,94 @@ export const OrderUseCase = {
                         });
                     }
                 }
-                         }
-             
-             console.log(`✅ Order status updated to ${status} for order ${orderId}. Notifications sent to user and ${isMartStore ? 'mart store' : 'restaurant'}.`);
-             
-         } catch (error) {
-             console.error(`❌ Error sending notifications for order ${orderId}:`, error);
-             // Don't throw error, just log it so the order status update still succeeds
-         }
-         
-         return updatedOrder;
-     },
+            }
 
-     // Get all orders for a user
-     getUserOrders: async (userId: string) => {
-         console.log('Fetching orders for userId:', userId);
-         const orders = await orderRepo.getOrders({ "refIds.userId": userId });
-         console.log('Found orders:', orders.length);
-         console.log('Orders details:', orders.map(o => ({
-             orderId: o.orderId,
-             orderStatus: o.orderStatus,
-             userId: o.refIds?.userId,
-             restaurantId: o.refIds?.restaurantId
-         })));
-         return orders;
-     },
+            console.log(`✅ Order status updated to ${status} for order ${orderId}. Notifications sent to user and ${isMartStore ? 'mart store' : 'restaurant'}.`);
 
-     // Get all past orders for a user (DELIVERED or CANCELLED)
-     getUserPastOrders: async (userId: string) => {
-         const orders = await orderRepo.getOrders({
-             "refIds.userId": userId,
-             orderStatus: { $in: ["DELIVERED", "CANCELLED"] }
-         });
-         return orders;
-     },
+        } catch (error) {
+            console.error(`❌ Error sending notifications for order ${orderId}:`, error);
+            // Don't throw error, just log it so the order status update still succeeds
+        }
 
-     // Get all orders for a restaurant
-     getRestaurantOrders: async (restaurantId: string) => {
-         console.log('Fetching orders for restaurantId:', restaurantId);
-         const orders = await orderRepo.getOrdersByRestaurantId(restaurantId);
-         console.log('Found orders for restaurant:', orders.length);
-         console.log('Orders details:', orders.map(o => ({
-             orderId: o.orderId,
-             orderStatus: o.orderStatus,
-             userId: o.refIds?.userId,
-             restaurantId: o.refIds?.restaurantId
-         })));
-         return orders;
-     },
+        return updatedOrder;
+    },
 
-     // Get order by ID
-     getOrderById: async (orderId: string) => {
-         const order = await orderRepo.getOrderById(orderId);
-         if (!order) throw new Error("Order not found");
-         return order;
-     },
+    
+    // webhook order update 
 
-     // feedback 
+    updateOrderStatusByWebHook: async (pidgeOrderId: string, pidgeStatus: string) => {
+        // 1. Find order by pidgeId
+        const order = await orderRepo.getOrderByPidgeId(pidgeOrderId);
+    
+        if (!order) {
+            throw new Error(`Order not found for Pidge ID: ${pidgeOrderId}`);
+        }
+    
+        // 2. Map Pidge status to internal enum
+        const mapped = pidgeOrderStatusMap[pidgeStatus];
+        if (!mapped) {
+            console.warn(`⚠️ No mapping found for Pidge status: ${pidgeStatus}`);
+            return order; // ignore unknown statuses
+        }
+    
+        const newStatus: IOrderStatusEnum = mapped.pidgeOrderStatus;
+    
+        // 3. Update the order status using existing service
+        const updatedOrder = await OrderUseCase.updateOrderStatus(order.orderId!, newStatus);
+    
+        console.log(`✅ Webhook updated order ${order.orderId} (Pidge ID: ${pidgeOrderId}) to status ${newStatus}`);
+        return updatedOrder;
+    },
 
-     customerFeedback: async (orderId: string, feedback: IOrderFeedback) => {
-         const customer_feedback = await orderRepo.setOrderFeedback(orderId, feedback);
-         if (!customer_feedback) throw new Error("Error in updating the feedback");
-         return customer_feedback;
-     }
- };
+    // Get all orders for a user
+    getUserOrders: async (userId: string) => {
+        console.log('Fetching orders for userId:', userId);
+        const orders = await orderRepo.getOrders({ "refIds.userId": userId });
+        console.log('Found orders:', orders.length);
+        console.log('Orders details:', orders.map(o => ({
+            orderId: o.orderId,
+            orderStatus: o.orderStatus,
+            userId: o.refIds?.userId,
+            restaurantId: o.refIds?.restaurantId
+        })));
+        return orders;
+    },
+
+    // Get all past orders for a user (DELIVERED or CANCELLED)
+    getUserPastOrders: async (userId: string) => {
+        const orders = await orderRepo.getOrders({
+            "refIds.userId": userId,
+            orderStatus: { $in: ["DELIVERED", "CANCELLED"] }
+        });
+        return orders;
+    },
+
+    // Get all orders for a restaurant
+    getRestaurantOrders: async (restaurantId: string) => {
+        console.log('Fetching orders for restaurantId:', restaurantId);
+        const orders = await orderRepo.getOrdersByRestaurantId(restaurantId);
+        console.log('Found orders for restaurant:', orders.length);
+        console.log('Orders details:', orders.map(o => ({
+            orderId: o.orderId,
+            orderStatus: o.orderStatus,
+            userId: o.refIds?.userId,
+            restaurantId: o.refIds?.restaurantId
+        })));
+        return orders;
+    },
+
+    // Get order by ID
+    getOrderById: async (orderId: string) => {
+        const order = await orderRepo.getOrderById(orderId);
+        if (!order) throw new Error("Order not found");
+        return order;
+    },
+
+    // feedback 
+
+    customerFeedback: async (orderId: string, feedback: IOrderFeedback) => {
+        const customer_feedback = await orderRepo.setOrderFeedback(orderId, feedback);
+        if (!customer_feedback) throw new Error("Error in updating the feedback");
+        return customer_feedback;
+    }
+};
