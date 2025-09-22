@@ -1,6 +1,7 @@
 import { FilterQuery } from "mongoose";
 import { IOrder, IOrderFeedback } from "../../domain/interfaces/order.interface.js";
 import { OrderDoc, OrderModel } from "../db/mongoose/schemas/order.schema.js";
+import { extractQueryOptions } from "../db/helper/utils.helper.js";
 
 export class OrderRepository {
   async createOrder(orderData: IOrder): Promise<OrderDoc> {
@@ -25,7 +26,20 @@ export class OrderRepository {
   }
 
   async getOrders(filter: FilterQuery<IOrder> = {}): Promise<OrderDoc[]> {
-    return await OrderModel.find(filter, { _id: 0, __v: 0 }).lean();
+    const { sortBy, order, page, limit, search, ...pureFilter } = filter;
+
+    // Build MongoDB filter object
+    if (search) {
+      pureFilter.orderId = { $regex: `^${search}`, $options: "i" };
+    }
+    const queryOptions = extractQueryOptions({ sortBy, order, page, limit });
+    // Extract pagination/sorting options
+
+    return await OrderModel.find(pureFilter, { _id: 0, __v: 0 })
+      .sort(queryOptions.sort)
+      .skip(queryOptions.skip || 0)
+      .limit(queryOptions.limit || 10)
+      .lean();
   }
 
   async getOrderByPidgeId(pidgeId: string): Promise<OrderDoc | null> {

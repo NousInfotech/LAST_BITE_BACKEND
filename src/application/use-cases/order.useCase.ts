@@ -23,6 +23,7 @@ import { sendRestaurantNotification } from "../../presentation/sockets/restauran
 import { sendMartStoreNotification } from "../../presentation/sockets/martStoreNotification.socket.js";
 import { RoleEnum } from "../../domain/interfaces/utils.interface.js";
 import { pidgeOrderStatusMap } from "../../utils/pidgeOrderStatus.js";
+import { FilterQuery } from "mongoose";
 
 const orderRepo = new OrderRepository();
 const restaurantRepo = new RestaurantRepository();
@@ -806,7 +807,10 @@ export const OrderUseCase = {
         return { order, pidgeOrderId };
     },
 
-
+    getAllOrders: async (filter: Record<string, any> = {}) => {
+        const orders = await orderRepo.getOrders(filter);
+        return orders;
+    },
 
     // COD order flow — no Razorpay
     createCODOrder: async (data: CreateOrderParams) => {

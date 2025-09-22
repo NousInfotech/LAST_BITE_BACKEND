@@ -4,11 +4,12 @@ import { authMiddleware } from "../../middleware/authMiddleware.js";
 
 const orderRouter = Router();
 
-orderRouter.use(authMiddleware(["user", "martStoreAdmin", "restaurantAdmin"]))
+orderRouter.use(authMiddleware(["user", "martStoreAdmin", "restaurantAdmin","superAdmin"]))
 
 orderRouter.post("/online", OrderController.createOrder);
 orderRouter.post("/verify", OrderController.verifyOrder);
 orderRouter.get("/", OrderController.getUserOrders);
+orderRouter.get("/all", OrderController.getAllOrders);
 orderRouter.get("/past", OrderController.getUserPastOrders);
 orderRouter.get("/reviews", OrderController.getUserReviews);
 orderRouter.patch('/:orderId/status', OrderController.updateOrderStatus);

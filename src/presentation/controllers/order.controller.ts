@@ -36,6 +36,13 @@ export const OrderController = {
         });
     },
 
+    async getAllOrders(req: CustomRequest, res: Response) {
+        return tryCatch(res, async () => {
+            const orders = await OrderUseCase.getAllOrders(req.query);
+            return sendResponse(res, HTTP.OK, "All orders fetched", orders);
+        });
+    },
+
     async verifyOrder(req: Request, res: Response) {
         const validated = validate(OrderVerifySchema, req.body, res);
         if (!validated) return;

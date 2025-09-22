@@ -35,6 +35,5 @@ export const validate = <T>(
         return null;
     }
 
-    console.log('Validation successful');
     return result.data;
 };
