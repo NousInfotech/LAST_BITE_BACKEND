@@ -8,6 +8,7 @@ const authRouter = Router();
 // Public Route - No Middleware
 // ------------------------------
 
+authRouter.post("/pushNotification", AuthController.pushNotification);
 authRouter.post("/send-otp", AuthController.sendOtp);
 authRouter.post("/verify-otp", AuthController.verifyOtp);
 authRouter.post("/check-login", AuthController.checkLogin);

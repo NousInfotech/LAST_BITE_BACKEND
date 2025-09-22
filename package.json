@@ -13,7 +13,7 @@
     "seed:coupons": "tsx src/infrastructure/db/seed/coupon.seed.ts",
     "backfill:cuisines": "tsx src/scripts/backfill-fooditem-cuisines.ts",
     "backfill:cuisines:commit": "tsx src/scripts/backfill-fooditem-cuisines.ts --commit"
-  },
+  },  
   "keywords": [],
   "author": "",
   "license": "ISC",
