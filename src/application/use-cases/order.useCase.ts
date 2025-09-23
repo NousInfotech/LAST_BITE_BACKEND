@@ -24,6 +24,8 @@ import { sendMartStoreNotification } from "../../presentation/sockets/martStoreN
 import { RoleEnum } from "../../domain/interfaces/utils.interface.js";
 import { pidgeOrderStatusMap } from "../../utils/pidgeOrderStatus.js";
 import { FilterQuery } from "mongoose";
+import { sendFCMNotification } from "../services/fcm.service.js";
+import { IFCM } from "../../domain/interfaces/notification.interface.js";
 
 const orderRepo = new OrderRepository();
 const restaurantRepo = new RestaurantRepository();
@@ -709,6 +711,15 @@ export const OrderUseCase = {
                 orderId: order.orderId,
                 restaurantId
             });
+
+            sendFCMNotification({
+                tokens: user.fcmTokens.map(token => token.token),
+                title: "Order Placed",
+                body: `Your order ${order.orderId} has been placed successfully.`,
+                data: {
+                    orderId: order.orderId as string
+                }
+            })
         }
 
         // Step 9: Notify Restaurant/Mart Store
@@ -801,6 +812,15 @@ export const OrderUseCase = {
                     orderId: order.orderId,
                     userId
                 });
+
+                sendFCMNotification({
+                    tokens: admin.fcmTokens.map((token:IFCM) => token.token),
+                    title: "New Order Received",
+                    body: `A new order has been received.`,
+                    data: {
+                        orderId: order.orderId as string
+                    }
+                })
             }
         }
 
@@ -1192,9 +1212,10 @@ export const OrderUseCase = {
 
     updateOrderStatusByWebHook: async (pidgeOrderId: string, pidgeStatus: string) => {
         // 1. Find order by pidgeId
-        const order = await orderRepo.getOrderByPidgeId(pidgeOrderId);
-    
-        if (!order) {
+        const order = await orderRepo.getOrderByPidgeId(pidgeOrderId) as IOrder;
+        const user = await userRepo.findByUserId(order.refIds.userId as string);
+
+        if (!order || !user) {
             throw new Error(`Order not found for Pidge ID: ${pidgeOrderId}`);
         }
     
@@ -1210,6 +1231,22 @@ export const OrderUseCase = {
         // 3. Update the order status using existing service
         const updatedOrder = await OrderUseCase.updateOrderStatus(order.orderId!, newStatus);
     
+        // 4. send notification to the user
+        sendUserNotification(order.refIds.userId as string, {
+            type: "order",
+            message: "Order Status Updated",
+            subMessage: `Your order status has been updated to ${newStatus}.`,
+            theme: "info",
+        });
+        sendFCMNotification({
+            tokens: user.fcmTokens.map((token:IFCM) => token.token),
+            title: "Order Status Updated",
+            body: `Your order status has been updated to ${newStatus}.`,
+            data: {
+                orderId: order.orderId as string
+            }
+        });
+
         console.log(`✅ Webhook updated order ${order.orderId} (Pidge ID: ${pidgeOrderId}) to status ${newStatus}`);
         return updatedOrder;
     },

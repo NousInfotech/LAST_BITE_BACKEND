@@ -37,7 +37,7 @@ export const config = {
 
   // firebase 
   fb_type: process.env.FIREBASE_TYPE,
-  fb_project_id: process.env.FIREBASE_PROJECT_ID?.replace(/['"]/g, ''), // Remove quotes
+  fb_project_id: process.env.FIREBASE_PROJECT_ID,
   fb_private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
   fb_private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
   fb_client_email: process.env.FIREBASE_CLIENT_EMAIL,
@@ -47,8 +47,7 @@ export const config = {
   fb_auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
   fb_client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
   fb_universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
-
-
+  
   test_phone_number: process.env.TEST_PHONE_NUMBER,
   test_otp: process.env.TEST_OTP,
 
