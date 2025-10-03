@@ -8,7 +8,7 @@ import { MartStoreAdminRepository } from "../../infrastructure/repositories/mart
 import { createRazorpayOrderService, getRazorpayOrderById, verifyOrderService } from "../services/razorpay.service.js";
 import { GST, platformFee, packagingFee } from "../../utils/constants.js";
 import { PaymentRepository } from "../../infrastructure/repositories/payment.repository.js";
-import { createPidgeOrder, CreatePidgeOrderPayload, getPidgeOrderStatus, getPidgePayload } from "../services/pidge.service.js";
+import { createPidgeOrder, CreatePidgeOrderPayload, getPidgeOrderStatus, getPidgePayload, cancelPidgeOrder } from "../services/pidge.service.js";
 import { UserRepository } from "../../infrastructure/repositories/user.repository.js";
 import { RestaurantAdminRepository } from "../../infrastructure/repositories/restaurantAdmin.repository.js";
 import { IUser } from "../../domain/interfaces/user.interface.js";
@@ -1301,5 +1301,133 @@ export const OrderUseCase = {
         const customer_feedback = await orderRepo.setOrderFeedback(orderId, feedback);
         if (!customer_feedback) throw new Error("Error in updating the feedback");
         return customer_feedback;
+    },
+
+    cancelOrder: async (orderId: string) => {
+        const order = await orderRepo.getOrderById(orderId);
+        if (!order) throw new Error("Order not found");
+
+        // Check if order can be cancelled (not already delivered or cancelled)
+        if (order.orderStatus === IOrderStatusEnum.DELIVERED) {
+            throw new Error("Cannot cancel a delivered order");
+        }
+        if (order.orderStatus === IOrderStatusEnum.CANCELLED) {
+            throw new Error("Order is already cancelled");
+        }
+
+        // Update order status to cancelled
+        const cancelledOrder = await orderRepo.updateOrderStatus(orderId, IOrderStatusEnum.CANCELLED);
+        if (!cancelledOrder) throw new Error("Failed to cancel order");
+
+        // Cancel the Pidge order if it exists
+        try {
+            // Use the pidgeId from the order, not our internal orderId
+            if (cancelledOrder.delivery?.pidge?.pidgeId) {
+                await cancelPidgeOrder(cancelledOrder.delivery.pidge.pidgeId);
+                console.log(`✅ [ORDER CANCELLATION] Successfully cancelled Pidge order for pidgeId: ${cancelledOrder.delivery.pidge.pidgeId}`);
+            } else {
+                console.log(`⚠️ [ORDER CANCELLATION] No Pidge ID found for orderId: ${orderId}, skipping Pidge cancellation`);
+            }
+        } catch (pidgeError: any) {
+            console.warn(`⚠️ [ORDER CANCELLATION] Pidge cancellation failed for orderId: ${orderId}, but order was cancelled in system:`, pidgeError?.response?.data || pidgeError.message);
+            // Don't fail the overall cancellation if Pidge cancellation fails
+        }
+
+        // Send notifications to relevant users
+        try {
+            const user = await userRepo.findByUserId(order.refIds?.userId || "");
+            if (user && user.fcmTokens && user.fcmTokens.length > 0) {
+                // Send FCM notification to user
+                await sendFCMNotification({
+                    tokens: user.fcmTokens.map((token: IFCM) => token.token),
+                    title: "Order Cancelled ❌",
+                    body: `Your order #${orderId} has been cancelled successfully.`,
+                    data: {
+                        type: "order_cancelled",
+                        orderId: orderId,
+                        orderStatus: IOrderStatusEnum.CANCELLED
+                    }
+                });
+
+                // Send socket notification to user
+                await sendUserNotification(user.userId || "", {
+                    type: "order",
+                    message: "Order Cancelled ❌",
+                    subMessage: `Your order #${orderId} has been cancelled successfully.`,
+                    theme: "info",
+                    emoji: "❌",
+                    priority: "high",
+                    category: "orders",
+                    metadata: {
+                        orderId: orderId,
+                        userRole: "user"
+                    },
+                    userRole: "user",
+                    orderId: orderId
+                });
+            }
+
+            // Check if it's a restaurant order
+            if (order.refIds?.restaurantId && !order.refIds.restaurantId.startsWith('mart_')) {
+                const restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(order.refIds.restaurantId);
+                if (restaurantAdmin) {
+                    // Send FCM notification to restaurant admin
+                    if (restaurantAdmin.fcmTokens && restaurantAdmin.fcmTokens.length > 0) {
+                        await sendFCMNotification({
+                            tokens: restaurantAdmin.fcmTokens.map((token: IFCM) => token.token),
+                            title: "Order Cancelled ❌",
+                            body: `Order #${orderId} has been cancelled by the customer.`
+                        });
+                    }
+
+                    // Send socket notification
+                    await sendRestaurantNotification(order.refIds.restaurantId, {
+                        type: "order",
+                        message: "Order Cancelled ❌",
+                        subMessage: `Order #${orderId} has been cancelled by the customer.`,
+                        theme: "warning",
+                        emoji: "❌",
+                        priority: "high",
+                        category: "orders",
+                        metadata: {
+                            orderId: orderId,
+                            userRole: "restaurantAdmin"
+                        },
+                        restaurantId: order.refIds.restaurantId,
+                        userRole: "restaurantAdmin",
+                        orderId: orderId
+                    });
+                }
+            }
+
+            // Check if it's a mart store order
+            if (order.refIds?.restaurantId && order.refIds.restaurantId.startsWith('mart_')) {
+                const martStoreAdmin = await martStoreAdminRepo.findByMartStoreAdminByMartStoreId(order.refIds.restaurantId);
+                if (martStoreAdmin) {
+                    // Send socket notification to mart store admin
+                    await sendMartStoreNotification(order.refIds.restaurantId, {
+                        type: "order",
+                        message: "Order Cancelled ❌",
+                        subMessage: `Order #${orderId} has been cancelled by the customer.`,
+                        theme: "warning",
+                        emoji: "❌",
+                        priority: "high",
+                        category: "orders",
+                        metadata: {
+                            orderId: orderId,
+                            userRole: "martStoreAdmin"
+                        },
+                        martStoreId: order.refIds.restaurantId,
+                        userRole: "martStoreAdmin",
+                        orderId: orderId
+                    });
+                }
+            }
+        } catch (notificationError) {
+            console.error("Error sending cancellation notifications:", notificationError);
+            // Don't fail the cancellation if notifications fail
+        }
+
+        return cancelledOrder;
     }
 };

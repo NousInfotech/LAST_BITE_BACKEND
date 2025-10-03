@@ -13,7 +13,8 @@ orderRouter.get("/all", OrderController.getAllOrders);
 orderRouter.get("/past", OrderController.getUserPastOrders);
 orderRouter.get("/reviews", OrderController.getUserReviews);
 orderRouter.patch('/:orderId/status', OrderController.updateOrderStatus);
-orderRouter.patch('/:orderId/feedback', OrderController.orderFeeback)
+orderRouter.patch('/:orderId/feedback', OrderController.orderFeeback);
+orderRouter.post('/:orderId/cancel', OrderController.cancelOrder);
 
 
 export default orderRouter

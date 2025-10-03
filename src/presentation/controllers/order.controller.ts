@@ -409,5 +409,104 @@ export const OrderController = {
             if (!feedback) return sendError(res, HTTP.INTERNAL_SERVER_ERROR, "Error in updating feedback");
             return sendResponse(res, HTTP.OK, "Feedback updated successfully", feedback);
         });
+    },
+
+    async cancelOrder(req: CustomRequest, res: Response) {
+        return tryCatch(res, async () => {
+            const { orderId } = req.params;
+            const userId = req.userId;
+            const martStoreAdminId = req.martStoreAdminId;
+            const restaurantAdminId = req.restaurantAdminId;
+            const role = req.role;
+
+            console.log(`🔍 [CANCEL ORDER] Request received for orderId: ${orderId}`, {
+                userId, martStoreAdminId, restaurantAdminId, role
+            });
+
+            // Check authorization - users can only cancel their own orders
+            if (role === 'user' && userId) {
+                console.log('🔍 [ORDER CONTROLLER] User cancelling their order:', userId);
+                
+                // Get the order to verify it belongs to this user
+                const order = await OrderUseCase.getOrderById(orderId);
+                if (!order) {
+                    return sendError(res, HTTP.NOT_FOUND, "Order not found");
+                }
+
+                if (order.refIds?.userId !== userId) {
+                    return sendError(res, HTTP.FORBIDDEN, "You can only cancel your own orders");
+                }
+            } 
+            // Mart store admins can cancel orders for their store
+            else if (role === 'martStoreAdmin' && martStoreAdminId) {
+                console.log('🔍 [ORDER CONTROLLER] Mart store admin cancelling order:', martStoreAdminId);
+                
+                // Get the admin data to find the associated mart store
+                const { MartStoreAdminUseCase } = await import("../../application/use-cases/martStoreAdmin.useCase.js");
+                const admin = await MartStoreAdminUseCase.getAdminById(martStoreAdminId);
+                
+                if (!admin) {
+                    return sendError(res, HTTP.NOT_FOUND, "Mart store admin not found");
+                }
+
+                if (!admin.martStoreId) {
+                    return sendError(res, HTTP.NOT_FOUND, "No mart store associated with this admin");
+                }
+
+                // Verify the order belongs to this mart store
+                const martStoreOrders = await MartStoreAdminUseCase.getMartStoreOrders(admin.martStoreId);
+                const orderExists = martStoreOrders.some((order: any) => order.orderId === orderId);
+                
+                if (!orderExists) {
+                    return sendError(res, HTTP.FORBIDDEN, "Order does not belong to this mart store");
+                }
+            } 
+            // Restaurant admins can cancel orders for their restaurant
+            else if (role === 'restaurantAdmin' && restaurantAdminId) {
+                console.log('🔍 [ORDER CONTROLLER] Restaurant admin cancelling order:', restaurantAdminId);
+                
+                // Get the admin data to find the associated restaurant
+                const { RestaurantAdminUseCase } = await import("../../application/use-cases/restaurantAdmin.useCase.js");
+                const admin = await RestaurantAdminUseCase.getAdminById(restaurantAdminId);
+                
+                if (!admin) {
+                    return sendError(res, HTTP.NOT_FOUND, "Restaurant admin not found");
+                }
+
+                if (!admin.restaurantId) {
+                    return sendError(res, HTTP.NOT_FOUND, "No restaurant associated with this admin");
+                }
+
+                // Verify the order belongs to this restaurant
+                const restaurantOrders = await OrderUseCase.getRestaurantOrders(admin.restaurantId);
+                const orderExists = restaurantOrders.some((order: any) => order.orderId === orderId);
+                
+                if (!orderExists) {
+                    return sendError(res, HTTP.FORBIDDEN, "Order does not belong to this restaurant");
+                }
+            } 
+            else {
+                return sendError(res, HTTP.UNAUTHORIZED, "User ID, Mart Store Admin ID, or Restaurant Admin ID not found in request");
+            }
+
+            try {
+                // Cancel both the system order and Pidge order
+                const cancelledOrder = await OrderUseCase.cancelOrder(orderId);
+                
+                if (!cancelledOrder) {
+                    return sendError(res, HTTP.NOT_FOUND, "Order not found");
+                }
+
+                console.log(`✅ [CANCEL ORDER] Successfully cancelled order for orderId: ${orderId}`);
+
+                return sendResponse(res, HTTP.OK, "Order cancelled successfully", {
+                    orderId: cancelledOrder.orderId,
+                    status: cancelledOrder.orderStatus
+                });
+            } catch (error: any) {
+                console.error(`❌ [CANCEL ORDER] Error for orderId: ${orderId}:`, error);
+                return sendError(res, HTTP.INTERNAL_SERVER_ERROR, `Order cancellation failed: ${error.message}`);
+            }
+        });
     }
 };
