@@ -21,7 +21,9 @@ export const PidgeController = {
 
         return tryCatch(res, async () => {
             const quote = await getPidgeQuote({ pickup, drop });
-            if (!quote) sendError(res, HTTP.SERVICE_UNAVAILABLE, "Service Unavailable from pidge")
+            if (!quote) {
+                return sendError(res, HTTP.SERVICE_UNAVAILABLE, "Service Unavailable from pidge");
+            }
             return sendResponse(res, HTTP.OK, "Pidge quote retrieved successfully", quote);
         });
     },
