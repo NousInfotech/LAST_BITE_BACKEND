@@ -19,8 +19,8 @@ export const config = {
   awsS3Bucket: process.env.AWS_S3_BUCKET || '',
 
   // razorpay
-  razorpayKeyId: process.env.LIVE_RAZORPAY_KEY_ID || '',
-  razorpayKeySecret: process.env.LIVE_RAZORPAY_KEY_SECRET || '',
+  razorpayKeyId: process.env.TEST_RAZORPAY_KEY_ID || '',
+  razorpayKeySecret: process.env.TEST_RAZORPAY_KEY_SECRET || '',
 
   // pidge
   pidgeUserName: process.env.PIDGE_USERNAME || '',
