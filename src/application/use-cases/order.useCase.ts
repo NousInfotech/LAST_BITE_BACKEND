@@ -83,13 +83,13 @@ const calculateFoodItemsTotal = async (
 const calculateMartItemsTotal = async (
     items: IItem[]
 ): Promise<{ itemsTotal: number; enrichedItems: IOrderFoodItem[] }> => {
-    console.log('Calculating mart items total for items:', items);
+    // console.log('Calculating mart items total for items:', items);
 
     const martProductIds = items.map((i) => i.foodItemId);
-    console.log('Mart product IDs to fetch:', martProductIds);
+    // console.log('Mart product IDs to fetch:', martProductIds);
 
     const baseItems = await martProductRepo.getMartProductsForOrder(martProductIds);
-    console.log('Base items found:', baseItems.length);
+    // console.log('Base items found:', baseItems.length);
 
     const enrichedItems: IOrderFoodItem[] = items.map((cartItem) => {
         console.log('Processing cart item:', cartItem);
@@ -1270,10 +1270,25 @@ export const OrderUseCase = {
         const user = await userRepo.findByUserId(order.refIds.userId as string);
         const restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(order.refIds.restaurantId as string);
     
+        console.log(
+        `
+            order :${order}\n
+            user :${user}\n
+            restaurantAdmin :${restaurantAdmin}\n
+        `
+        )
 
         if (!order || !user || !restaurantAdmin) {
             throw new Error(`Order not found for Pidge ID: ${pidgeOrderId}`);
         }
+
+         console.log(
+        `
+            order :${order}\n
+            user :${user}\n
+            restaurantAdmin :${restaurantAdmin}\n
+        `
+        )
     
         // 2. Map Pidge status to internal enum
         const mapped = pidgeOrderStatusMap[pidgeStatus];
@@ -1282,6 +1297,7 @@ export const OrderUseCase = {
             return order; // ignore unknown statuses
         }
     
+        console.log(mapped)
         const newStatus: IOrderStatusEnum = mapped.pidgeOrderStatus;
     
         // 3. Update the order status using existing service

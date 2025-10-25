@@ -15,8 +15,6 @@ export const pidgeMiddleware = (req: PidgeAuthenticatedRequest, res: Response, n
     try {
         // Get the token from the Authorization header
         const authHeader = req.headers.authorization;
-        console.log("headers :"+req.headers);
-        console.log("token :"+authHeader);
         
         if (!authHeader) {
             console.log("❌ [PIDGE MIDDLEWARE] No authorization header or invalid format");

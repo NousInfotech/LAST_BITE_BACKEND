@@ -65,6 +65,7 @@ export const PidgeController = {
     async webHookRoute(req: Request, res: Response) {
         return tryCatch(res, async () => {
             const { fulfillment, id: pidgeId } = req.body;
+            console.log(fulfillment)
             const order = await OrderUseCase.updateOrderStatusByWebHook(
                 pidgeId,
                 fulfillment?.status || status
