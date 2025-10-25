@@ -1345,13 +1345,13 @@ export const OrderUseCase = {
     getUserOrders: async (userId: string) => {
         console.log('Fetching orders for userId:', userId);
         const orders = await orderRepo.getOrders({ "refIds.userId": userId });
-        console.log('Found orders:', orders.length);
-        console.log('Orders details:', orders.map(o => ({
-            orderId: o.orderId,
-            orderStatus: o.orderStatus,
-            userId: o.refIds?.userId,
-            restaurantId: o.refIds?.restaurantId
-        })));
+        // console.log('Found orders:', orders.length);
+        // console.log('Orders details:', orders.map(o => ({
+        //     orderId: o.orderId,
+        //     orderStatus: o.orderStatus,
+        //     userId: o.refIds?.userId,
+        //     restaurantId: o.refIds?.restaurantId
+        // })));
         return orders;
     },
 
@@ -1368,13 +1368,13 @@ export const OrderUseCase = {
     getRestaurantOrders: async (restaurantId: string) => {
         console.log('Fetching orders for restaurantId:', restaurantId);
         const orders = await orderRepo.getOrdersByRestaurantId(restaurantId);
-        console.log('Found orders for restaurant:', orders.length);
-        console.log('Orders details:', orders.map(o => ({
-            orderId: o.orderId,
-            orderStatus: o.orderStatus,
-            userId: o.refIds?.userId,
-            restaurantId: o.refIds?.restaurantId
-        })));
+        // console.log('Found orders for restaurant:', orders.length);
+        // console.log('Orders details:', orders.map(o => ({
+        //     orderId: o.orderId,
+        //     orderStatus: o.orderStatus,
+        //     userId: o.refIds?.userId,
+        //     restaurantId: o.refIds?.restaurantId
+        // })));
         return orders;
     },
 
