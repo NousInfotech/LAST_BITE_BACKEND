@@ -20,9 +20,7 @@ const loginAndGetToken = async (): Promise<string> => {
       username: config.pidgeUserName,
       password: config.pidgePassword,
     });
-
-    console.log(config.pidgeUserName, config.pidgePassword, config.pidgeBaseUrl)
-
+    
     const token = response.data?.data?.token;
     if (!token) throw new Error("Pidge login failed: No token received");
     pidgeToken = token;

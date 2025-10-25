@@ -83,13 +83,13 @@ const calculateFoodItemsTotal = async (
 const calculateMartItemsTotal = async (
     items: IItem[]
 ): Promise<{ itemsTotal: number; enrichedItems: IOrderFoodItem[] }> => {
-    console.log('Calculating mart items total for items:', items);
+    // console.log('Calculating mart items total for items:', items);
 
     const martProductIds = items.map((i) => i.foodItemId);
-    console.log('Mart product IDs to fetch:', martProductIds);
+    // console.log('Mart product IDs to fetch:', martProductIds);
 
     const baseItems = await martProductRepo.getMartProductsForOrder(martProductIds);
-    console.log('Base items found:', baseItems.length);
+    // console.log('Base items found:', baseItems.length);
 
     const enrichedItems: IOrderFoodItem[] = items.map((cartItem) => {
         console.log('Processing cart item:', cartItem);
