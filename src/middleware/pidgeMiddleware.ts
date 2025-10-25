@@ -15,16 +15,16 @@ export const pidgeMiddleware = (req: PidgeAuthenticatedRequest, res: Response, n
     try {
         // Get the token from the Authorization header
         const authHeader = req.headers.authorization;
-        console.log(req.headers);
-        console.log(authHeader);
+        console.log("headers :"+req.headers);
+        console.log("token :"+authHeader);
         
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        if (!authHeader) {
             console.log("❌ [PIDGE MIDDLEWARE] No authorization header or invalid format");
             sendError(res, HTTP.UNAUTHORIZED, "Unauthorized: No Pidge token provided");
             return;
         }
 
-        const token = authHeader.split(" ")[1];
+        const token = authHeader;
         
         if (!token) {
             console.log("❌ [PIDGE MIDDLEWARE] No token found in authorization header");
