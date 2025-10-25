@@ -26,6 +26,7 @@ import { pidgeOrderStatusMap } from "../../utils/pidgeOrderStatus.js";
 import { FilterQuery } from "mongoose";
 import { sendFCMNotification } from "../services/fcm.service.js";
 import { IFCM } from "../../domain/interfaces/notification.interface.js";
+import { IRestaurant } from "../../domain/interfaces/restaurant.interface.js";
 
 const orderRepo = new OrderRepository();
 const restaurantRepo = new RestaurantRepository();
@@ -1214,8 +1215,10 @@ export const OrderUseCase = {
         // 1. Find order by pidgeId
         const order = await orderRepo.getOrderByPidgeId(pidgeOrderId) as IOrder;
         const user = await userRepo.findByUserId(order.refIds.userId as string);
+        const restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(order.refIds.restaurantId as string);
+    
 
-        if (!order || !user) {
+        if (!order || !user || !restaurantAdmin) {
             throw new Error(`Order not found for Pidge ID: ${pidgeOrderId}`);
         }
     
@@ -1242,6 +1245,24 @@ export const OrderUseCase = {
             tokens: user.fcmTokens.map((token:IFCM) => token.token),
             title: "Order Status Updated",
             body: `Your order status has been updated to ${newStatus}.`,
+            data: {
+                orderId: order.orderId as string
+            }
+        });
+
+        // 5. send notification to the restaurant 
+
+        sendRestaurantNotification(order.refIds.restaurantId as string, {
+            type: "order",
+            message: "Order Status Updated",
+            subMessage: `Order status has been updated to ${newStatus}.`,
+            theme: "info",
+        });
+
+        sendFCMNotification({
+            tokens:restaurantAdmin.fcmTokens.map((token:IFCM) => token.token),
+            title: "Order Status Updated",
+            body: `Order status has been updated to ${newStatus}.`,
             data: {
                 orderId: order.orderId as string
             }
@@ -1429,5 +1450,101 @@ export const OrderUseCase = {
         }
 
         return cancelledOrder;
+    },
+
+    // Fetch all orders with restaurant/mart store names populated
+    getOrdersWithRestaurantDetails: async (filter: FilterQuery<IOrder> = {}) => {
+        console.log('🔍 Fetching orders with restaurant details...');
+        
+        // Get all orders based on the filter
+        const orders = await orderRepo.getOrders(filter);
+        
+        if (!orders || orders.length === 0) {
+            console.log('No orders found');
+            return [];
+        }
+
+        console.log(`Found ${orders.length} orders, fetching restaurant/mart store details...`);
+
+        // Enrich orders with restaurant/mart store names
+        const enrichedOrders = await Promise.all(
+            orders.map(async (order) => {
+                try {
+                    const restaurantId = order.refIds?.restaurantId;
+                    
+                    if (!restaurantId) {
+                        console.warn(`⚠️ Order ${order.orderId} has no restaurantId`);
+                        return {
+                            ...order.toObject(),
+                            restaurantName: 'Unknown',
+                            restaurantType: 'unknown'
+                        };
+                    }
+
+                    // Check if it's a mart store order
+                    const isMartStore = restaurantId.startsWith('mart_');
+
+                    if (isMartStore) {
+                        // Fetch mart store details
+                        const martStore = await martStoreRepo.findByMartStoreId(restaurantId);
+                        
+                        return {
+                            ...order.toObject(),
+                            restaurantName: martStore?.martStoreName || 'Unknown Mart Store',
+                            restaurantType: 'mart',
+                            martStoreDetails: martStore ? {
+                                martStoreId: martStore.martStoreId,
+                                martStoreName: martStore.martStoreName,
+                                address: martStore.address,
+                                isAvailable: martStore.isAvailable,
+                                storeStatus: martStore.storeStatus
+                            } : null
+                        };
+                    } else {
+                        // Fetch restaurant details
+                        const restaurant = (await restaurantRepo.getAllRestaurants({restaurantId: restaurantId}))[0] as IRestaurant;
+                        
+                        return {
+                            ...order.toObject(),
+                            restaurantName: restaurant?.restaurantName || 'Unknown Restaurant',
+                            restaurantType: 'restaurant',
+                            restaurantDetails: restaurant ? {
+                                restaurantId: restaurant.restaurantId,
+                                restaurantName: restaurant.restaurantName,
+                                address: restaurant.address,
+                                isActive: restaurant.isActive,
+                                restaurantStatus: restaurant.restaurantStatus,
+                                cuisines: restaurant.cuisines,
+                                tags: restaurant.tags,
+                                rating: restaurant.rating
+                            } : null
+                        };
+                    }
+                } catch (error) {
+                    console.error(`❌ Error fetching restaurant details for order ${order.orderId}:`, error);
+                    return {
+                        ...order.toObject(),
+                        restaurantName: 'Error Loading',
+                        restaurantType: 'unknown',
+                        error: 'Failed to fetch restaurant details'
+                    };
+                }
+            })
+        );
+
+        console.log(`✅ Successfully enriched ${enrichedOrders.length} orders with restaurant details`);
+        return enrichedOrders;
+    },
+
+    // Fetch orders by userId with restaurant details
+    getUserOrdersWithRestaurantDetails: async (userId: string) => {
+        console.log('🔍 Fetching orders for user with restaurant details:', userId);
+        return await OrderUseCase.getOrdersWithRestaurantDetails({ "refIds.userId": userId });
+    },
+
+    // Fetch orders by restaurantId with restaurant details
+    getRestaurantOrdersWithDetails: async (restaurantId: string) => {
+        console.log('🔍 Fetching orders for restaurant with details:', restaurantId);
+        return await OrderUseCase.getOrdersWithRestaurantDetails({ "refIds.restaurantId": restaurantId });
     }
 };
