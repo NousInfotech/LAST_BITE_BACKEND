@@ -14,11 +14,36 @@ export async function sendFCMNotification({ tokens, title, body, data }: SendFCM
     return null;
   }
 
+  // Filter out invalid tokens (Expo tokens, mock tokens, etc.)
+  const validTokens = tokens.filter(token => {
+    // Skip Expo push tokens
+    if (token.startsWith('ExponentPushToken[')) {
+      console.warn(`⚠️ Skipping Expo push token: ${token}`);
+      return false;
+    }
+    // Skip mock tokens
+    if (token.includes('mock-fcm-token')) {
+      console.warn(`⚠️ Skipping mock FCM token: ${token}`);
+      return false;
+    }
+    // Skip empty or invalid tokens
+    if (!token || token.length < 10) {
+      console.warn(`⚠️ Skipping invalid token: ${token}`);
+      return false;
+    }
+    return true;
+  });
+
+  if (validTokens.length === 0) {
+    console.warn("⚠️ No valid FCM tokens found after filtering, skipping notification.");
+    return null;
+  }
+
   try {
     const message = {
       notification: { title, body },
       data: data || {},
-      tokens, // for multicast
+      tokens: validTokens, // for multicast
     };
 
     const response = await fcm.sendEachForMulticast(message);
@@ -27,7 +52,7 @@ export async function sendFCMNotification({ tokens, title, body, data }: SendFCM
     if (response.failureCount > 0) {
       response.responses.forEach((res, idx) => {
         if (!res.success) {
-          console.error(`❌ Failed for token[${tokens[idx]}]:`, res.error);
+          console.error(`❌ Failed for token[${validTokens[idx]}]:`, res.error);
         }
       });
     }
