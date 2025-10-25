@@ -15,6 +15,7 @@ export const MartStoreAdminUseCase = {
     getAllAdmins: (filter?: Partial<IMartStoreAdmin>) => adminRepo.getAllAdmins(filter),
     bulkCreateAdmins: (admins: IMartStoreAdmin[]) => adminRepo.bulkCreate(admins),
     bulkGetAdminsByIds: (adminIds: string[]) => adminRepo.bulkGetByAdminIds(adminIds),
+    updateFCMToken: (martStoreAdminId: string, deviceName: string, fcmToken: string) => adminRepo.updateFCMToken(martStoreAdminId, { deviceName, token: fcmToken }),
     
     // Get orders for a mart store
     getMartStoreOrders: (martStoreId: string) => orderRepo.getOrdersByMartStoreId(martStoreId),

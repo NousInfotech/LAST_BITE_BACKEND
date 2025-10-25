@@ -714,7 +714,7 @@ export const OrderUseCase = {
             });
 
             sendFCMNotification({
-                tokens: user.fcmTokens.map(token => token.token),
+                tokens: user.fcmTokens?.map(token => token.token) || [],
                 title: "Order Placed",
                 body: `Your order ${order.orderId} has been placed successfully.`,
                 data: {
@@ -769,6 +769,15 @@ export const OrderUseCase = {
                     orderId: order.orderId,
                     userId
                 });
+
+                sendFCMNotification({
+                    tokens: admin.fcmTokens?.map((token:IFCM) => token.token) || [],
+                    title: "New Instamart Order! 🛒",
+                    body: `Order #${order.orderId} from ${user.name} - ₹${order.pricing.finalPayable.toFixed(2)}`,
+                    data: {
+                        orderId: order.orderId as string
+                    }
+                })
             }
         } else {
             // Notify Restaurant
@@ -815,7 +824,7 @@ export const OrderUseCase = {
                 });
 
                 sendFCMNotification({
-                    tokens: admin.fcmTokens.map((token:IFCM) => token.token),
+                    tokens: admin.fcmTokens?.map((token:IFCM) => token.token) || [],
                     title: "New Order Received",
                     body: `A new order has been received.`,
                     data: {
@@ -1075,6 +1084,20 @@ export const OrderUseCase = {
 
                     sendUserNotification(userId, userNotification);
 
+                    // Send FCM notification to user
+                    if (user?.fcmTokens && user.fcmTokens.length > 0) {
+                        sendFCMNotification({
+                            tokens: user.fcmTokens?.map(token => token.token) || [],
+                            title: notificationData.user.message,
+                            body: notificationData.user.subMessage,
+                            data: {
+                                orderId: updatedOrder.orderId as string,
+                                status,
+                                type: "order_status_update"
+                            }
+                        });
+                    }
+
                     // Also create notification in database
                     await notificationRepo.createNotification({
                         targetRole: RoleEnum.user,
@@ -1130,6 +1153,21 @@ export const OrderUseCase = {
 
                         sendMartStoreNotification(restaurantId, martStoreNotification);
 
+                        // Send FCM notification to mart store admin
+                        const martStoreAdmin = await martStoreAdminRepo.findByMartStoreAdminByMartStoreId(restaurantId);
+                        if (martStoreAdmin?.fcmTokens && martStoreAdmin.fcmTokens.length > 0) {
+                            sendFCMNotification({
+                                tokens: martStoreAdmin.fcmTokens?.map((token:IFCM) => token.token) || [],
+                                title: notificationData.restaurant.message,
+                                body: notificationData.restaurant.subMessage,
+                                data: {
+                                    orderId: updatedOrder.orderId as string,
+                                    status,
+                                    type: "order_status_update"
+                                }
+                            });
+                        }
+
                         // Also create notification in database
                         await notificationRepo.createNotification({
                             targetRole: RoleEnum.martStoreAdmin as any,
@@ -1177,6 +1215,21 @@ export const OrderUseCase = {
                         };
 
                         sendRestaurantNotification(restaurantId, restaurantNotification);
+
+                        // Send FCM notification to restaurant admin
+                        const restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(restaurantId);
+                        if (restaurantAdmin?.fcmTokens && restaurantAdmin.fcmTokens.length > 0) {
+                            sendFCMNotification({
+                                tokens: restaurantAdmin.fcmTokens?.map((token:IFCM) => token.token) || [],
+                                title: notificationData.restaurant.message,
+                                body: notificationData.restaurant.subMessage,
+                                data: {
+                                    orderId: updatedOrder.orderId as string,
+                                    status,
+                                    type: "order_status_update"
+                                }
+                            });
+                        }
 
                         // Also create notification in database
                         await notificationRepo.createNotification({

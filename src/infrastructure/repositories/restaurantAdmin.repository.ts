@@ -49,7 +49,7 @@ export class RestaurantAdminRepository {
         return await RestaurantAdminModel.find({ restaurantAdminId: { $in: adminIds } }, { _id: 0, __v: 0 }).lean();
     }
     async updateFCMToken(adminId: string, fcmToken: IFCM) {
-        const admin = await RestaurantAdminModel.findOne({ adminId });
+        const admin = await RestaurantAdminModel.findOne({ restaurantAdminId: adminId });
         if (!admin) throw new Error("Restaurant admin not found");
 
         if (!admin.fcmTokens) {

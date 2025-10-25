@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Model, model } from "mongoose";
 import { addCustomIdHook } from "../../../../utils/addCustomIdHook.js";
 import { IMartStoreAdmin } from "../../../../domain/interfaces/martStoreAdmin.interface.js";
+import { fcmSchema } from "./utils.schema.js";
 
 
 export interface MartStoreAdminDoc extends IMartStoreAdmin, Document { }
@@ -11,6 +12,7 @@ const martStoreAdminSchema = new Schema<MartStoreAdminDoc>(
     martStoreAdminId: { type: String, unique: true },
     martStoreId: { type: String, required: true },
     name: { type: String, required: true },
+    fcmTokens: [fcmSchema],
     phoneNumber: { type: String, required: true, unique: true },
     email: { type: String, default: null },
   },

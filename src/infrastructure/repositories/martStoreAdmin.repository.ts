@@ -1,6 +1,7 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
 import { MartStoreAdminModel } from "../db/mongoose/schemas/martStoreAdmin.schema.js";
 import { IMartStoreAdmin } from "../../domain/interfaces/martStoreAdmin.interface.js";
+import { IFCM } from "../../domain/interfaces/notification.interface.js";
 
 export class MartStoreAdminRepository {
     /** Create a new mart store admin */
@@ -55,5 +56,32 @@ export class MartStoreAdminRepository {
     /** Bulk fetch by adminIds */
     async bulkGetByAdminIds(adminIds: string[]) {
         return await MartStoreAdminModel.find({ martStoreAdminId: { $in: adminIds } }, { _id: 0, __v: 0 }).lean();
+    }
+
+    /** Update FCM token for mart store admin */
+    async updateFCMToken(adminId: string, fcmToken: IFCM) {
+        const admin = await MartStoreAdminModel.findOne({ martStoreAdminId: adminId });
+        if (!admin) throw new Error("Mart store admin not found");
+
+        if (!admin.fcmTokens) {
+            admin.fcmTokens = [];
+        }
+
+        const existingIndex = admin.fcmTokens.findIndex(
+            (token) => token.deviceName === fcmToken.deviceName
+        );
+
+        if (existingIndex !== -1) {
+            admin.fcmTokens[existingIndex].token = fcmToken.token;
+            admin.fcmTokens[existingIndex].lastUpdated = new Date();
+        } else {
+            admin.fcmTokens.push({
+                ...fcmToken,
+                lastUpdated: new Date()
+            });
+        }
+
+        await admin.save();
+        return admin.fcmTokens;
     }
 }
