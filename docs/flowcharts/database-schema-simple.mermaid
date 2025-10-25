@@ -1,0 +1,106 @@
+graph TB
+    %% ========================================
+    %% LASTBITE Database Schema - Simplified View
+    %% ========================================
+    %% This diagram shows the high-level relationships between entities
+    
+    subgraph "Restaurant System"
+        Restaurant[("🏪 Restaurant<br/>restaurantId")]
+        RestaurantAdmin[("👨‍💼 RestaurantAdmin<br/>restaurantAdminId")]
+        FoodItem[("🍔 FoodItem<br/>foodItemId")]
+        
+        Restaurant -->|"1:1<br/>managed by"| RestaurantAdmin
+        Restaurant -->|"1:N<br/>has many"| FoodItem
+    end
+    
+    subgraph "Mart Store System"
+        MartStore[("🛒 MartStore<br/>martStoreId")]
+        MartStoreAdmin[("👨‍💼 MartStoreAdmin<br/>martStoreAdminId")]
+        MartProduct[("📦 MartProduct<br/>martProductId")]
+        
+        MartStore -->|"1:1<br/>managed by"| MartStoreAdmin
+        MartStore -->|"1:N<br/>has many"| MartProduct
+    end
+    
+    subgraph "User System"
+        User[("👤 User<br/>userId")]
+        UserCollection[("📚 UserCollection<br/>collectionId")]
+        
+        User -->|"1:N<br/>creates"| UserCollection
+        User -.->|"M:N<br/>favorites"| Restaurant
+        User -.->|"M:N<br/>favorites/cart"| FoodItem
+        User -.->|"N<br/>hides"| Restaurant
+    end
+    
+    subgraph "Order & Payment System"
+        Order[("📦 Order<br/>orderId")]
+        Payment[("💰 Payment<br/>paymentId")]
+        Coupon[("🎟️ Coupon<br/>couponId")]
+        
+        Order -->|"1:1<br/>has"| Payment
+        Order -.->|"M:N<br/>applies"| Coupon
+    end
+    
+    subgraph "Support System"
+        Issue[("⚠️ Issue<br/>issueId")]
+        Notification[("🔔 Notification<br/>notificationId")]
+        Rider[("🚴 Rider<br/>riderId")]
+    end
+    
+    %% Core Order Relationships
+    User -->|"1:N<br/>places"| Order
+    Restaurant -->|"1:N<br/>receives"| Order
+    MartStore -->|"1:N<br/>receives"| Order
+    Order -.->|"M:N<br/>contains"| FoodItem
+    Order -.->|"M:N<br/>contains"| MartProduct
+    
+    %% Payment Relationships
+    User -.->|"makes"| Payment
+    Restaurant -.->|"receives"| Payment
+    MartStore -.->|"receives"| Payment
+    
+    %% Support Relationships
+    User -->|"raises"| Issue
+    RestaurantAdmin -->|"raises"| Issue
+    MartStoreAdmin -->|"raises"| Issue
+    Rider -->|"raises"| Issue
+    Order -.->|"may have"| Issue
+    
+    %% Notification Relationships
+    User -->|"receives"| Notification
+    RestaurantAdmin -->|"receives"| Notification
+    MartStoreAdmin -->|"receives"| Notification
+    Order -.->|"generates"| Notification
+    
+    %% Delivery
+    Rider -.->|"delivers"| Order
+    
+    %% Collection Relationships
+    UserCollection -.->|"M:N<br/>contains"| FoodItem
+    
+    %% Legend
+    subgraph "Legend"
+        direction LR
+        L1[Entity] -->|"Solid = Direct FK"| L2[Entity]
+        L3[Entity] -.->|"Dashed = Reference"| L4[Entity]
+    end
+    
+    style Restaurant fill:#ff9999
+    style RestaurantAdmin fill:#ffcccc
+    style FoodItem fill:#ffdddd
+    
+    style MartStore fill:#99ccff
+    style MartStoreAdmin fill:#cce5ff
+    style MartProduct fill:#e5f2ff
+    
+    style User fill:#99ff99
+    style UserCollection fill:#ccffcc
+    
+    style Order fill:#ffcc99
+    style Payment fill:#ffe5cc
+    style Coupon fill:#fff0dd
+    
+    style Issue fill:#ffff99
+    style Notification fill:#ffffcc
+    style Rider fill:#ffffdd
+

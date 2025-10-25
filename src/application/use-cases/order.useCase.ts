@@ -1217,10 +1217,25 @@ export const OrderUseCase = {
         const user = await userRepo.findByUserId(order.refIds.userId as string);
         const restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(order.refIds.restaurantId as string);
     
+        console.log(
+        `
+            order :${order}\n
+            user :${user}\n
+            restaurantAdmin :${restaurantAdmin}\n
+        `
+        )
 
         if (!order || !user || !restaurantAdmin) {
             throw new Error(`Order not found for Pidge ID: ${pidgeOrderId}`);
         }
+
+         console.log(
+        `
+            order :${order}\n
+            user :${user}\n
+            restaurantAdmin :${restaurantAdmin}\n
+        `
+        )
     
         // 2. Map Pidge status to internal enum
         const mapped = pidgeOrderStatusMap[pidgeStatus];
@@ -1229,6 +1244,7 @@ export const OrderUseCase = {
             return order; // ignore unknown statuses
         }
     
+        console.log(mapped)
         const newStatus: IOrderStatusEnum = mapped.pidgeOrderStatus;
     
         // 3. Update the order status using existing service

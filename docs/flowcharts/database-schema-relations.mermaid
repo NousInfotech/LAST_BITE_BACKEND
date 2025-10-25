@@ -1,0 +1,301 @@
+erDiagram
+    %% ========================================
+    %% LASTBITE Database Schema Relationships
+    %% ========================================
+    %% This diagram shows all entity relationships in the LASTBITE system
+    %% including Restaurants, Mart Stores, Orders, Users, and supporting entities
+
+    %% ========================================
+    %% CORE ENTITIES
+    %% ========================================
+
+    Restaurant {
+        string restaurantId PK "Primary Key - Custom ID (res_xxx)"
+        string restaurantName "Restaurant name"
+        object address "GeoJSON location with coordinates"
+        object documents "PAN, FSSAI, GST, Bank details"
+        array timings "Operating hours by day"
+        array tags "Search tags"
+        array cuisines "Cuisine types"
+        array typeOfFood "VEG, NON_VEG, VEGAN"
+        string profilePhoto "Profile image URL"
+        array menuImages "Menu image URLs"
+        boolean isActive "Operational status"
+        array availableCategories "Food categories"
+        object restaurantStatus "PENDING, ACTIVE, SUSPENDED, etc."
+        number rating "1-5 rating"
+        number packagingCharges "Packaging fee"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    User {
+        string userId PK "Primary Key - Custom ID (usr_xxx)"
+        string name "User full name"
+        array fcmTokens "FCM push notification tokens"
+        string phoneNumber UK "Unique phone number"
+        string email UK "Unique email (sparse)"
+        string profileImage "Profile picture URL"
+        object favourites "Favorite restaurants and food items"
+        array cart "Shopping cart items"
+        array hiddenRestaurants "Hidden restaurant IDs"
+        array addresses "Saved delivery addresses"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    Order {
+        string orderId PK "Primary Key - Custom ID (ord_xxx)"
+        object refIds "userId and restaurantId references"
+        array foodItems "Ordered items with quantity"
+        object pricing "Pricing breakdown and distribution"
+        object delivery "Location and Pidge integration"
+        object feedback "Order and rider ratings"
+        object payment "Payment ID and type"
+        array coupons "Applied coupons"
+        string orderStatus "PENDING, CONFIRMED, PREPARING, etc."
+        string notes "Order notes"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    FoodItem {
+        string foodItemId PK "Primary Key - Custom ID (food_xxx)"
+        string restaurantId FK "Foreign Key to Restaurant"
+        string name "Item name"
+        string description "Item description"
+        number price "Base price"
+        number discountPrice "Discounted price"
+        string image "Item image URL"
+        boolean isAvailable "Availability status"
+        array typeOfFood "VEG, NON_VEG, VEGAN"
+        array cuisines "Cuisine tags"
+        array tags "Search tags"
+        string category "Food category"
+        number rating "Item rating"
+        number ratingCount "Number of ratings"
+        number stock "Available stock"
+        array addons "Additional items"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    Payment {
+        string paymentId PK "Primary Key - Custom ID (pay_xxx)"
+        object razorpay "Razorpay order and payment IDs"
+        string linkedOrderId FK "Foreign Key to Order"
+        string paymentStatus "PAID, CANCELLED, REFUND"
+        object amount "Total and currency"
+        object breakdown "Item, packaging, delivery, platform fees"
+        object distribution "Restaurant, platform, delivery shares"
+        object timestamps "Created, paid, refunded dates"
+        object ref "restaurantId and userId references"
+        object settlement "Week key and settlement status"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    %% ========================================
+    %% MART STORE ENTITIES
+    %% ========================================
+
+    MartStore {
+        string martStoreId PK "Primary Key - Custom ID (mart_xxx)"
+        string martStoreName "Store name"
+        object address "GeoJSON location with coordinates"
+        object documents "GST, Trade License, Bank details"
+        boolean isAvailable "Store availability"
+        object storeStatus "PENDING, ACTIVE, SUSPENDED, etc."
+        number packagingCharges "Packaging fee"
+        array tags "Search tags"
+        string storeLogo "Logo image URL"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    MartProduct {
+        string martProductId PK "Primary Key - Custom ID (mart_xxx)"
+        string martStoreId FK "Foreign Key to MartStore"
+        string productName "Product name"
+        string description "Product description"
+        number price "Base price"
+        number discountPrice "Discounted price"
+        string image "Product image URL"
+        boolean isAvailable "Availability status"
+        string unit "Unit of measurement"
+        array categories "Product categories"
+        number stock "Available stock"
+        number rating "Product rating"
+        number ratingCount "Number of ratings"
+        array tags "Search tags"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    MartStoreAdmin {
+        string martStoreAdminId PK "Primary Key - Custom ID (martstoread_xxx)"
+        string martStoreId FK "Foreign Key to MartStore"
+        string name "Admin name"
+        string phoneNumber UK "Unique phone number"
+        string email "Email address"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    %% ========================================
+    %% ADMIN & SUPPORT ENTITIES
+    %% ========================================
+
+    RestaurantAdmin {
+        string restaurantAdminId PK "Primary Key - Custom ID (resad_xxx)"
+        string restaurantId FK "Foreign Key to Restaurant"
+        string name "Admin name"
+        array fcmTokens "FCM push notification tokens"
+        string phoneNumber UK "Unique phone number"
+        string email "Email address"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    Rider {
+        string riderId PK "Primary Key - Custom ID (rid_xxx)"
+        string name "Rider name"
+        string phoneNumber UK "Unique phone number"
+        string email "Email address"
+        string dateOfBirth "Date of birth"
+        object address "Rider address"
+        string vehicleType "bike, scooter, electric-vehicle"
+        string profilePhoto "Profile image URL"
+        object documents "Vehicle, ID, Banking documents"
+        boolean isVerified "Verification status"
+        boolean isAvailable "Availability status"
+        object lastLocation "GeoJSON location"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    Issue {
+        string issueId PK "Primary Key - Custom ID (iss_xxx)"
+        string raisedByRole "user, restaurantAdmin, rider, etc."
+        string raisedById "ID of the user who raised issue"
+        string targetRole "Role of the target entity"
+        string targetId "ID of the target entity"
+        string description "Issue description"
+        string relatedOrderId FK "Foreign Key to Order (optional)"
+        array tags "Issue tags"
+        string status "OPEN, IN_PROGRESS, RESOLVED, CLOSED"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    Notification {
+        string notificationId PK "Primary Key - Custom ID (ntf_xxx)"
+        string type "common, order, promo, system, reminder"
+        array tags "Notification tags"
+        string targetRole "user, restaurantAdmin"
+        string targetRoleId "ID of the target user/admin"
+        string message "Notification message"
+        string emoji "Emoji icon"
+        string theme "success, warning, danger, info, neutral"
+        object metadata "Flexible metadata (orderId, etc.)"
+        boolean read "Read status"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    Coupon {
+        string couponId PK "Primary Key - Custom ID (cpn_xxx)"
+        string title "Coupon title"
+        string code UK "Unique coupon code"
+        string type "PERCENTAGE, FIXED"
+        number discountValue "Discount amount or percentage"
+        mixed limit "Usage limit"
+        number count "Times used"
+        number minOrderValue "Minimum order value"
+        date startDate "Valid from date"
+        date endDate "Valid until date"
+        boolean isActive "Active status"
+        string description "Coupon description"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    UserCollection {
+        string collectionId PK "Primary Key - Custom ID (uci_xxx)"
+        string userId FK "Foreign Key to User"
+        string name "Collection name"
+        array foodItemIds "Array of foodItemIds"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    %% ========================================
+    %% RESTAURANT RELATIONSHIPS
+    %% ========================================
+
+    Restaurant ||--o{ FoodItem : "has many"
+    Restaurant ||--|| RestaurantAdmin : "managed by"
+    Restaurant ||--o{ Order : "receives orders"
+    Restaurant ||--o{ Payment : "receives payments"
+
+    %% ========================================
+    %% MART STORE RELATIONSHIPS
+    %% ========================================
+
+    MartStore ||--o{ MartProduct : "has many"
+    MartStore ||--|| MartStoreAdmin : "managed by"
+    MartStore ||--o{ Order : "receives orders"
+
+    %% ========================================
+    %% USER RELATIONSHIPS
+    %% ========================================
+
+    User ||--o{ Order : "places orders"
+    User ||--o{ Payment : "makes payments"
+    User }o--o{ Restaurant : "favorites"
+    User }o--o{ FoodItem : "favorites in cart"
+    User ||--o{ UserCollection : "creates collections"
+    User ||--o{ Issue : "raises issues"
+    User ||--o{ Notification : "receives notifications"
+
+    %% ========================================
+    %% ORDER RELATIONSHIPS
+    %% ========================================
+
+    Order ||--|| Payment : "has payment"
+    Order }o--o{ FoodItem : "contains food items"
+    Order }o--o{ MartProduct : "contains mart products"
+    Order }o--o{ Coupon : "may apply coupons"
+    Order ||--o| Issue : "may have issues"
+    Order ||--o{ Notification : "generates notifications"
+
+    %% ========================================
+    %% FOOD ITEM RELATIONSHIPS
+    %% ========================================
+
+    FoodItem }o--o{ UserCollection : "can be in collections"
+
+    %% ========================================
+    %% ADMIN & SUPPORT RELATIONSHIPS
+    %% ========================================
+
+    RestaurantAdmin ||--o{ Notification : "receives notifications"
+    RestaurantAdmin ||--o{ Issue : "may raise or be target of issues"
+
+    MartStoreAdmin ||--o{ Notification : "receives notifications"
+    MartStoreAdmin ||--o{ Issue : "may raise or be target of issues"
+
+    Rider ||--o{ Issue : "may raise or be target of issues"
+    Rider ||--o{ Order : "delivers orders (via Pidge)"
+
+    %% ========================================
+    %% NOTES
+    %% ========================================
+    %% 1. Order.refIds contains both userId and restaurantId/martStoreId
+    %% 2. MartStore orders are identified by restaurantId starting with 'mart_'
+    %% 3. Payment references both Order and Restaurant/User via separate fields
+    %% 4. Issue uses polymorphic relationships via role-based IDs
+    %% 5. Notification uses polymorphic relationships via targetRole and targetRoleId
+    %% 6. User cart contains both foodItemId and restaurantId
+    %% 7. Pidge integration is embedded in Order.delivery.pidge
+
