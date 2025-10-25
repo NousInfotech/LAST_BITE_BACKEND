@@ -16,6 +16,8 @@ import { superAdminLoginSchema } from "../../domain/zod/superAdmin.zod.js";
 import { SuperAdminModel } from "../../infrastructure/db/mongoose/schemas/superAdmin.schema.js";
 import { sendFCMNotification } from "../../application/services/fcm.service.js"; // adjust path if needed
 import { UserModel } from "../../infrastructure/db/mongoose/schemas/user.schema.js";
+import { RestaurantAdminModel } from "../../infrastructure/db/mongoose/schemas/restaurantAdmin.schema.js";
+import { RoleEnum } from "../../domain/interfaces/utils.interface.js";
 
 export const AuthController = {
   async pushNotification(req: any, res: any) {
@@ -82,13 +84,26 @@ export const AuthController = {
         let data: { updated: boolean; reason?: string } | null = null;
 
         if (req.body.fcmToken) {
-          data = await UserModel.upsertFcmToken(
-            { phoneNumber },
-            {
-              token: req.body.fcmToken,
-              deviceName: req.get("X-Device-Name") || "unknown",
-            }
-          );
+
+          if (role === RoleEnum.user) {
+            data = await UserModel.upsertFcmToken(
+              { phoneNumber },
+              {
+                token: req.body.fcmToken,
+                deviceName: req.get("X-Device-Name") || "unknown",
+              }
+            );
+          } else if (role === RoleEnum.restaurantAdmin) {
+            data = await RestaurantAdminModel.upsertFcmToken(
+              { phoneNumber },
+              {
+                token: req.body.fcmToken,
+                deviceName: req.get("X-Device-Name") || "unknown",
+              }
+            )
+          } else {
+            return sendError(res, HTTP.BAD_REQUEST, "Invalid role");
+          }
         }
 
         console.log(data); // safe now — will log null if fcmToken was not provided
