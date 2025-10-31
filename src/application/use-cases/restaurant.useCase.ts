@@ -6,8 +6,12 @@ import { Role } from "../../domain/interfaces/utils.interface.js";
 import { RestaurantDoc } from "../../infrastructure/db/mongoose/schemas/restaurant.schema.js";
 import { sendRestaurantNotification } from "../../presentation/sockets/restaurantNotification.socket.js";
 import { RestaurantStatusEnum } from "../../domain/interfaces/utils.interface.js";
+import { sendFCMNotification } from "../services/fcm.service.js";
+import { RestaurantAdminRepository } from "../../infrastructure/repositories/restaurantAdmin.repository.js";
+import { IFCM } from "../../domain/interfaces/notification.interface.js";
 
 const restaurantRepo = new RestaurantRepository();
+const restaurantAdminRepo = new RestaurantAdminRepository();
 
 export const RestaurantUseCase = {
     /**
@@ -46,14 +50,50 @@ export const RestaurantUseCase = {
     /**
      * Update a restaurant by its ID
      */
-    updateRestaurant: (restaurantId: string, updateData: UpdateQuery<IRestaurant>) => {
-        return restaurantRepo.updateRestaurant(restaurantId, updateData);
+    updateRestaurant: async (restaurantId: string, updateData: UpdateQuery<IRestaurant>) => {
+        // Get current restaurant to check if status is being changed to VERIFIED
+        const currentRestaurant = await restaurantRepo.findByRestaurantId(restaurantId);
+        const updated = await restaurantRepo.updateRestaurant(restaurantId, updateData);
+        
+        // Send FCM notification if restaurant status is VERIFIED (approved)
+        // Check if restaurant status changed to VERIFIED
+        if (updated) {
+            const currentStatus = currentRestaurant?.restaurantStatus?.status;
+            const newStatus = updated.restaurantStatus?.status;
+            const isApproved = newStatus === RestaurantStatusEnum.VERIFIED;
+            const statusChangedToVerified = isApproved && currentStatus !== RestaurantStatusEnum.VERIFIED;
+            
+            if (statusChangedToVerified) {
+                try {
+                    const restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(restaurantId);
+                    if (restaurantAdmin?.fcmTokens && restaurantAdmin.fcmTokens.length > 0) {
+                        await sendFCMNotification({
+                            tokens: restaurantAdmin.fcmTokens.map((token: IFCM) => token.token),
+                            title: "🎉 Restaurant Approved!",
+                            body: `Your restaurant "${updated.restaurantName || 'Restaurant'}" has been approved and is now active on LastBite. You can now start accepting orders!`,
+                        data: {
+                            type: "restaurant_approved",
+                            restaurantId: restaurantId,
+                            status: "verified"
+                        }
+                        });
+                        console.log(`✅ FCM notification sent for restaurant approval: ${restaurantId}`);
+                    }
+                } catch (error) {
+                    console.error(`❌ Error sending FCM notification for restaurant approval: ${restaurantId}`, error);
+                }
+            }
+        }
+        
+        return updated;
     },
     /**
       * Update a restaurant status by id
       */
     updateRestaurantStatus: async (restaurantId: string, state: IRestaurantStatus) => {
+        const isVerified = state.status === RestaurantStatusEnum.VERIFIED;
         const updated = await restaurantRepo.updateRestaurantStatus(restaurantId, state.status, state.message, state.days);
+        
         try {
             sendRestaurantNotification(restaurantId, {
                 type: 'system',
@@ -61,10 +101,33 @@ export const RestaurantUseCase = {
                 targetRoleId: restaurantId,
                 message: `Store ${state.status.toLowerCase()}`,
                 emoji: '🏪',
-                theme: state.status === RestaurantStatusEnum.VERIFIED ? 'success' : 'warning',
+                theme: isVerified ? 'success' : 'warning',
                 metadata: { message: state.message, days: state.days }
             } as any);
         } catch {}
+        
+        // Send FCM notification if restaurant is being verified (approved)
+        if (isVerified && updated) {
+            try {
+                const restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(restaurantId);
+                if (restaurantAdmin?.fcmTokens && restaurantAdmin.fcmTokens.length > 0) {
+                    await sendFCMNotification({
+                        tokens: restaurantAdmin.fcmTokens.map((token: IFCM) => token.token),
+                        title: "🎉 Restaurant Approved!",
+                        body: `Your restaurant "${updated.restaurantName || 'Restaurant'}" has been verified and approved. You can now start accepting orders!`,
+                        data: {
+                            type: "restaurant_approved",
+                            restaurantId: restaurantId,
+                            status: "verified"
+                        }
+                    });
+                    console.log(`✅ FCM notification sent for restaurant verification: ${restaurantId}`);
+                }
+            } catch (error) {
+                console.error(`❌ Error sending FCM notification for restaurant verification: ${restaurantId}`, error);
+            }
+        }
+        
         return updated;
     },
 
