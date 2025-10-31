@@ -920,13 +920,22 @@ export const OrderUseCase = {
         const updatedOrder = await orderRepo.updateOrderStatus(orderId, status);
         if (!updatedOrder) throw new Error("Order not found or status not updated");
 
-        const userId = updatedOrder.refIds.userId;
-        const restaurantId = updatedOrder.refIds.restaurantId;
+        // Safely extract IDs with null checks to prevent crashes
+        const userId = updatedOrder.refIds?.userId;
+        const restaurantId = updatedOrder.refIds?.restaurantId;
+
+        if (!userId) {
+            console.warn(`⚠️ [UPDATE ORDER STATUS] No userId found for order ${orderId}, skipping user notifications`);
+        }
+
+        if (!restaurantId) {
+            console.warn(`⚠️ [UPDATE ORDER STATUS] No restaurantId found for order ${orderId}, skipping restaurant notifications`);
+        }
 
         try {
             const user = userId ? await userRepo.findByUserId(userId) : null;
             const restaurant = restaurantId ? await restaurantRepo.getRestaurantLocationById(restaurantId) : null;
-            const restaurantName = restaurantId ? `Restaurant ${restaurantId.slice(-4)}` : 'Restaurant';
+            const restaurantName = restaurantId && restaurantId.length >= 4 ? `Restaurant ${restaurantId.slice(-4)}` : 'Restaurant';
             const foodItems = updatedOrder.foodItems || [];
             const foodNames = foodItems.map(item => item.name || item.foodItemId).slice(0, 3);
             const foodSummary = foodNames.length > 3
@@ -1121,8 +1130,14 @@ export const OrderUseCase = {
                         restaurantId
                     };
 
-                    sendUserNotification(userId, userNotification);
-                    console.log(`✅ [NOTIFICATION] Socket notification sent to user ${userId}`);
+                    // Send socket notification (with error handling)
+                    try {
+                        sendUserNotification(userId, userNotification);
+                        console.log(`✅ [NOTIFICATION] Socket notification sent to user ${userId}`);
+                    } catch (socketError) {
+                        console.error(`❌ [NOTIFICATION] Failed to send socket notification to user ${userId}:`, socketError);
+                        // Continue even if socket notification fails
+                    }
 
                     // Send FCM notification to user (don't let FCM errors crash the order flow)
                     if (user?.fcmTokens && user.fcmTokens.length > 0) {
@@ -1156,22 +1171,30 @@ export const OrderUseCase = {
                         console.warn(`⚠️ [NOTIFICATION] User ${userId} has no FCM tokens. User object:`, user ? 'found' : 'not found', user?.fcmTokens ? `${user.fcmTokens.length} tokens` : 'no tokens');
                     }
 
-                    // Also create notification in database
-                    await notificationRepo.createNotification({
-                        targetRole: RoleEnum.user,
-                        targetRoleId: userId!,
-                        type: "order",
-                        message: notificationData.user.message,
-                        theme: notificationData.user.theme as any,
-                        tags: ["order", status.toLowerCase()],
-                        metadata: {
-                            orderId: updatedOrder.orderId,
-                            status,
-                            foodSummary,
-                            totalAmount: updatedOrder.pricing?.finalPayable || 0
-                        },
-                        createdAt: new Date(),
-                    });
+                    // Also create notification in database (with error handling)
+                    try {
+                        if (userId) {
+                            await notificationRepo.createNotification({
+                                targetRole: RoleEnum.user,
+                                targetRoleId: userId,
+                                type: "order",
+                                message: notificationData.user.message,
+                                theme: notificationData.user.theme as any,
+                                tags: ["order", status.toLowerCase()],
+                                metadata: {
+                                    orderId: updatedOrder.orderId,
+                                    status,
+                                    foodSummary,
+                                    totalAmount: updatedOrder.pricing?.finalPayable || 0
+                                },
+                                createdAt: new Date(),
+                            });
+                            console.log(`✅ [NOTIFICATION] Database notification created for user ${userId}`);
+                        }
+                    } catch (notifError) {
+                        console.error(`❌ [NOTIFICATION] Failed to create database notification for user ${userId}:`, notifError);
+                        // Continue even if database notification fails
+                    }
                 } else {
                     console.log(`⏭️ [NOTIFICATION] Skipping duplicate notification for user ${userId}, order ${orderId}, status ${status}`);
                 }
@@ -1213,7 +1236,13 @@ export const OrderUseCase = {
                             userId
                         };
 
-                        sendMartStoreNotification(restaurantId, martStoreNotification);
+                        // Send socket notification (with error handling)
+                        try {
+                            sendMartStoreNotification(restaurantId, martStoreNotification);
+                        } catch (socketError) {
+                            console.error(`❌ [NOTIFICATION] Failed to send socket notification to mart store ${restaurantId}:`, socketError);
+                            // Continue even if socket notification fails
+                        }
 
                         // Send FCM notification to mart store admin
                         const martStoreAdmin = await martStoreAdminRepo.findByMartStoreAdminByMartStoreId(restaurantId);
@@ -1283,7 +1312,13 @@ export const OrderUseCase = {
                             userId
                         };
 
-                        sendRestaurantNotification(restaurantId, restaurantNotification);
+                        // Send socket notification (with error handling)
+                        try {
+                            sendRestaurantNotification(restaurantId, restaurantNotification);
+                        } catch (socketError) {
+                            console.error(`❌ [NOTIFICATION] Failed to send socket notification to restaurant ${restaurantId}:`, socketError);
+                            // Continue even if socket notification fails
+                        }
 
                         // Send FCM notification to restaurant admin
                         const restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(restaurantId);
