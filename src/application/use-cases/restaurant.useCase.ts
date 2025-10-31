@@ -135,7 +135,12 @@ export const RestaurantUseCase = {
     /**
      * Delete a restaurant by its ID
      */
-    deleteRestaurant: (restaurantId: string) => {
+    deleteRestaurant: async (restaurantId: string) => {
+        // Delete the associated restaurant admin first
+        const admin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(restaurantId);
+        if (admin && admin.restaurantAdminId) {
+            await restaurantAdminRepo.deleteAdmin(admin.restaurantAdminId);
+        }
         return restaurantRepo.deleteRestaurant(restaurantId);
     },
 
