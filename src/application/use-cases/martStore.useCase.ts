@@ -16,6 +16,34 @@ export const MartStoreUseCase = {
      * Create a new mart store
      */
     createMartStore: (data: IMartStore) => {
+        // Validate document URLs - reject local file URIs (file:// or content://)
+        if (data.documents) {
+            const documentFields = ['gstCertificateImage', 'tradeLicenseImage', 'cancelledChequeImage'];
+            const invalidUrls: string[] = [];
+            
+            for (const field of documentFields) {
+                const url = data.documents[field as keyof typeof data.documents];
+                // Allow empty strings, but reject local file URIs
+                if (url && typeof url === 'string' && url.trim() !== '') {
+                    if (url.startsWith('file://') || url.startsWith('content://')) {
+                        invalidUrls.push(field);
+                        console.error(`❌ [VALIDATION] Rejected local file URI for ${field}: ${url.substring(0, 50)}...`);
+                    }
+                }
+            }
+            
+            if (invalidUrls.length > 0) {
+                throw new Error(`Invalid document URLs detected. Documents must be uploaded to S3 first. Invalid fields: ${invalidUrls.join(', ')}`);
+            }
+        }
+        
+        // Validate store logo URL
+        if (data.storeLogo && typeof data.storeLogo === 'string') {
+            if (data.storeLogo.startsWith('file://') || data.storeLogo.startsWith('content://')) {
+                throw new Error('Invalid store logo URL. Store logo must be uploaded to S3 first.');
+            }
+        }
+        
         return martStoreRepo.create(data);
     },
 
@@ -37,6 +65,34 @@ export const MartStoreUseCase = {
      * Update a mart store by its customId
      */
     updateMartStore: async (customId: string, updateData: UpdateQuery<IMartStore>) => {
+        // Validate document URLs - reject local file URIs (file:// or content://)
+        if (updateData.documents) {
+            const documentFields = ['gstCertificateImage', 'tradeLicenseImage', 'cancelledChequeImage'];
+            const invalidUrls: string[] = [];
+            
+            for (const field of documentFields) {
+                const url = updateData.documents[field as keyof typeof updateData.documents];
+                // Allow empty strings, but reject local file URIs
+                if (url && typeof url === 'string' && url.trim() !== '') {
+                    if (url.startsWith('file://') || url.startsWith('content://')) {
+                        invalidUrls.push(field);
+                        console.error(`❌ [VALIDATION] Rejected local file URI for ${field}: ${url.substring(0, 50)}...`);
+                    }
+                }
+            }
+            
+            if (invalidUrls.length > 0) {
+                throw new Error(`Invalid document URLs detected. Documents must be uploaded to S3 first. Invalid fields: ${invalidUrls.join(', ')}`);
+            }
+        }
+        
+        // Validate store logo URL
+        if (updateData.storeLogo && typeof updateData.storeLogo === 'string') {
+            if (updateData.storeLogo.startsWith('file://') || updateData.storeLogo.startsWith('content://')) {
+                throw new Error('Invalid store logo URL. Store logo must be uploaded to S3 first.');
+            }
+        }
+        
         // Get current mart store to check if status is being changed to VERIFIED
         const currentMartStore = await martStoreRepo.findByMartStoreId(customId);
         const updated = await martStoreRepo.updateMartStore(customId, updateData);

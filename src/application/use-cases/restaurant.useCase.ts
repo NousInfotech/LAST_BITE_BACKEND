@@ -28,6 +28,44 @@ export const RestaurantUseCase = {
         console.log('Incoming data GST certificate image:', data.documents?.gstCertificateImage);
         console.log('Incoming data cancelled cheque image:', data.documents?.cancelledChequeImage);
         
+        // Validate document URLs - reject local file URIs (file:// or content://)
+        if (data.documents) {
+            const documentFields = ['panImage', 'shopLicenseImage', 'fssaiCertificateImage', 'gstCertificateImage', 'cancelledChequeImage'];
+            const invalidUrls: string[] = [];
+            
+            for (const field of documentFields) {
+                const url = data.documents[field as keyof typeof data.documents];
+                // Allow empty strings, but reject local file URIs
+                if (url && typeof url === 'string' && url.trim() !== '') {
+                    if (url.startsWith('file://') || url.startsWith('content://')) {
+                        invalidUrls.push(field);
+                        console.error(`❌ [VALIDATION] Rejected local file URI for ${field}: ${url.substring(0, 50)}...`);
+                    }
+                }
+            }
+            
+            if (invalidUrls.length > 0) {
+                throw new Error(`Invalid document URLs detected. Documents must be uploaded to S3 first. Invalid fields: ${invalidUrls.join(', ')}`);
+            }
+        }
+        
+        // Validate profile photo URL
+        if (data.profilePhoto && typeof data.profilePhoto === 'string') {
+            if (data.profilePhoto.startsWith('file://') || data.profilePhoto.startsWith('content://')) {
+                throw new Error('Invalid profile photo URL. Profile photo must be uploaded to S3 first.');
+            }
+        }
+        
+        // Validate menu images URLs
+        if (data.menuImages && Array.isArray(data.menuImages)) {
+            const invalidMenuUrls = data.menuImages.filter((url: string) => 
+                url && typeof url === 'string' && (url.startsWith('file://') || url.startsWith('content://'))
+            );
+            if (invalidMenuUrls.length > 0) {
+                throw new Error('Invalid menu image URLs. Menu images must be uploaded to S3 first.');
+            }
+        }
+        
         return restaurantRepo.create(data);
     },
 
@@ -51,6 +89,44 @@ export const RestaurantUseCase = {
      * Update a restaurant by its ID
      */
     updateRestaurant: async (restaurantId: string, updateData: UpdateQuery<IRestaurant>) => {
+        // Validate document URLs - reject local file URIs (file:// or content://)
+        if (updateData.documents) {
+            const documentFields = ['panImage', 'shopLicenseImage', 'fssaiCertificateImage', 'gstCertificateImage', 'cancelledChequeImage'];
+            const invalidUrls: string[] = [];
+            
+            for (const field of documentFields) {
+                const url = updateData.documents[field as keyof typeof updateData.documents];
+                // Allow empty strings, but reject local file URIs
+                if (url && typeof url === 'string' && url.trim() !== '') {
+                    if (url.startsWith('file://') || url.startsWith('content://')) {
+                        invalidUrls.push(field);
+                        console.error(`❌ [VALIDATION] Rejected local file URI for ${field}: ${url.substring(0, 50)}...`);
+                    }
+                }
+            }
+            
+            if (invalidUrls.length > 0) {
+                throw new Error(`Invalid document URLs detected. Documents must be uploaded to S3 first. Invalid fields: ${invalidUrls.join(', ')}`);
+            }
+        }
+        
+        // Validate profile photo URL
+        if (updateData.profilePhoto && typeof updateData.profilePhoto === 'string') {
+            if (updateData.profilePhoto.startsWith('file://') || updateData.profilePhoto.startsWith('content://')) {
+                throw new Error('Invalid profile photo URL. Profile photo must be uploaded to S3 first.');
+            }
+        }
+        
+        // Validate menu images URLs
+        if (updateData.menuImages && Array.isArray(updateData.menuImages)) {
+            const invalidMenuUrls = updateData.menuImages.filter((url: string) => 
+                url && typeof url === 'string' && (url.startsWith('file://') || url.startsWith('content://'))
+            );
+            if (invalidMenuUrls.length > 0) {
+                throw new Error('Invalid menu image URLs. Menu images must be uploaded to S3 first.');
+            }
+        }
+        
         // Get current restaurant to check if status is being changed to VERIFIED
         const currentRestaurant = await restaurantRepo.findByRestaurantId(restaurantId);
         const updated = await restaurantRepo.updateRestaurant(restaurantId, updateData);
