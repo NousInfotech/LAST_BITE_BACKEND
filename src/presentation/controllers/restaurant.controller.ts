@@ -105,7 +105,24 @@ export const RestaurantController = {
         if (!parsed) return;
 
         return tryCatch(res, async () => {
-            const deleted = await RestaurantUseCase.deleteRestaurant(parsed.restaurantId);
+            const role = req.role;
+            const restaurantId = parsed.restaurantId;
+
+            // If restaurantAdmin, verify they own this restaurant
+            if (role === 'restaurantAdmin' && req.restaurantAdminId) {
+                const admin = await RestaurantAdminUseCase.getAdminById(req.restaurantAdminId);
+                
+                if (!admin) {
+                    return sendError(res, HTTP.NOT_FOUND, "Restaurant admin not found");
+                }
+
+                if (!admin.restaurantId || admin.restaurantId !== restaurantId) {
+                    return sendError(res, HTTP.FORBIDDEN, "You can only delete your own restaurant");
+                }
+            }
+            // superAdmin can delete any restaurant (no ownership check needed)
+
+            const deleted = await RestaurantUseCase.deleteRestaurant(restaurantId);
             if (!deleted) return sendError(res, HTTP.NOT_FOUND, "Restaurant not found");
             return sendResponse(res, HTTP.OK, "Restaurant deleted successfully", deleted);
         });
