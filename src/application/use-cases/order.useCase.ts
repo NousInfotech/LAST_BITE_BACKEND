@@ -718,8 +718,14 @@ export const OrderUseCase = {
                 title: "Order Placed",
                 body: `Your order ${order.orderId} has been placed successfully.`,
                 data: {
-                    orderId: order.orderId as string
-                }
+                    orderId: order.orderId as string,
+                    type: "order",
+                    category: "orders",
+                    priority: "high",
+                    theme: "success"
+                },
+                channelId: 'orders',
+                priority: 'high'
             })
         }
 
@@ -775,8 +781,12 @@ export const OrderUseCase = {
                     title: "New Instamart Order! 🛒",
                     body: `Order #${order.orderId} from ${user.name} - ₹${order.pricing.finalPayable.toFixed(2)}`,
                     data: {
-                        orderId: order.orderId as string
-                    }
+                        orderId: order.orderId as string,
+                        type: "order",
+                        category: "orders"
+                    },
+                    channelId: 'orders', // Use orders channel for Android
+                    priority: 'high'
                 })
             }
         } else {
@@ -828,8 +838,12 @@ export const OrderUseCase = {
                     title: "New Order Received",
                     body: `A new order has been received.`,
                     data: {
-                        orderId: order.orderId as string
-                    }
+                        orderId: order.orderId as string,
+                        type: "order",
+                        category: "restaurant"
+                    },
+                    channelId: 'restaurant', // Use restaurant channel for Android
+                    priority: 'high'
                 })
             }
         }
@@ -1093,8 +1107,13 @@ export const OrderUseCase = {
                             data: {
                                 orderId: updatedOrder.orderId as string,
                                 status,
-                                type: "order_status_update"
-                            }
+                                type: "order_status_update", // Match what background handler expects
+                                category: "orders",
+                                priority: "high",
+                                theme: notificationData.user.theme || "info"
+                            },
+                            channelId: 'orders',
+                            priority: 'high'
                         });
                     }
 
@@ -1164,7 +1183,9 @@ export const OrderUseCase = {
                                     orderId: updatedOrder.orderId as string,
                                     status,
                                     type: "order_status_update"
-                                }
+                                },
+                                channelId: 'orders',
+                                priority: 'high'
                             });
                         }
 
@@ -1227,7 +1248,9 @@ export const OrderUseCase = {
                                     orderId: updatedOrder.orderId as string,
                                     status,
                                     type: "order_status_update"
-                                }
+                                },
+                                channelId: 'restaurant',
+                                priority: 'high'
                             });
                         }
 

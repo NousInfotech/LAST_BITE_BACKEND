@@ -432,4 +432,18 @@ export class UserRepository {
         return user.fcmTokens;
     }
 
+    /** Remove FCM token by token value */
+    async removeFCMToken(tokenValue: string): Promise<boolean> {
+        try {
+            const result = await UserModel.updateOne(
+                { "fcmTokens.token": tokenValue },
+                { $pull: { fcmTokens: { token: tokenValue } } }
+            );
+            return result.modifiedCount > 0;
+        } catch (error) {
+            console.error("❌ Error removing FCM token from user:", error);
+            return false;
+        }
+    }
+
 }

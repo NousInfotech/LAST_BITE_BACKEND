@@ -74,5 +74,19 @@ export class RestaurantAdminRepository {
         return admin.fcmTokens;
     }
 
+    /** Remove FCM token by token value */
+    async removeFCMToken(tokenValue: string): Promise<boolean> {
+        try {
+            const result = await RestaurantAdminModel.updateOne(
+                { "fcmTokens.token": tokenValue },
+                { $pull: { fcmTokens: { token: tokenValue } } }
+            );
+            return result.modifiedCount > 0;
+        } catch (error) {
+            console.error("❌ Error removing FCM token from restaurant admin:", error);
+            return false;
+        }
+    }
+
 
 }

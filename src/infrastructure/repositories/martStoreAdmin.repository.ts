@@ -84,4 +84,18 @@ export class MartStoreAdminRepository {
         await admin.save();
         return admin.fcmTokens;
     }
+
+    /** Remove FCM token by token value */
+    async removeFCMToken(tokenValue: string): Promise<boolean> {
+        try {
+            const result = await MartStoreAdminModel.updateOne(
+                { "fcmTokens.token": tokenValue },
+                { $pull: { fcmTokens: { token: tokenValue } } }
+            );
+            return result.modifiedCount > 0;
+        } catch (error) {
+            console.error("❌ Error removing FCM token from mart store admin:", error);
+            return false;
+        }
+    }
 }
