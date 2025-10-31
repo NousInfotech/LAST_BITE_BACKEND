@@ -6,8 +6,10 @@ import { Role } from "../../domain/interfaces/utils.interface.js";
 import { RestaurantDoc } from "../../infrastructure/db/mongoose/schemas/restaurant.schema.js";
 import { sendRestaurantNotification } from "../../presentation/sockets/restaurantNotification.socket.js";
 import { RestaurantStatusEnum } from "../../domain/interfaces/utils.interface.js";
+import { RestaurantAdminRepository } from "../../infrastructure/repositories/restaurantAdmin.repository.js";
 
 const restaurantRepo = new RestaurantRepository();
+const adminRepo = new RestaurantAdminRepository();
 
 export const RestaurantUseCase = {
     /**
@@ -72,7 +74,8 @@ export const RestaurantUseCase = {
     /**
      * Delete a restaurant by its ID
      */
-    deleteRestaurant: (restaurantId: string) => {
+    deleteRestaurant: async (restaurantId: string) => {
+        await adminRepo.deleteAdmin(restaurantId)
         return restaurantRepo.deleteRestaurant(restaurantId);
     },
 
