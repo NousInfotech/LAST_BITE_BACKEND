@@ -713,20 +713,26 @@ export const OrderUseCase = {
                 restaurantId
             });
 
-            sendFCMNotification({
-                tokens: user.fcmTokens?.map(token => token.token) || [],
-                title: "Order Placed",
-                body: `Your order ${order.orderId} has been placed successfully.`,
-                data: {
-                    orderId: order.orderId as string,
-                    type: "order",
-                    category: "orders",
-                    priority: "high",
-                    theme: "success"
-                },
-                channelId: 'orders',
-                priority: 'high'
-            })
+            // Send FCM notification (don't let errors crash order creation)
+            try {
+                await sendFCMNotification({
+                    tokens: user.fcmTokens?.map(token => token.token) || [],
+                    title: "Order Placed",
+                    body: `Your order ${order.orderId} has been placed successfully.`,
+                    data: {
+                        orderId: order.orderId as string,
+                        type: "order",
+                        category: "orders",
+                        priority: "high",
+                        theme: "success"
+                    },
+                    channelId: 'orders',
+                    priority: 'high'
+                });
+            } catch (fcmError) {
+                console.error(`❌ Failed to send FCM notification after order placement:`, fcmError);
+                // Don't throw - order was created successfully
+            }
         }
 
         // Step 9: Notify Restaurant/Mart Store
@@ -776,18 +782,24 @@ export const OrderUseCase = {
                     userId
                 });
 
-                sendFCMNotification({
-                    tokens: admin.fcmTokens?.map((token:IFCM) => token.token) || [],
-                    title: "New Instamart Order! 🛒",
-                    body: `Order #${order.orderId} from ${user.name} - ₹${order.pricing.finalPayable.toFixed(2)}`,
-                    data: {
-                        orderId: order.orderId as string,
-                        type: "order",
-                        category: "orders"
-                    },
-                    channelId: 'orders', // Use orders channel for Android
-                    priority: 'high'
-                })
+                // Send FCM notification to mart store (don't let errors crash order creation)
+                try {
+                    await sendFCMNotification({
+                        tokens: admin.fcmTokens?.map((token:IFCM) => token.token) || [],
+                        title: "New Instamart Order! 🛒",
+                        body: `Order #${order.orderId} from ${user.name} - ₹${order.pricing.finalPayable.toFixed(2)}`,
+                        data: {
+                            orderId: order.orderId as string,
+                            type: "order",
+                            category: "orders"
+                        },
+                        channelId: 'orders', // Use orders channel for Android
+                        priority: 'high'
+                    });
+                } catch (fcmError) {
+                    console.error(`❌ Failed to send FCM notification to mart store:`, fcmError);
+                    // Don't throw - order was created successfully
+                }
             }
         } else {
             // Notify Restaurant
@@ -833,18 +845,24 @@ export const OrderUseCase = {
                     userId
                 });
 
-                sendFCMNotification({
-                    tokens: admin.fcmTokens?.map((token:IFCM) => token.token) || [],
-                    title: "New Order Received",
-                    body: `A new order has been received.`,
-                    data: {
-                        orderId: order.orderId as string,
-                        type: "order",
-                        category: "restaurant"
-                    },
-                    channelId: 'restaurant', // Use restaurant channel for Android
-                    priority: 'high'
-                })
+                // Send FCM notification to restaurant (don't let errors crash order creation)
+                try {
+                    await sendFCMNotification({
+                        tokens: admin.fcmTokens?.map((token:IFCM) => token.token) || [],
+                        title: "New Order Received",
+                        body: `A new order has been received.`,
+                        data: {
+                            orderId: order.orderId as string,
+                            type: "order",
+                            category: "restaurant"
+                        },
+                        channelId: 'restaurant', // Use restaurant channel for Android
+                        priority: 'high'
+                    });
+                } catch (fcmError) {
+                    console.error(`❌ Failed to send FCM notification to restaurant:`, fcmError);
+                    // Don't throw - order was created successfully
+                }
             }
         }
 
@@ -1098,23 +1116,28 @@ export const OrderUseCase = {
 
                     sendUserNotification(userId, userNotification);
 
-                    // Send FCM notification to user
+                    // Send FCM notification to user (don't let FCM errors crash the order flow)
                     if (user?.fcmTokens && user.fcmTokens.length > 0) {
-                        sendFCMNotification({
-                            tokens: user.fcmTokens?.map(token => token.token) || [],
-                            title: notificationData.user.message,
-                            body: notificationData.user.subMessage,
-                            data: {
-                                orderId: updatedOrder.orderId as string,
-                                status,
-                                type: "order_status_update", // Match what background handler expects
-                                category: "orders",
-                                priority: "high",
-                                theme: notificationData.user.theme || "info"
-                            },
-                            channelId: 'orders',
-                            priority: 'high'
-                        });
+                        try {
+                            await sendFCMNotification({
+                                tokens: user.fcmTokens?.map(token => token.token) || [],
+                                title: notificationData.user.message,
+                                body: notificationData.user.subMessage,
+                                data: {
+                                    orderId: updatedOrder.orderId as string,
+                                    status,
+                                    type: "order_status_update", // Match what background handler expects
+                                    category: "orders",
+                                    priority: "high",
+                                    theme: notificationData.user.theme || "info"
+                                },
+                                channelId: 'orders',
+                                priority: 'high'
+                            });
+                        } catch (fcmError) {
+                            console.error(`❌ Failed to send FCM notification to user ${userId}:`, fcmError);
+                            // Don't throw - continue order processing even if notification fails
+                        }
                     }
 
                     // Also create notification in database
@@ -1175,18 +1198,23 @@ export const OrderUseCase = {
                         // Send FCM notification to mart store admin
                         const martStoreAdmin = await martStoreAdminRepo.findByMartStoreAdminByMartStoreId(restaurantId);
                         if (martStoreAdmin?.fcmTokens && martStoreAdmin.fcmTokens.length > 0) {
-                            sendFCMNotification({
-                                tokens: martStoreAdmin.fcmTokens?.map((token:IFCM) => token.token) || [],
-                                title: notificationData.restaurant.message,
-                                body: notificationData.restaurant.subMessage,
-                                data: {
-                                    orderId: updatedOrder.orderId as string,
-                                    status,
-                                    type: "order_status_update"
-                                },
-                                channelId: 'orders',
-                                priority: 'high'
-                            });
+                            try {
+                                await sendFCMNotification({
+                                    tokens: martStoreAdmin.fcmTokens?.map((token:IFCM) => token.token) || [],
+                                    title: notificationData.restaurant.message,
+                                    body: notificationData.restaurant.subMessage,
+                                    data: {
+                                        orderId: updatedOrder.orderId as string,
+                                        status,
+                                        type: "order_status_update"
+                                    },
+                                    channelId: 'orders',
+                                    priority: 'high'
+                                });
+                            } catch (fcmError) {
+                                console.error(`❌ Failed to send FCM notification to mart store admin:`, fcmError);
+                                // Don't throw - order status was updated successfully
+                            }
                         }
 
                         // Also create notification in database
@@ -1240,18 +1268,23 @@ export const OrderUseCase = {
                         // Send FCM notification to restaurant admin
                         const restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(restaurantId);
                         if (restaurantAdmin?.fcmTokens && restaurantAdmin.fcmTokens.length > 0) {
-                            sendFCMNotification({
-                                tokens: restaurantAdmin.fcmTokens?.map((token:IFCM) => token.token) || [],
-                                title: notificationData.restaurant.message,
-                                body: notificationData.restaurant.subMessage,
-                                data: {
-                                    orderId: updatedOrder.orderId as string,
-                                    status,
-                                    type: "order_status_update"
-                                },
-                                channelId: 'restaurant',
-                                priority: 'high'
-                            });
+                            try {
+                                await sendFCMNotification({
+                                    tokens: restaurantAdmin.fcmTokens?.map((token:IFCM) => token.token) || [],
+                                    title: notificationData.restaurant.message,
+                                    body: notificationData.restaurant.subMessage,
+                                    data: {
+                                        orderId: updatedOrder.orderId as string,
+                                        status,
+                                        type: "order_status_update"
+                                    },
+                                    channelId: 'restaurant',
+                                    priority: 'high'
+                                });
+                            } catch (fcmError) {
+                                console.error(`❌ Failed to send FCM notification to restaurant admin:`, fcmError);
+                                // Don't throw - order status was updated successfully
+                            }
                         }
 
                         // Also create notification in database

@@ -62,7 +62,8 @@ function isInvalidTokenError(error: any): boolean {
   // List of error codes that indicate the token is invalid and should be removed
   const invalidTokenCodes = [
     'messaging/registration-token-not-registered',
-    'messaging/invalid-registration-token'
+    'messaging/invalid-registration-token',
+    'messaging/invalid-argument' // Also handle invalid-argument which might indicate bad token format
   ];
   
   return invalidTokenCodes.includes(error.code);
@@ -91,6 +92,13 @@ export async function sendFCMNotification({ tokens, title, body, data, channelId
       console.warn(`⚠️ Skipping invalid token: ${token}`);
       return false;
     }
+    // FCM tokens should be base64-like strings (typically 140+ characters)
+    // But some valid tokens might be shorter, so we'll just check for basic format
+    // Valid FCM tokens don't contain spaces or special characters that would break
+    if (token.includes(' ') || token.includes('\n') || token.includes('\r')) {
+      console.warn(`⚠️ Skipping token with invalid characters: ${token.substring(0, 20)}...`);
+      return false;
+    }
     return true;
   });
 
@@ -108,12 +116,11 @@ export async function sendFCMNotification({ tokens, title, body, data, channelId
       });
     }
 
-    const message = {
+    const message: admin.messaging.MulticastMessage = {
       notification: { 
         title, 
         body,
-        // Ensure notification is shown even when app is closed
-        sound: 'default',
+        // Don't set sound here - it's platform-specific
       },
       data: dataPayload,
       tokens: validTokens, // for multicast
@@ -124,11 +131,7 @@ export async function sendFCMNotification({ tokens, title, body, data, channelId
           channelId: channelId, // Use specified channel (e.g., 'orders', 'restaurant', 'default')
           priority: priority === 'high' ? 'high' as const : 'default' as const,
           sound: 'default',
-          defaultSound: true,
-          defaultVibrateTimings: true,
-          defaultLightSettings: true,
           visibility: 'public' as const,
-          importance: priority === 'high' ? 'high' as const : 'default' as const,
         },
       },
       // iOS specific: High priority for background delivery
@@ -197,8 +200,15 @@ export async function sendFCMNotification({ tokens, title, body, data, channelId
     }
 
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Error sending FCM notification:", error);
-    throw error;
+    // Don't throw - log the error and return null
+    // This prevents FCM errors from crashing the order flow
+    console.error("FCM Error details:", {
+      code: error?.code,
+      message: error?.message,
+      stack: error?.stack
+    });
+    return null;
   }
 }
