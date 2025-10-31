@@ -905,17 +905,23 @@ export const OrderUseCase = {
     updateOrderStatus: async (orderId: string, status: IOrderStatusEnum) => {
         console.log(`🔄 Updating order ${orderId} status to ${status}`);
 
+        // Get the order BEFORE updating to check if status actually changed
+        const oldOrder = await orderRepo.getOrderById(orderId);
+        if (!oldOrder) throw new Error("Order not found");
+        
+        const oldStatus = oldOrder.orderStatus;
+        
+        // If status hasn't changed, skip update and notifications
+        if (oldStatus === status) {
+            console.log(`✅ Order status is already ${status} for order ${orderId}. Skipping update and notifications.`);
+            return oldOrder;
+        }
+
         const updatedOrder = await orderRepo.updateOrderStatus(orderId, status);
         if (!updatedOrder) throw new Error("Order not found or status not updated");
 
         const userId = updatedOrder.refIds.userId;
         const restaurantId = updatedOrder.refIds.restaurantId;
-
-        // Prevent duplicate notifications by checking if status actually changed
-        if (updatedOrder.orderStatus === status) {
-            console.log(`✅ Order status updated to ${status} for order ${orderId}. Skipping notifications (no change).`);
-            return updatedOrder;
-        }
 
         try {
             const user = userId ? await userRepo.findByUserId(userId) : null;
@@ -1087,6 +1093,7 @@ export const OrderUseCase = {
 
             // Send notification to user
             if (userId) {
+                console.log(`📧 [NOTIFICATION] Preparing to notify user ${userId} about order ${orderId} status change to ${status}`);
                 const userStatusNotificationKey = `user_${userId}_${orderId}_${status}`;
                 if (!recentOrderNotifications.has(userStatusNotificationKey)) {
                     recentOrderNotifications.add(userStatusNotificationKey);
@@ -1115,11 +1122,13 @@ export const OrderUseCase = {
                     };
 
                     sendUserNotification(userId, userNotification);
+                    console.log(`✅ [NOTIFICATION] Socket notification sent to user ${userId}`);
 
                     // Send FCM notification to user (don't let FCM errors crash the order flow)
                     if (user?.fcmTokens && user.fcmTokens.length > 0) {
+                        console.log(`📱 [NOTIFICATION] User ${userId} has ${user.fcmTokens.length} FCM token(s), sending notification...`);
                         try {
-                            await sendFCMNotification({
+                            const result = await sendFCMNotification({
                                 tokens: user.fcmTokens?.map(token => token.token) || [],
                                 title: notificationData.user.message,
                                 body: notificationData.user.subMessage,
@@ -1134,16 +1143,23 @@ export const OrderUseCase = {
                                 channelId: 'orders',
                                 priority: 'high'
                             });
+                            if (result) {
+                                console.log(`✅ [NOTIFICATION] FCM notification sent to user ${userId}: ${result.successCount} success, ${result.failureCount} failed`);
+                            } else {
+                                console.warn(`⚠️ [NOTIFICATION] FCM notification returned null for user ${userId}`);
+                            }
                         } catch (fcmError) {
                             console.error(`❌ Failed to send FCM notification to user ${userId}:`, fcmError);
                             // Don't throw - continue order processing even if notification fails
                         }
+                    } else {
+                        console.warn(`⚠️ [NOTIFICATION] User ${userId} has no FCM tokens. User object:`, user ? 'found' : 'not found', user?.fcmTokens ? `${user.fcmTokens.length} tokens` : 'no tokens');
                     }
 
                     // Also create notification in database
                     await notificationRepo.createNotification({
                         targetRole: RoleEnum.user,
-                        targetRoleId: userId,
+                        targetRoleId: userId!,
                         type: "order",
                         message: notificationData.user.message,
                         theme: notificationData.user.theme as any,
@@ -1156,7 +1172,11 @@ export const OrderUseCase = {
                         },
                         createdAt: new Date(),
                     });
+                } else {
+                    console.log(`⏭️ [NOTIFICATION] Skipping duplicate notification for user ${userId}, order ${orderId}, status ${status}`);
                 }
+            } else {
+                console.warn(`⚠️ [NOTIFICATION] No userId found for order ${orderId}, cannot send user notification`);
             }
 
             // Send notification to restaurant or mart store
