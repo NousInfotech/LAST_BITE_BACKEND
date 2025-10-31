@@ -17,6 +17,7 @@ import { SuperAdminModel } from "../../infrastructure/db/mongoose/schemas/superA
 import { sendFCMNotification } from "../../application/services/fcm.service.js"; // adjust path if needed
 import { UserModel } from "../../infrastructure/db/mongoose/schemas/user.schema.js";
 import { RestaurantAdminModel } from "../../infrastructure/db/mongoose/schemas/restaurantAdmin.schema.js";
+import { MartStoreAdminModel } from "../../infrastructure/db/mongoose/schemas/martStoreAdmin.schema.js";
 import { RoleEnum } from "../../domain/interfaces/utils.interface.js";
 
 export const AuthController = {
@@ -95,6 +96,14 @@ export const AuthController = {
             );
           } else if (role === RoleEnum.restaurantAdmin) {
             data = await RestaurantAdminModel.upsertFcmToken(
+              { phoneNumber },
+              {
+                token: req.body.fcmToken,
+                deviceName: req.get("X-Device-Name") || "unknown",
+              }
+            )
+          } else if (role === RoleEnum.martStoreAdmin) {
+            data = await MartStoreAdminModel.upsertFcmToken(
               { phoneNumber },
               {
                 token: req.body.fcmToken,
