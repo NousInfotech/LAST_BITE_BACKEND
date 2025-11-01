@@ -4,6 +4,8 @@ import { authMiddleware } from "../../middleware/authMiddleware.js";
 
 const orderRouter = Router();
 
+orderRouter.get("/all/restaurant-user",authMiddleware(["superAdmin"]), OrderController.getAllOrdersUR);
+
 orderRouter.use(authMiddleware(["user", "martStoreAdmin", "restaurantAdmin","superAdmin"]))
 
 orderRouter.post("/online", OrderController.createOrder);

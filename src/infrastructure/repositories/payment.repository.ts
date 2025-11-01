@@ -13,6 +13,8 @@ export class PaymentRepository {
   }
 
   async getPaymentById(paymentId: string): Promise<PaymentDoc | null> {
-    return await PaymentModel.findOne({ paymentId }, { _id: 0, __v: 0 }).lean();
+    const payment = await PaymentModel.findOne({ "razorpay.paymentId": String(paymentId) }, { _id: 0, __v: 0 }).lean();  
+    if (!payment) return null;
+    return payment;
   }
 } 
