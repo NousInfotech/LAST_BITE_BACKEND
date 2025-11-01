@@ -919,45 +919,61 @@ export const OrderUseCase = {
       if (!recentOrderNotifications.has(martStoreNotificationKey)) {
         recentOrderNotifications.add(martStoreNotificationKey);
 
-        await notificationRepo.createNotification({
-          targetRole: RoleEnum.martStoreAdmin as any,
-          targetRoleId: restaurantId,
-          type: "order",
-          message: `New Instamart Order! 🛒`,
-          theme: "success" as any,
-          tags: ["order", "instamart"],
-          metadata: {
-            orderId,
-            customerName: user.name,
-            totalAmount: order.pricing.finalPayable,
-            foodItems: order.foodItems.map((item) => item.name).slice(0, 3),
-          },
-          createdAt: new Date(),
-        });
+        try {
+          await notificationRepo.createNotification({
+            targetRole: RoleEnum.martStoreAdmin as any,
+            targetRoleId: restaurantId,
+            type: "order",
+            message: `New Instamart Order! 🛒`,
+            theme: "success" as any,
+            tags: ["order", "instamart"],
+            metadata: {
+              orderId,
+              customerName: user.name,
+              totalAmount: order.pricing.finalPayable,
+              foodItems: order.foodItems.map((item) => item.name).slice(0, 3),
+            },
+            createdAt: new Date(),
+          });
+        } catch (notifError) {
+          console.error(
+            `❌ Error creating notification for mart store ${restaurantId}:`,
+            notifError
+          );
+          // Don't throw - order was created successfully, notification is secondary
+        }
 
-        sendMartStoreNotification(restaurantId, {
-          type: "order",
-          message: "New Instamart Order! 🛒",
-          subMessage: `Order #${order.orderId} from ${
-            user.name
-          } - ₹${order.pricing.finalPayable.toFixed(2)}`,
-          theme: "success" as any,
-          emoji: "🛒",
-          priority: "high",
-          category: "orders",
-          metadata: {
-            orderId: order.orderId,
-            customerName: user.name,
-            totalAmount: order.pricing.finalPayable,
-            foodItems: order.foodItems.map((item) => item.name).slice(0, 3),
+        try {
+          sendMartStoreNotification(restaurantId, {
+            type: "order",
+            message: "New Instamart Order! 🛒",
+            subMessage: `Order #${order.orderId} from ${
+              user.name
+            } - ₹${order.pricing.finalPayable.toFixed(2)}`,
+            theme: "success" as any,
+            emoji: "🛒",
+            priority: "high",
+            category: "orders",
+            metadata: {
+              orderId: order.orderId,
+              customerName: user.name,
+              totalAmount: order.pricing.finalPayable,
+              foodItems: order.foodItems.map((item) => item.name).slice(0, 3),
+              restaurantId,
+              userRole: "martStoreAdmin",
+            },
             restaurantId,
             userRole: "martStoreAdmin",
-          },
-          restaurantId,
-          userRole: "martStoreAdmin",
-          orderId: order.orderId,
-          userId,
-        });
+            orderId: order.orderId,
+            userId,
+          });
+        } catch (socketError) {
+          console.error(
+            `❌ Error sending socket notification to mart store ${restaurantId}:`,
+            socketError
+          );
+          // Don't throw - order was created successfully
+        }
 
         // Send FCM notification to mart store (don't let errors crash order creation)
         try {
@@ -1531,21 +1547,29 @@ export const OrderUseCase = {
             }
 
             // Also create notification in database
-            await notificationRepo.createNotification({
-              targetRole: RoleEnum.martStoreAdmin as any,
-              targetRoleId: restaurantId,
-              type: "order",
-              message: notificationData.restaurant.message,
-              theme: notificationData.restaurant.theme as any,
-              tags: ["order", status.toLowerCase()],
-              metadata: {
-                orderId: updatedOrder.orderId,
-                status,
-                foodSummary,
-                totalAmount: updatedOrder.pricing?.finalPayable || 0,
-              },
-              createdAt: new Date(),
-            });
+            try {
+              await notificationRepo.createNotification({
+                targetRole: RoleEnum.martStoreAdmin as any,
+                targetRoleId: restaurantId,
+                type: "order",
+                message: notificationData.restaurant.message,
+                theme: notificationData.restaurant.theme as any,
+                tags: ["order", status.toLowerCase()],
+                metadata: {
+                  orderId: updatedOrder.orderId,
+                  status,
+                  foodSummary,
+                  totalAmount: updatedOrder.pricing?.finalPayable || 0,
+                },
+                createdAt: new Date(),
+              });
+            } catch (notifError) {
+              console.error(
+                `❌ Error creating notification for mart store ${restaurantId}:`,
+                notifError
+              );
+              // Don't throw - order status was updated successfully
+            }
           }
         } else {
           // Send notification to restaurant
@@ -1659,87 +1683,132 @@ export const OrderUseCase = {
 
   // webhook order update
 
-  updateOrderStatusByWebHook: async (
-    pidgeOrderId: string,
-    pidgeStatus: string
-  ) => {
-    // 1. Find order by pidgeId
-    const order = (await orderRepo.getOrderByPidgeId(pidgeOrderId)) as IOrder;
-    const user = await userRepo.findByUserId(order.refIds.userId as string);
-    const restaurantAdmin =
-      await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(
-        order.refIds.restaurantId as string
-      );
-
-    console.log(
-      `
-            order :${order}\n
-            user :${user}\n
-            restaurantAdmin :${restaurantAdmin}\n
+    updateOrderStatusByWebHook: async (pidgeOrderId: string, pidgeStatus: string) => {
+        // 1. Find order by pidgeId
+        const order = await orderRepo.getOrderByPidgeId(pidgeOrderId) as IOrder;
+        if (!order) {
+            throw new Error(`Order not found for Pidge ID: ${pidgeOrderId}`);
+        }
+        
+        const user = await userRepo.findByUserId(order.refIds.userId as string);
+        if (!user) {
+            throw new Error(`User not found for order: ${order.orderId}`);
+        }
+        
+        const restaurantId = order.refIds.restaurantId as string;
+        const isMartStoreOrder = restaurantId.startsWith('mart_');
+        
+        // 2. Get admin based on order type
+        let restaurantAdmin = null;
+        let martStoreAdmin = null;
+        
+        if (isMartStoreOrder) {
+            martStoreAdmin = await martStoreAdminRepo.findByMartStoreAdminByMartStoreId(restaurantId);
+            if (!martStoreAdmin) {
+                console.warn(`⚠️ Mart store admin not found for mart store: ${restaurantId}`);
+            }
+        } else {
+            restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(restaurantId);
+            if (!restaurantAdmin) {
+                console.warn(`⚠️ Restaurant admin not found for restaurant: ${restaurantId}`);
+            }
+        }
+    
+        console.log(
         `
-    );
-
-    if (!order || !user || !restaurantAdmin) {
-      throw new Error(`Order not found for Pidge ID: ${pidgeOrderId}`);
-    }
-
-    console.log(
-      `
-            order :${order}\n
-            user :${user}\n
-            restaurantAdmin :${restaurantAdmin}\n
+            order :${order.orderId}\n
+            user :${user.userId}\n
+            isMartStoreOrder :${isMartStoreOrder}\n
+            restaurantAdmin :${restaurantAdmin ? 'found' : 'not found'}\n
+            martStoreAdmin :${martStoreAdmin ? 'found' : 'not found'}\n
         `
-    );
+        )
+    
+        // 3. Map Pidge status to internal enum
+        const mapped = pidgeOrderStatusMap[pidgeStatus];
+        if (!mapped) {
+            console.warn(`⚠️ No mapping found for Pidge status: ${pidgeStatus}`);
+            return order; // ignore unknown statuses
+        }
+    
+        console.log(`📋 [WEBHOOK] Mapped Pidge status ${pidgeStatus} to ${mapped.pidgeOrderStatus}`);
+        const newStatus: IOrderStatusEnum = mapped.pidgeOrderStatus;
+    
+        // 4. Update the order status using existing service
+        const updatedOrder = await OrderUseCase.updateOrderStatus(order.orderId!, newStatus);
+    
+        // 5. Send notification to the user
+        try {
+            sendUserNotification(order.refIds.userId as string, {
+                type: "order",
+                message: "Order Status Updated",
+                subMessage: `Your order status has been updated to ${newStatus}.`,
+                theme: "info",
+            });
+            
+            if (user.fcmTokens && user.fcmTokens.length > 0) {
+                await sendFCMNotification({
+                    tokens: user.fcmTokens.map((token:IFCM) => token.token),
+                    title: "Order Status Updated",
+                    body: `Your order status has been updated to ${newStatus}.`,
+                    data: {
+                        orderId: order.orderId as string,
+                        status: newStatus
+                    }
+                });
+            }
+        } catch (userNotifError) {
+            console.error(`❌ Error sending notification to user:`, userNotifError);
+        }
 
-    // 2. Map Pidge status to internal enum
-    const mapped = pidgeOrderStatusMap[pidgeStatus];
-    if (!mapped) {
-      console.warn(`⚠️ No mapping found for Pidge status: ${pidgeStatus}`);
-      return order; // ignore unknown statuses
-    }
-
-    console.log(mapped);
-    const newStatus: IOrderStatusEnum = mapped.pidgeOrderStatus;
-
-    // 3. Update the order status using existing service
-    const updatedOrder = await OrderUseCase.updateOrderStatus(
-      order.orderId!,
-      newStatus
-    );
-
-    // 4. send notification to the user
-    sendUserNotification(order.refIds.userId as string, {
-      type: "order",
-      message: "Order Status Updated",
-      subMessage: `Your order status has been updated to ${newStatus}.`,
-      theme: "info",
-    });
-    sendFCMNotification({
-      tokens: user.fcmTokens.map((token: IFCM) => token.token),
-      title: "Order Status Updated",
-      body: `Your order status has been updated to ${newStatus}.`,
-      data: {
-        orderId: order.orderId as string,
-      },
-    });
-
-    // 5. send notification to the restaurant
-
-    sendRestaurantNotification(order.refIds.restaurantId as string, {
-      type: "order",
-      message: "Order Status Updated",
-      subMessage: `Order status has been updated to ${newStatus}.`,
-      theme: "info",
-    });
-
-    sendFCMNotification({
-      tokens: restaurantAdmin.fcmTokens.map((token: IFCM) => token.token),
-      title: "Order Status Updated",
-      body: `Order status has been updated to ${newStatus}.`,
-      data: {
-        orderId: order.orderId as string,
-      },
-    });
+        // 6. Send notification to restaurant/mart store admin
+        if (isMartStoreOrder && martStoreAdmin) {
+            try {
+                sendMartStoreNotification(restaurantId, {
+                    type: "order",
+                    message: "Order Status Updated",
+                    subMessage: `Order status has been updated to ${newStatus}.`,
+                    theme: "info",
+                });
+                
+                if (martStoreAdmin.fcmTokens && martStoreAdmin.fcmTokens.length > 0) {
+                    await sendFCMNotification({
+                        tokens: martStoreAdmin.fcmTokens.map((token:IFCM) => token.token),
+                        title: "Order Status Updated",
+                        body: `Order status has been updated to ${newStatus}.`,
+                        data: {
+                            orderId: order.orderId as string,
+                            status: newStatus
+                        }
+                    });
+                }
+            } catch (martStoreNotifError) {
+                console.error(`❌ Error sending notification to mart store admin:`, martStoreNotifError);
+            }
+        } else if (!isMartStoreOrder && restaurantAdmin) {
+            try {
+                sendRestaurantNotification(restaurantId, {
+                    type: "order",
+                    message: "Order Status Updated",
+                    subMessage: `Order status has been updated to ${newStatus}.`,
+                    theme: "info",
+                });
+                
+                if (restaurantAdmin.fcmTokens && restaurantAdmin.fcmTokens.length > 0) {
+                    await sendFCMNotification({
+                        tokens: restaurantAdmin.fcmTokens.map((token:IFCM) => token.token),
+                        title: "Order Status Updated",
+                        body: `Order status has been updated to ${newStatus}.`,
+                        data: {
+                            orderId: order.orderId as string,
+                            status: newStatus
+                        }
+                    });
+                }
+            } catch (restaurantNotifError) {
+                console.error(`❌ Error sending notification to restaurant admin:`, restaurantNotifError);
+            }
+        }
 
     console.log(
       `✅ Webhook updated order ${order.orderId} (Pidge ID: ${pidgeOrderId}) to status ${newStatus}`

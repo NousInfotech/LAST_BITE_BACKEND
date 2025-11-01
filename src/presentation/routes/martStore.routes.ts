@@ -24,7 +24,7 @@ martStoreRouter.use(authMiddleware(["martStoreAdmin", "superAdmin", "user", "rid
 
 
 martStoreRouter.put("/:martStoreId", MartStoreController.updateMartStore);
-martStoreRouter.delete("/:martStoreId", authMiddleware(["superAdmin"]), MartStoreController.deleteMartStore);
+martStoreRouter.delete("/:martStoreId", authMiddleware(["martStoreAdmin", "superAdmin"]), MartStoreController.deleteMartStore);
 martStoreRouter.get("/", MartStoreController.getAllMartStores);
 martStoreRouter.get("/bulk", MartStoreController.getAllMartStoresById);
 martStoreRouter.get("/:martStoreId", MartStoreController.getMartStoreById);

@@ -11,6 +11,7 @@ import { sendError } from "../../utils/sendError.js";
 import { HTTP } from "../../utils/constants.js";
 import { tryCatch } from "../../utils/tryCatch.js";
 import { MartStoreUseCase } from "../../application/use-cases/martStore.useCase.js";
+import { MartStoreAdminUseCase } from "../../application/use-cases/martStoreAdmin.useCase.js";
 import { CustomRequest, Role } from "../../domain/interfaces/utils.interface.js";
 import { IMartStoreStatus } from "../../domain/interfaces/martStore.interface.js";
 import { MartStoreSchema } from "../../domain/zod/martStore.zod.js";
@@ -99,6 +100,22 @@ export const MartStoreController = {
         const { martStoreId } = parsed;
 
         return tryCatch(res, async () => {
+            const role = req.role;
+            
+            // If martStoreAdmin, verify they own this mart store
+            if (role === 'martStoreAdmin' && req.martStoreAdminId) {
+                const admin = await MartStoreAdminUseCase.getAdminById(req.martStoreAdminId);
+                
+                if (!admin) {
+                    return sendError(res, HTTP.NOT_FOUND, "Mart store admin not found");
+                }
+
+                if (!admin.martStoreId || admin.martStoreId !== martStoreId) {
+                    return sendError(res, HTTP.FORBIDDEN, "You can only delete your own mart store");
+                }
+            }
+            // superAdmin can delete any mart store (no ownership check needed)
+
             const deleted = await MartStoreUseCase.deleteMartStore(martStoreId);
             if (!deleted) return sendError(res, HTTP.NOT_FOUND, "Mart store not found");
             return sendResponse(res, HTTP.OK, "Mart store deleted successfully", deleted);

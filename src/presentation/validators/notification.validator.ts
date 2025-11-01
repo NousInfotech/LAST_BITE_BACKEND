@@ -1,9 +1,9 @@
 import { z } from "zod";
 // Create a literal union from RoleEnum manually for allowed roles
-const AllowedTargetRoles = z.enum(["user", "restaurantAdmin"]);
+const AllowedTargetRoles = z.enum(["user", "restaurantAdmin", "martStoreAdmin"]);
 
 export const targetRoleAndIdValidator = z.object({
-  targetRole: AllowedTargetRoles, // only allows 'user' or 'restaurantAdmin'
+  targetRole: AllowedTargetRoles, // allows 'user', 'restaurantAdmin', or 'martStoreAdmin'
   targetRoleId: z.string().min(1, "Target role ID is required"),
 });
 
