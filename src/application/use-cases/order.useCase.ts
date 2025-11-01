@@ -1378,75 +1378,129 @@ export const OrderUseCase = {
     updateOrderStatusByWebHook: async (pidgeOrderId: string, pidgeStatus: string) => {
         // 1. Find order by pidgeId
         const order = await orderRepo.getOrderByPidgeId(pidgeOrderId) as IOrder;
+        if (!order) {
+            throw new Error(`Order not found for Pidge ID: ${pidgeOrderId}`);
+        }
+        
         const user = await userRepo.findByUserId(order.refIds.userId as string);
-        const restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(order.refIds.restaurantId as string);
+        if (!user) {
+            throw new Error(`User not found for order: ${order.orderId}`);
+        }
+        
+        const restaurantId = order.refIds.restaurantId as string;
+        const isMartStoreOrder = restaurantId.startsWith('mart_');
+        
+        // 2. Get admin based on order type
+        let restaurantAdmin = null;
+        let martStoreAdmin = null;
+        
+        if (isMartStoreOrder) {
+            martStoreAdmin = await martStoreAdminRepo.findByMartStoreAdminByMartStoreId(restaurantId);
+            if (!martStoreAdmin) {
+                console.warn(`⚠️ Mart store admin not found for mart store: ${restaurantId}`);
+            }
+        } else {
+            restaurantAdmin = await restaurantAdminRepo.findByRestaurantAdminByRestaurantId(restaurantId);
+            if (!restaurantAdmin) {
+                console.warn(`⚠️ Restaurant admin not found for restaurant: ${restaurantId}`);
+            }
+        }
     
         console.log(
         `
-            order :${order}\n
-            user :${user}\n
-            restaurantAdmin :${restaurantAdmin}\n
-        `
-        )
-
-        if (!order || !user || !restaurantAdmin) {
-            throw new Error(`Order not found for Pidge ID: ${pidgeOrderId}`);
-        }
-
-         console.log(
-        `
-            order :${order}\n
-            user :${user}\n
-            restaurantAdmin :${restaurantAdmin}\n
+            order :${order.orderId}\n
+            user :${user.userId}\n
+            isMartStoreOrder :${isMartStoreOrder}\n
+            restaurantAdmin :${restaurantAdmin ? 'found' : 'not found'}\n
+            martStoreAdmin :${martStoreAdmin ? 'found' : 'not found'}\n
         `
         )
     
-        // 2. Map Pidge status to internal enum
+        // 3. Map Pidge status to internal enum
         const mapped = pidgeOrderStatusMap[pidgeStatus];
         if (!mapped) {
             console.warn(`⚠️ No mapping found for Pidge status: ${pidgeStatus}`);
             return order; // ignore unknown statuses
         }
     
-        console.log(mapped)
+        console.log(`📋 [WEBHOOK] Mapped Pidge status ${pidgeStatus} to ${mapped.pidgeOrderStatus}`);
         const newStatus: IOrderStatusEnum = mapped.pidgeOrderStatus;
     
-        // 3. Update the order status using existing service
+        // 4. Update the order status using existing service
         const updatedOrder = await OrderUseCase.updateOrderStatus(order.orderId!, newStatus);
     
-        // 4. send notification to the user
-        sendUserNotification(order.refIds.userId as string, {
-            type: "order",
-            message: "Order Status Updated",
-            subMessage: `Your order status has been updated to ${newStatus}.`,
-            theme: "info",
-        });
-        sendFCMNotification({
-            tokens: user.fcmTokens.map((token:IFCM) => token.token),
-            title: "Order Status Updated",
-            body: `Your order status has been updated to ${newStatus}.`,
-            data: {
-                orderId: order.orderId as string
+        // 5. Send notification to the user
+        try {
+            sendUserNotification(order.refIds.userId as string, {
+                type: "order",
+                message: "Order Status Updated",
+                subMessage: `Your order status has been updated to ${newStatus}.`,
+                theme: "info",
+            });
+            
+            if (user.fcmTokens && user.fcmTokens.length > 0) {
+                await sendFCMNotification({
+                    tokens: user.fcmTokens.map((token:IFCM) => token.token),
+                    title: "Order Status Updated",
+                    body: `Your order status has been updated to ${newStatus}.`,
+                    data: {
+                        orderId: order.orderId as string,
+                        status: newStatus
+                    }
+                });
             }
-        });
+        } catch (userNotifError) {
+            console.error(`❌ Error sending notification to user:`, userNotifError);
+        }
 
-        // 5. send notification to the restaurant 
-
-        sendRestaurantNotification(order.refIds.restaurantId as string, {
-            type: "order",
-            message: "Order Status Updated",
-            subMessage: `Order status has been updated to ${newStatus}.`,
-            theme: "info",
-        });
-
-        sendFCMNotification({
-            tokens:restaurantAdmin.fcmTokens.map((token:IFCM) => token.token),
-            title: "Order Status Updated",
-            body: `Order status has been updated to ${newStatus}.`,
-            data: {
-                orderId: order.orderId as string
+        // 6. Send notification to restaurant/mart store admin
+        if (isMartStoreOrder && martStoreAdmin) {
+            try {
+                sendMartStoreNotification(restaurantId, {
+                    type: "order",
+                    message: "Order Status Updated",
+                    subMessage: `Order status has been updated to ${newStatus}.`,
+                    theme: "info",
+                });
+                
+                if (martStoreAdmin.fcmTokens && martStoreAdmin.fcmTokens.length > 0) {
+                    await sendFCMNotification({
+                        tokens: martStoreAdmin.fcmTokens.map((token:IFCM) => token.token),
+                        title: "Order Status Updated",
+                        body: `Order status has been updated to ${newStatus}.`,
+                        data: {
+                            orderId: order.orderId as string,
+                            status: newStatus
+                        }
+                    });
+                }
+            } catch (martStoreNotifError) {
+                console.error(`❌ Error sending notification to mart store admin:`, martStoreNotifError);
             }
-        });
+        } else if (!isMartStoreOrder && restaurantAdmin) {
+            try {
+                sendRestaurantNotification(restaurantId, {
+                    type: "order",
+                    message: "Order Status Updated",
+                    subMessage: `Order status has been updated to ${newStatus}.`,
+                    theme: "info",
+                });
+                
+                if (restaurantAdmin.fcmTokens && restaurantAdmin.fcmTokens.length > 0) {
+                    await sendFCMNotification({
+                        tokens: restaurantAdmin.fcmTokens.map((token:IFCM) => token.token),
+                        title: "Order Status Updated",
+                        body: `Order status has been updated to ${newStatus}.`,
+                        data: {
+                            orderId: order.orderId as string,
+                            status: newStatus
+                        }
+                    });
+                }
+            } catch (restaurantNotifError) {
+                console.error(`❌ Error sending notification to restaurant admin:`, restaurantNotifError);
+            }
+        }
 
         console.log(`✅ Webhook updated order ${order.orderId} (Pidge ID: ${pidgeOrderId}) to status ${newStatus}`);
         return updatedOrder;

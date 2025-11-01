@@ -15,7 +15,7 @@ const NotificationSchema = new Schema<INotificationDoc>(
     tags: [{ type: String }],
     targetRole: {
       type: String,
-      enum: ["user", "restaurantAdmin"],
+      enum: ["user", "restaurantAdmin", "martStoreAdmin"],
       required: true,
     },
     targetRoleId: { type: String, required: true },

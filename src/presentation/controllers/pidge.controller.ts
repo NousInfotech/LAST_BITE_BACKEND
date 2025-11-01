@@ -65,12 +65,25 @@ export const PidgeController = {
     async webHookRoute(req: Request, res: Response) {
         return tryCatch(res, async () => {
             const { fulfillment, id: pidgeId } = req.body;
-            console.log(fulfillment)
+            console.log('🔍 [PIDGE WEBHOOK] Request received:', { pidgeId, fulfillment });
+            
+            if (!pidgeId) {
+                return sendError(res, HTTP.BAD_REQUEST, "Pidge order ID is required");
+            }
+            
+            const pidgeStatus = fulfillment?.status;
+            if (!pidgeStatus) {
+                console.warn('⚠️ [PIDGE WEBHOOK] No status found in fulfillment, ignoring webhook');
+                return sendResponse(res, HTTP.OK, "Webhook received but no status to process", {});
+            }
+            
             const order = await OrderUseCase.updateOrderStatusByWebHook(
                 pidgeId,
-                fulfillment?.status || status
+                pidgeStatus
             ) as IOrder;
-            console.log(`🔍 [PIDGE WEBHOOK] Request received for orderId: ${order.orderId}`, order.orderStatus);
+            
+            console.log(`✅ [PIDGE WEBHOOK] Order updated successfully for orderId: ${order.orderId}`, order.orderStatus);
+            return sendResponse(res, HTTP.OK, "Order status updated successfully", order);
         });
     }
 };

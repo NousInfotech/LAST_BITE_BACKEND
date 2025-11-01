@@ -7,9 +7,11 @@ import { sendFCMNotification } from "../services/fcm.service.js";
 import { MartStoreAdminRepository } from "../../infrastructure/repositories/martStoreAdmin.repository.js";
 import { RestaurantStatusEnum } from "../../domain/interfaces/utils.interface.js";
 import { IFCM } from "../../domain/interfaces/notification.interface.js";
+import { MartProductRepository } from "../../infrastructure/repositories/martProduct.repository.js";
 
 const martStoreRepo = new MartStoreRepository();
 const martStoreAdminRepo = new MartStoreAdminRepository();
+const martProductRepo = new MartProductRepository();
 
 export const MartStoreUseCase = {
     /**
@@ -170,10 +172,47 @@ export const MartStoreUseCase = {
     },
 
     /**
-     * Delete a mart store
+     * Delete a mart store and all associated data
+     * This will delete:
+     * 1. All mart products associated with the store
+     * 2. The mart store admin
+     * 3. The mart store itself
      */
-    deleteMartStore: (customId: string) => {
-        return martStoreRepo.deleteMartStore(customId);
+    deleteMartStore: async (customId: string) => {
+        console.log(`🗑️ Starting deletion process for mart store: ${customId}`);
+        
+        // 1. Delete all products associated with this mart store
+        try {
+            const productDeleteResult = await martProductRepo.deleteProductsByStoreId(customId);
+            console.log(`✅ Deleted ${productDeleteResult.deletedCount} products for mart store: ${customId}`);
+        } catch (error) {
+            console.error(`❌ Error deleting products for mart store ${customId}:`, error);
+            // Continue with deletion even if products deletion fails
+        }
+        
+        // 2. Delete the associated mart store admin
+        try {
+            const admin = await martStoreAdminRepo.findByMartStoreAdminByMartStoreId(customId);
+            if (admin && admin.martStoreAdminId) {
+                await martStoreAdminRepo.deleteAdmin(admin.martStoreAdminId);
+                console.log(`✅ Deleted mart store admin: ${admin.martStoreAdminId}`);
+            } else {
+                console.log(`⚠️ No mart store admin found for mart store: ${customId}`);
+            }
+        } catch (error) {
+            console.error(`❌ Error deleting mart store admin for ${customId}:`, error);
+            // Continue with deletion even if admin deletion fails
+        }
+        
+        // 3. Delete the mart store itself
+        const deletedStore = await martStoreRepo.deleteMartStore(customId);
+        if (deletedStore) {
+            console.log(`✅ Successfully deleted mart store: ${customId}`);
+        } else {
+            console.log(`⚠️ Mart store not found or already deleted: ${customId}`);
+        }
+        
+        return deletedStore;
     },
 
     /**

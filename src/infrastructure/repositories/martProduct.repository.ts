@@ -210,4 +210,15 @@ export class MartProductRepository {
     console.log(`Total products found: ${products.length}`);
     return products;
   }
+
+  /**
+   * Delete all mart products by store ID
+   * @param {string} storeId
+   * @returns {Promise<{ deletedCount: number }>}
+   */
+  async deleteProductsByStoreId(storeId: string): Promise<{ deletedCount: number }> {
+    const result = await MartProductModel.deleteMany({ martStoreId: storeId });
+    console.log(`Deleted ${result.deletedCount} products for store: ${storeId}`);
+    return { deletedCount: result.deletedCount || 0 };
+  }
 }
